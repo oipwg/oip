@@ -35,7 +35,7 @@ script:
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
     -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
     strip oipd &&
-    tar -czvf oipd.darwin.amd64.tar.gz oipd
+    tar -czvf oipd.darwin.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=linux GOARCH=amd64 go build -ldflags
@@ -44,7 +44,7 @@ script:
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
     -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
     strip oipd &&
-    tar -czvf oipd.linux.amd64.tar.gz oipd
+    tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=windows GOARCH=amd64 go build -ldflags
@@ -53,7 +53,7 @@ script:
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
     -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
     strip oipd &&
-    zip oipd.windows.amd64.zip oipd
+    zip oipd.windows.amd64.zip oipd ;
     fi
 
 before_deploy:
