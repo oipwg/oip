@@ -46,15 +46,16 @@ script:
     -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
-  - if [ "${LATEST}" = "true" ]; then
-    env GOOS=windows GOARCH=amd64 go build -ldflags
-    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}
-    -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
-    zip oipd.windows.amd64.zip oipd ;
-    fi
+#    A bug in azer/is-terminal breaks windows builds
+#  - if [ "${LATEST}" = "true" ]; then
+#    env GOOS=windows GOARCH=amd64 go build -ldflags
+#    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+#    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+#    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
+#    -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}
+#    -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
+#    zip oipd.windows.amd64.zip oipd ;
+#    fi
 
 before_deploy:
   - git config --local user.name "jennyruok"
