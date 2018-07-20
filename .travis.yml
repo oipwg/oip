@@ -28,10 +28,10 @@ cache:
 script:
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
-  - if [ "${LATEST}" = "true" ]; then go build github.com/bitspill/oip/cmd/oipd
-    -ldflags "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+  - if [ "${LATEST}" = "true" ]; then go build -ldflags
+    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd; fi
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd github.com/bitspill/oip/cmd/oipd; fi
 
 before_deploy:
   - git config --local user.name "jennyruok"
