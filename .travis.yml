@@ -1,7 +1,13 @@
 language: go
-go:
-  - 1.10.x
-  - master
+matrix:
+  include:
+    - go: 1.x
+      env: LATEST=true
+    - go: 1.10.x
+    - go: 1.9.x
+    - go: tip
+  allow_failures:
+    - go: tip
 
 env:
   - DEP_VERSION="0.4.1"
@@ -18,14 +24,18 @@ cache:
   directories:
   - "$GOPATH/pkg/dep"
 
+script:
+  - go test -v -race ./...
+  # Only build binaries from the latest Go release.
+  - if [ "${LATEST}" = "true" ]; then go build github.com/bitspill/oip/cmd/oipd
+    -ldflags "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd; fi
+
 before_deploy:
   - git config --local user.name "jennyruok"
   - git config --local user.email "41490681+jennyruok@users.noreply.github.com"
-  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
-  - go build github.com/bitspill/oip/cmd/oipd
-    -ldflags "-X github.com/bitspill/oip/version.GitCommitHash=$(git log
-    –pretty=format:’%h’ -n 1) -X github.com/bitspill/oip/version.BuildDate=$(date +”%Y.%m.%d.%H%M%S”)
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git rev-parse --short HEAD)"
 
 deploy:
   provider: releases
@@ -35,4 +45,4 @@ deploy:
   on:
     branch: build
     repo: bitspill/oip
-    condition: "$TRAVIS_GO_VERSION =~ ^1\\.10\\.[0-9]+$"
+    condition: $LATEST = true
