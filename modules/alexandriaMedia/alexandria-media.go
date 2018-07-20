@@ -1,6 +1,7 @@
-package oip
+package alexandriaMedia
 
 import (
+	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/json-iterator/go"
@@ -14,20 +15,17 @@ func init() {
 }
 
 func onAlexandriaMedia(floData string, tx datastore.TransactionData) {
-	//var ap map[string]json.RawMessage
-	//err := json.Unmarshal([]byte(floData), &ap)
-	//if err != nil {
-	//	return
-	//}
+	log.Info("onAlexandriaMedia", logger.Attrs{"txid": tx.Transaction.Txid})
 
 	bytesFloData := []byte(floData)
 
 	am := jsoniter.Get(bytesFloData, "alexandria-media")
 	title := am.Get("info", "title").ToString()
-	//if m, ok := ap["alexandria-media"]; ok {
 	if len(title) != 0 {
 		bir := elastic.NewBulkIndexRequest().Index("alexandria-media").Type("_doc").Doc(am.GetInterface()).Id(tx.Transaction.Txid)
 		datastore.AutoBulk.Add(bir)
+	} else {
+		log.Info("no title", logger.Attrs{"txid": tx.Transaction.Txid})
 	}
 }
 
@@ -92,6 +90,7 @@ const amMapping = `{
               "type": "text"
             },
             "extra-info": {
+              "dynamic": "true",
               "properties": {
                 "Bitcoin Address": {
                   "type": "keyword",

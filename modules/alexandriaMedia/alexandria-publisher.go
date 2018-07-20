@@ -1,4 +1,4 @@
-package oip
+package alexandriaMedia
 
 import (
 	"encoding/json"

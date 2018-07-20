@@ -50,7 +50,7 @@ func on42JsonRegister(any jsoniter.Any, tx datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegister", logger.Attrs{"txid": tx.Transaction.Txid})
 
-	pub := any.Get("artifact")
+	pub := any.Get("pub")
 	err := pub.LastError()
 	if err == nil {
 		on42JsonRegisterPub(pub, tx)

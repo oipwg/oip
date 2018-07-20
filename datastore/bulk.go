@@ -91,8 +91,10 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 				for _, value := range item {
 					if value.Error != nil {
 						log.Error("error executing bulk action", logger.Attrs{
-							"index": value.Index,
-							"error": value.Error,
+							"index":  value.Index,
+							"id":     value.Id,
+							"reason": value.Error.Reason,
+							"error":  value.Error,
 							//"errDump": spew.Sdump(err)
 						})
 					}

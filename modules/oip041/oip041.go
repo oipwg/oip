@@ -1,12 +1,12 @@
-package oip
+package oip041
 
 import (
 	"encoding/json"
 
+	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -29,7 +29,7 @@ func on41(floData string, tx datastore.TransactionData) {
 
 	art, err := validateOip041(tl)
 	if err != nil {
-		spew.Dump(err)
+		log.Error("validate oip041 failed", logger.Attrs{"err": err})
 		return
 	}
 
@@ -294,28 +294,8 @@ const oip041Mapping = `{
                   "type": "long"
                 },
                 "tokens": {
-                  "properties": {
-                    "BTC": {
-                      "type": "keyword",
-                      "ignore_above": 256
-                    },
-                    "HBCUCOIN": {
-                      "type": "long"
-                    },
-                    "KEEPTHEFAITH": {
-                      "type": "long"
-                    },
-                    "LTBCOIN": {
-                      "type": "long"
-                    },
-                    "TATIANAFAN": {
-                      "type": "long"
-                    },
-                    "btc": {
-                      "type": "keyword",
-                      "ignore_above": 256
-                    }
-                  }
+                  "type": "object",
+                  "enabled": false
                 }
               }
             },
@@ -326,6 +306,7 @@ const oip041Mapping = `{
             "storage": {
               "properties": {
                 "files": {
+                  "dynamic": "true",
                   "properties": {
                     "disBuy": {
                       "type": "boolean"
@@ -447,7 +428,8 @@ const oip041Mapping = `{
               "index": false
             },
             "time": {
-              "type": "long"
+              "type": "date",
+              "format": "epoch_second"
             },
             "tx": {
               "type": "object",

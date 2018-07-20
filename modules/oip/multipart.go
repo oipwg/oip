@@ -20,10 +20,8 @@ const multipartIndex = "oip-multipart-single"
 
 var multiPartCommitMutex sync.Mutex
 
-var mpLog = logger.New("multipart")
-
 func init() {
-	mpLog.Info("init multipart")
+	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, multipartMapping)
 	events.Bus.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
 	events.Bus.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
@@ -36,7 +34,8 @@ func onDatastoreCommit() {
 	q := elastic.NewTermQuery("meta.complete", false)
 	results, err := datastore.Client().Search(multipartIndex).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
 	if err != nil {
-		panic(err)
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		return
 	}
 
 	multiparts := make(map[string]Multipart)
@@ -69,7 +68,7 @@ func onDatastoreCommit() {
 
 	_, err = datastore.Client().Refresh(multipartIndex).Do(context.TODO())
 	if err != nil {
-		mpLog.Info("multipart refresh failed")
+		log.Info("multipart refresh failed")
 		spew.Dump(err)
 	}
 }
@@ -82,7 +81,7 @@ func tryCompleteMultipart(mp Multipart) {
 			part0 = value
 		}
 		if rebuild[value.Part] != "" {
-			mpLog.Info("dupe", value.Meta.Txid)
+			log.Info("dupe", value.Meta.Txid)
 		}
 		rebuild[value.Part] = value.Data
 	}
@@ -93,7 +92,7 @@ func tryCompleteMultipart(mp Multipart) {
 		}
 	}
 
-	mpLog.Info("completed mp ", logger.Attrs{"reference": mp.Parts[0].Reference})
+	log.Info("completed mp ", logger.Attrs{"reference": mp.Parts[0].Reference})
 
 	dataString := strings.Join(rebuild, "")
 	s := elastic.NewScript("ctx._source.meta.complete=true;"+
@@ -109,7 +108,7 @@ func tryCompleteMultipart(mp Multipart) {
 	res, err := cuq.Do(context.TODO())
 
 	if err != nil {
-		mpLog.Error("error updating multipart", logger.Attrs{
+		log.Error("error updating multipart", logger.Attrs{
 			"reference": part0.Reference,
 			"block":     part0.Meta.Block,
 			"err":       err,
@@ -125,7 +124,7 @@ func tryCompleteMultipart(mp Multipart) {
 func onMultipartSingle(floData string, tx datastore.TransactionData) {
 	ms, err := multipartSingleFromString(floData)
 	if err != nil {
-		mpLog.Info("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+		log.Info("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
 		return
 	}
 
