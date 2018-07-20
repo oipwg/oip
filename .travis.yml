@@ -28,10 +28,33 @@ cache:
 script:
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
-  - if [ "${LATEST}" = "true" ]; then go build -ldflags
+  - if [ "${LATEST}" = "true" ]; then
+    env GOOS=darwin GOARCH=amd64 go build -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd github.com/bitspill/oip/cmd/oipd; fi
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
+    -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
+    strip oipd &&
+    tar -czvf oipd.darwin.amd64.tar.gz oipd
+    fi
+  - if [ "${LATEST}" = "true" ]; then
+    env GOOS=linux GOARCH=amd64 go build -ldflags
+    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
+    -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
+    strip oipd &&
+    tar -czvf oipd.linux.amd64.tar.gz oipd
+    fi
+  - if [ "${LATEST}" = "true" ]; then
+    env GOOS=windows GOARCH=amd64 go build -ldflags
+    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
+    -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}" -o oipd github.com/bitspill/oip/cmd/oipd &&
+    strip oipd &&
+    zip oipd.windows.amd64.zip oipd
+    fi
 
 before_deploy:
   - git config --local user.name "jennyruok"
@@ -43,7 +66,11 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: lr3LZU+AYBPbz2uiJQPTpze7XwbG4euLeU+uYs5BN+FqvGkl98w2WzYxCn/E3TcmZSDmTzYHFB99NnZ6nCwXrWB1HNqJe0u9ynM3Ccib81ARGw9Zt8PFRXAIRokrwNHLmHEyqiTbsx9mEbJWBp1VGkag5vXRQeA6rjZtxQYVOGBi4abqZ/eo+oAdOkI6Fe/hd0hBPkDREwkhAQsMo57VtzXr7gwIv+Cx4zBmegnyBbYFp3kPjePSpHmpsT2ojBBxjIpZmff08Z9aNdbPKMPvQUKSdZVJczJozmXs6wklx2kEAGpCuNP0Uv2xPREGhPn8DACOdLTDHHNaKVMyXlWTiFyTPjeK3B6HmmL8o47TpXbIjJnq3LAlpcBZz0wjNjwqF4USBD1VJVswY5x+IuT5DcsAM9PJg1ZaRBy3cfSjKzGG1d1h4eRWyyEITHptuLzBgUPT2waZKkgORezraZxiC3Z75rbjY2HxEI97bFOt80aBQ4igF/unUizs2lgzQUu1wIBG1SnB0tp5OQn4TP/xFW/rgHqNwe95qz14n9ojtb+2r7Gytf55BVjFqzgvLcQzYTt2GwkOQk1Q9xm31MKHw0UfCGidNYDMeMM0Evo7PG6AND6UEtZbReJcF5/KTEX/d9X2HHgxZiRW00sHQ7gCw3g0FDqcJiXUPPUxhJ1nJ1k=
-  file: oipd
+  file:
+    - oipd.darwin.amd64.tar.gz
+    - oipd.linux.amd64.tar.gz
+    - oipd.windows.amd64.zip
+  draft: true
   on:
     branch: build
     repo: bitspill/oip

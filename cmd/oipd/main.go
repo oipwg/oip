@@ -19,6 +19,7 @@ func main() {
 		"commitHash": version.GitCommitHash,
 		"buildDate":  version.BuildDate,
 		"builtBy":    version.BuiltBy,
+		"goVersion":  version.GoVersion,
 	})
 
 	FloRPC = flo.RPC{}
