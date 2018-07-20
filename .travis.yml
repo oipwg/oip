@@ -14,12 +14,6 @@ before_install:
 install:
   - dep ensure
 
-scrpt:
-  - go build github.com/bitspill/oip/cmd/oipd
-    -ldflags "-X github.com/bitspill/oip/version.GitCommitHash=$(git log
-    –pretty=format:’%h’ -n 1) -X github.com/bitspill/oip/version.BuildDate=$(date +”%Y.%m.%d.%H%M%S”)
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd
-
 cache:
   directories:
   - "$GOPATH/pkg/dep"
@@ -28,6 +22,10 @@ before_deploy:
   - git config --local user.name "jennyruok"
   - git config --local user.email "41490681+jennyruok@users.noreply.github.com"
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+  - go build github.com/bitspill/oip/cmd/oipd
+    -ldflags "-X github.com/bitspill/oip/version.GitCommitHash=$(git log
+    –pretty=format:’%h’ -n 1) -X github.com/bitspill/oip/version.BuildDate=$(date +”%Y.%m.%d.%H%M%S”)
+    -X github.com/bitspill/oip/version.BuiltBy=TravisCI" -o oipd
 
 deploy:
   provider: releases
