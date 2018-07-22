@@ -29,7 +29,7 @@ script:
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=darwin GOARCH=amd64 go build -ldflags
+    env GOOS=darwin GOARCH=amd64 go build -v -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
@@ -38,7 +38,7 @@ script:
     tar -czvf oipd.darwin.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=linux GOARCH=amd64 go build -ldflags
+    env GOOS=linux GOARCH=amd64 go build -v -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
@@ -47,7 +47,7 @@ script:
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=windows GOARCH=amd64 go build -ldflags
+    env GOOS=windows GOARCH=amd64 go build -v -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
