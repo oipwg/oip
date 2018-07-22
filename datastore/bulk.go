@@ -20,7 +20,7 @@ func BeginBulkIndexer() BulkIndexer {
 
 type BulkIndexer struct {
 	bulk *elastic.BulkService
-	m    sync.Mutex
+	m    *sync.Mutex
 }
 
 func (bi *BulkIndexer) Do(ctx context.Context) (*elastic.BulkResponse, error) {
