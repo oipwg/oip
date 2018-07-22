@@ -52,8 +52,8 @@ script:
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
     -X github.com/bitspill/oip/version.GoVersion=${TRAVIS_GO_VERSION}
-    -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
-    zip oipd.windows.amd64.zip oipd ;
+    -s -w" -o oipd.exe github.com/bitspill/oip/cmd/oipd &&
+    zip oipd.windows.amd64.zip oipd.exe ;
     fi
 
 before_deploy:
