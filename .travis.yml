@@ -46,7 +46,6 @@ script:
     -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
-    A bug in azer/is-terminal breaks windows builds
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=windows GOARCH=amd64 go build -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)

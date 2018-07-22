@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/azer/logger"
   packages = ["."]
-  revision = "f221e376013ba5608f3e00822c2d988d6775ba34"
+  revision = "e1f911eed8997b2415de75a82189f1ec5a313dba"
 
 [[projects]]
   branch = "master"
@@ -76,7 +76,7 @@
   branch = "master"
   name = "github.com/dustin/go-humanize"
   packages = ["."]
-  revision = "02af3965c54e8cacf948b97fef38925c4120652c"
+  revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -93,7 +93,7 @@
     "jlexer",
     "jwriter"
   ]
-  revision = "8b799c424f57fa123fc63a99d6383bc6e4c02578"
+  revision = "efc7eb8984d6655c26b5c9d2e65c024e5767c37c"
 
 [[projects]]
   name = "github.com/modern-go/concurrent"
@@ -113,8 +113,8 @@
     "config",
     "uritemplates"
   ]
-  revision = "f6c25d4a1713cf170f84eff4d70485dd8108d2e7"
-  version = "v6.1.22"
+  revision = "229adca7643e572e471ea3e8e018d651b728713d"
+  version = "v6.1.25"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -130,13 +130,13 @@
     "ripemd160",
     "scrypt"
   ]
-  revision = "ab813273cd59e1333f7ae7bff5d027d4aadf528c"
+  revision = "a2144134853fc9a27a7b1e3eb4f19f1a76df13c9"
 
 [[projects]]
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
-  revision = "f6c25d4a1713cf170f84eff4d70485dd8108d2e7"
-  version = "v6.1.22"
+  revision = "229adca7643e572e471ea3e8e018d651b728713d"
+  version = "v6.1.25"
 
 [solve-meta]
   analyzer-name = "dep"
