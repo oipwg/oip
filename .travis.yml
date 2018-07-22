@@ -33,7 +33,7 @@ script:
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X github.com/bitspill/oip/version.GoVersion=\"$(go version)\"
+    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
     -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
     tar -czvf oipd.darwin.amd64.tar.gz oipd ;
     fi
@@ -42,7 +42,7 @@ script:
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X github.com/bitspill/oip/version.GoVersion=\"$(go version)\"
+    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
     -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
@@ -51,7 +51,7 @@ script:
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X github.com/bitspill/oip/version.GoVersion=\"$(go version)\"
+    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
     -s -w" -o oipd.exe github.com/bitspill/oip/cmd/oipd &&
     zip oipd.windows.amd64.zip oipd.exe ;
     fi
