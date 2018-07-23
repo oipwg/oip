@@ -143,9 +143,9 @@ func onCommit() {
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {
-	//if !spamCheck(floData) {
+	// if !spamCheck(floData) {
 	//	log.Info(floData)
-	//}
+	// }
 
 	totalFloData++
 

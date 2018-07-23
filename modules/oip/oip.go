@@ -12,8 +12,8 @@ const MinFloDataLen = 35
 func init() {
 	log.Info("init oip")
 	events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-	//events.Bus.SubscribeAsync("flo:newBlockCompleted", nil, false)
-	//events.Bus.SubscribeAsync("flo:initialSyncCompleted", nil, false)
+	// events.Bus.SubscribeAsync("flo:newBlockCompleted", nil, false)
+	// events.Bus.SubscribeAsync("flo:initialSyncCompleted", nil, false)
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {

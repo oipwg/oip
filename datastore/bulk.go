@@ -95,7 +95,7 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 							"id":     value.Id,
 							"reason": value.Error.Reason,
 							"error":  value.Error,
-							//"errDump": spew.Sdump(err)
+							// "errDump": spew.Sdump(err)
 						})
 					}
 				}

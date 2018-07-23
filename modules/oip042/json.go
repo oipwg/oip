@@ -64,11 +64,11 @@ func on42JsonRegisterPub(any jsoniter.Any, tx datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegisterPub", logger.Attrs{"txid": tx.Transaction.Txid})
 
-	//name := any.Get("name").ToString()
-	//if len(name) == 0 {
+	// name := any.Get("name").ToString()
+	// if len(name) == 0 {
 	//	log.Println("oip042 no pub.name")
 	//	return
-	//}
+	// }
 
 	bir := elastic.NewBulkIndexRequest().Index(oip042PublisherIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(any.GetInterface())
 	datastore.AutoBulk.Add(bir)
@@ -121,9 +121,9 @@ func onFloData(floData string, tx datastore.TransactionData) {
 	if processPrefix("json:", "sync:floData:json", floData, tx) {
 		return
 	}
-	//if processPrefix("gz:", "sync:floData:gz", floData, tx) {
+	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
 	//	return
-	//}
+	// }
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
 	}
