@@ -13,6 +13,7 @@ import (
 func BeginBulkIndexer() BulkIndexer {
 	bi := BulkIndexer{
 		bulk: client.Bulk(),
+		m:    &sync.Mutex{},
 	}
 
 	return bi
