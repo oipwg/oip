@@ -67,6 +67,12 @@
   revision = "31079b6807923eb23992c421b114992b95131b55"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/cloudflare/backoff"
+  packages = ["."]
+  revision = "647f3cdfc87a18586e279c97afd6526d01b0d063"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -141,6 +147,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "50bac9b56329c7eea03d1395b63eabdc2d1a4018a1c1dcaba1adb313d80beb27"
+  inputs-digest = "5798de45a886f7f0cd7feaf17692670cdd8a8b367e2c79a148cc5ee1ee47347a"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/azer/logger"
+	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
 	_ "github.com/bitspill/oip/modules"
@@ -25,8 +27,13 @@ func main() {
 	FloRPC = flo.RPC{}
 	defer FloRPC.Disconnect()
 
-	err := FloRPC.AddFlod("127.0.0.1:8334", "user", "pass")
+	rootContext := context.Background()
+
+	ctx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
+	defer cancel()
+	err := FloRPC.WaitForFlod(ctx, config.MainFlod.Host, config.MainFlod.User, config.MainFlod.Pass)
 	if err != nil {
+		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": config.MainFlod.Host, "err": err})
 		panic(err)
 	}
 

@@ -1,15 +1,20 @@
 package flo
 
 import (
+	"context"
 	"io/ioutil"
+	"net"
 	"path/filepath"
+	"time"
 
+	"github.com/azer/logger"
 	"github.com/bitspill/flod/chaincfg"
 	"github.com/bitspill/flod/chaincfg/chainhash"
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/rpcclient"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
+	"github.com/cloudflare/backoff"
 	"github.com/pkg/errors"
 )
 
@@ -28,6 +33,46 @@ func (f *RPC) AddCore(host string, user string, pass string) error {
 	c, err := rpcclient.New(cfg, nil)
 	f.clients = append(f.clients, c)
 	return err
+}
+
+func (f *RPC) WaitForFlod(ctx context.Context, host string, user string, pass string) error {
+	attempts := 0
+	a := logger.Attrs{"host": host, "attempts": attempts}
+	b := backoff.NewWithoutJitter(10*time.Minute, 1*time.Second)
+	t := log.Timer()
+	defer t.End("WaitForFlod", a)
+	for {
+		attempts++
+		a["attempts"] = attempts
+		log.Info("attempting connection to flod", a)
+		err := f.AddFlod(host, user, pass)
+		if err != nil {
+			a["err"] = err
+			log.Error("unable to connect to flod", a)
+			delete(a, "err")
+			c := errors.Cause(err)
+			if _, ok := c.(*net.OpError); !ok {
+				// not a network error, something else is wrong
+				return err
+			}
+			// it's a network error, delay and retry
+			d := b.Duration()
+			a["delay"] = d
+			log.Info("delaying connection to flod retry", a)
+			delete(a, "delay")
+			select {
+			case <-ctx.Done():
+				a["err"] = ctx.Err()
+				log.Error("context timeout/cancelled", a)
+				return ctx.Err()
+			case <-time.After(d):
+				// loop around for another try
+			}
+		} else {
+			break
+		}
+	}
+	return nil
 }
 
 func (f *RPC) AddFlod(host string, user string, pass string) error {
