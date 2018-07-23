@@ -125,7 +125,7 @@ func init() {
 	events.Bus.SubscribeAsync("datastore:commit", onCommit, false)
 
 	var err error
-	f, err = os.OpenFile("textComments.txt", os.O_CREATE|os.O_APPEND, 0)
+	f, err = os.OpenFile("textComments.txt", os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		panic(err)
 	}
