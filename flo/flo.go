@@ -4,7 +4,6 @@ import (
 	"context"
 	"io/ioutil"
 	"net"
-	"path/filepath"
 	"time"
 
 	"github.com/azer/logger"
@@ -14,6 +13,7 @@ import (
 	"github.com/bitspill/flod/rpcclient"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
+	"github.com/bitspill/oip/config"
 	"github.com/cloudflare/backoff"
 	"github.com/pkg/errors"
 )
@@ -77,9 +77,7 @@ func (f *RPC) WaitForFlod(ctx context.Context, host string, user string, pass st
 
 func (f *RPC) AddFlod(host string, user string, pass string) error {
 	// Connect to flod RPC server using websockets.
-	// ToDo: configure flod rpc.cert location
-	flodHomeDir := floutil.AppDataDir("flod", false)
-	certs, err := ioutil.ReadFile(filepath.Join(flodHomeDir, "rpc.cert"))
+	certs, err := ioutil.ReadFile(config.MainFlod.CertFile)
 	if err != nil {
 		return errors.Wrap(err, "unable to read rpc.cert")
 	}
