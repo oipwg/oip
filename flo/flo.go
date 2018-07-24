@@ -148,7 +148,6 @@ func (f *RPC) BeginNotifyBlocks() (err error) {
 
 	if len(f.clients) == 1 {
 		err = f.clients[0].NotifyBlocks()
-		f.clients[0].Disconnected()
 	} else {
 		for _, c := range f.clients {
 			err = c.NotifyBlocks()
