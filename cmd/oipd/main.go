@@ -73,6 +73,19 @@ func main() {
 		return
 	}
 
+	err = FloRPC.BeginNotifyBlocks()
+	if err != nil {
+		log.Error("BeginNotifyBlocks failed", logger.Attrs{"err": err})
+		shutdown(err)
+		return
+	}
+	err = FloRPC.BeginNotifyTransactions()
+	if err != nil {
+		log.Error("BeginNotifyTransactions failed", logger.Attrs{"err": err})
+		shutdown(err)
+		return
+	}
+
 	if false {
 		spew.Dump(lb)
 	}

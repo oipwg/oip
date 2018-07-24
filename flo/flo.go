@@ -11,9 +11,11 @@ import (
 	"github.com/bitspill/flod/chaincfg/chainhash"
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/rpcclient"
+	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
 	"github.com/bitspill/oip/config"
+	"github.com/bitspill/oip/events"
 	"github.com/cloudflare/backoff"
 	"github.com/pkg/errors"
 )
@@ -82,6 +84,24 @@ func (f *RPC) AddFlod(host string, user string, pass string) error {
 		return errors.Wrap(err, "unable to read rpc.cert")
 	}
 
+	ntfnHandlers := rpcclient.NotificationHandlers{
+		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
+			log.Info("Block connected: %v (%d) %v",
+				header.BlockHash(), height, header.Timestamp)
+			events.Bus.Publish("flo:notify:onFilteredBlockConnected", height, header, txns)
+		},
+		OnFilteredBlockDisconnected: func(height int32, header *wire.BlockHeader) {
+			log.Info("Block disconnected: %v (%d) %v",
+				header.BlockHash(), height, header.Timestamp)
+			events.Bus.Publish("flo:notify:onFilteredBlockDisconnected", height, header)
+		},
+		OnTxAcceptedVerbose: func(txDetails *flojson.TxRawResult) {
+			log.Info("New tx", logger.Attrs{"txid": txDetails.Txid,
+				"floData": txDetails.FloData, "blockHash": txDetails.BlockHash})
+			events.Bus.Publish("flo:notify:onTxAcceptedVerbose", txDetails)
+		},
+	}
+
 	cfg := &rpcclient.ConnConfig{
 		Host:         host,
 		User:         user,
@@ -89,7 +109,7 @@ func (f *RPC) AddFlod(host string, user string, pass string) error {
 		Endpoint:     "ws",
 		Certificates: certs,
 	}
-	c, err := rpcclient.New(cfg, nil)
+	c, err := rpcclient.New(cfg, &ntfnHandlers)
 	if err != nil {
 		return errors.Wrap(err, "unable to create new rpc client")
 	}
@@ -115,6 +135,39 @@ func (f *RPC) GetBlockCount() (blockCount int64, err error) {
 	} else {
 		for _, c := range f.clients {
 			blockCount, err = c.GetBlockCount()
+			if err == nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func (f *RPC) BeginNotifyBlocks() (err error) {
+	err = errors.New("no clients connected")
+
+	if len(f.clients) == 1 {
+		err = f.clients[0].NotifyBlocks()
+		f.clients[0].Disconnected()
+	} else {
+		for _, c := range f.clients {
+			err = c.NotifyBlocks()
+			if err == nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func (f *RPC) BeginNotifyTransactions() (err error) {
+	err = errors.New("no clients connected")
+
+	if len(f.clients) == 1 {
+		err = f.clients[0].NotifyNewTransactions(true)
+	} else {
+		for _, c := range f.clients {
+			err = c.NotifyNewTransactions(true)
 			if err == nil {
 				return
 			}
