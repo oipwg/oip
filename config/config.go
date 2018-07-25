@@ -16,6 +16,13 @@ var (
 		Pass:     "pass",
 		CertFile: filepath.Join(flodHomeDir, "rpc.cert"),
 	}
+	Elastic = ElasticConnection{
+		Host:     "https://127.0.0.1:9200",
+		CertFile: "config/cert/oipd.pem",
+		CertKey:  "config/cert/oipd.key",
+		CertRoot: "config/cert/root-ca.pem",
+		UseCert:  true,
+	}
 )
 
 type FlodConnection struct {
@@ -23,6 +30,14 @@ type FlodConnection struct {
 	User     string
 	Pass     string
 	CertFile string
+}
+
+type ElasticConnection struct {
+	Host     string
+	UseCert  bool
+	CertFile string
+	CertKey  string
+	CertRoot string
 }
 
 func init() {

@@ -2,8 +2,15 @@ package datastore
 
 import (
 	"context"
-
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
+
+	"github.com/azer/logger"
+	"github.com/bitspill/oip/config"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -14,10 +21,18 @@ var AutoBulk BulkIndexer
 var mappings = make(map[string]string)
 
 func Setup(ctx context.Context) error {
-
 	var err error
-	client, err = elastic.NewClient()
+
+	httpClient, err := getHttpClient()
 	if err != nil {
+		log.Error("couldn't create httpClient", logger.Attrs{"err": err})
+		return err
+	}
+
+	client, err = elastic.NewClient(elastic.SetSniff(false), elastic.SetHttpClient(httpClient),
+		elastic.SetURL(config.Elastic.Host))
+	if err != nil {
+		log.Error("unable to connect to elasticsearch", logger.Attrs{"err": err})
 		return errors.Wrap(err, "datastore.setup.newClient")
 	}
 
@@ -31,6 +46,45 @@ func Setup(ctx context.Context) error {
 	AutoBulk = BeginBulkIndexer()
 
 	return nil
+}
+
+func getHttpClient() (*http.Client, error) {
+	var httpClient *http.Client
+	if config.Elastic.UseCert {
+		cert, err := tls.LoadX509KeyPair(config.Elastic.CertFile, config.Elastic.CertKey)
+		if err != nil {
+			log.Error("couldn't LoadX509KeyPair", logger.Attrs{"err": err})
+			return nil, err
+		}
+		caCert, err := ioutil.ReadFile(config.Elastic.CertRoot)
+		if err != nil {
+			log.Error("couldn't read root certificate", logger.Attrs{"err": err})
+			return nil, err
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		// Setup HTTPS client
+		tlsConfig := &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			RootCAs:            caCertPool,
+			InsecureSkipVerify: true,
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport := &http.Transport{
+			TLSClientConfig:     tlsConfig,
+			TLSHandshakeTimeout: 5 * time.Second,
+		}
+
+		httpClient = &http.Client{
+			Transport: transport,
+			Timeout:   time.Second * 10,
+		}
+	} else {
+		httpClient = http.DefaultClient
+	}
+
+	return httpClient, nil
 }
 
 func RegisterMapping(index string, mapping string) error {
