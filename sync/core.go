@@ -8,6 +8,7 @@ import (
 
 var (
 	rpc *flo.RPC
+	ilb datastore.BlockData
 )
 
 func Setup(r *flo.RPC) {
@@ -51,5 +52,6 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 			events.Bus.Publish("flo:floData", tx.Transaction.FloData, tx)
 		}
 	}
+	ilb = bd
 	return bd, nil
 }
