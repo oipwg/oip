@@ -43,7 +43,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 
 	sync.Setup(&FloRPC)
 
-	for nh := lbh + 1; nh < count; nh++ {
+	for nh := lbh + 1; nh <= count; nh++ {
 
 		nlb, err := sync.IndexBlockAtHeight(nh, lb)
 		if err != nil {
