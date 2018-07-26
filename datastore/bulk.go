@@ -8,6 +8,7 @@ import (
 	"github.com/bitspill/oip/events"
 	"github.com/dustin/go-humanize"
 	"gopkg.in/olivere/elastic.v6"
+	"time"
 )
 
 func BeginBulkIndexer() BulkIndexer {
@@ -20,8 +21,50 @@ func BeginBulkIndexer() BulkIndexer {
 }
 
 type BulkIndexer struct {
-	bulk *elastic.BulkService
-	m    *sync.Mutex
+	bulk               *elastic.BulkService
+	m                  *sync.Mutex
+	timedCommitRate    time.Duration
+	timedCommitRunning bool
+	timedCommitEnd     chan struct{}
+}
+
+func (bi *BulkIndexer) BeginTimedCommits(rate time.Duration) {
+	bi.timedCommitRate = rate
+	if bi.timedCommitRunning {
+		return
+	}
+	go bi.timedCommit()
+}
+
+func (bi *BulkIndexer) timedCommit() {
+	for {
+		select {
+		case <-bi.timedCommitEnd:
+			bi.quickCommit()
+			return
+		case <-time.After(bi.timedCommitRate):
+			bi.quickCommit()
+		}
+	}
+}
+
+func (bi *BulkIndexer) quickCommit() {
+	if bi.NumberOfActions() > 0 {
+		t := log.Timer()
+		estimatedSize := bi.EstimateSizeInBytes()
+		log.Info("Indexing blocks/transactions", logger.Attrs{"human": humanize.Bytes(uint64(estimatedSize)), "bytes": estimatedSize})
+
+		br, err := bi.Do(context.TODO())
+		if err != nil {
+			return
+		}
+
+		t.End("Indexed blocks/transactions", logger.Attrs{"items": len(br.Items), "took": br.Took, "errors": br.Errors})
+	}
+}
+
+func (bi *BulkIndexer) EndTimedCommit() {
+	bi.timedCommitEnd <- struct{}{}
 }
 
 func (bi *BulkIndexer) Do(ctx context.Context) (*elastic.BulkResponse, error) {

@@ -73,6 +73,8 @@ func main() {
 		return
 	}
 
+	datastore.AutoBulk.BeginTimedCommits(5 * time.Second)
+
 	err = FloRPC.BeginNotifyBlocks()
 	if err != nil {
 		log.Error("BeginNotifyBlocks failed", logger.Attrs{"err": err})
