@@ -14,6 +14,9 @@ const transactionsMapping = `{
           "type": "keyword",
           "ignore_above": 64
         },
+        "confirmed": {
+          "type": "boolean"
+        },
         "tx": {
           "properties": {
             "blockhash": {

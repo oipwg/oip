@@ -44,6 +44,7 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 		tx := datastore.TransactionData{
 			Block:       bd.Block.Height,
 			BlockHash:   bd.Block.Hash,
+			Confirmed:   true,
 			Transaction: v,
 		}
 

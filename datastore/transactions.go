@@ -44,5 +44,6 @@ func GetTransactionFromID(ctx context.Context, id string) (TransactionData, erro
 type TransactionData struct {
 	Block       int64               `json:"block"`
 	BlockHash   string              `json:"block_hash"`
+	Confirmed   bool                `json:"confirmed"`
 	Transaction flojson.TxRawResult `json:"tx"`
 }
