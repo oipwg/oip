@@ -22,12 +22,12 @@ func onFloData(floData string, tx datastore.TransactionData) {
 
 	prefix := "t1:ALOVE>"
 	if strings.HasPrefix(floData, prefix) {
-		events.Bus.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix))
+		events.Bus.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix), tx)
 		return
 	}
 }
 
-func onAlove(floData string) {
+func onAlove(floData string, tx datastore.TransactionData) {
 	var message, to, from string
 
 	chunks := strings.SplitN(floData, "|", 2)
@@ -48,9 +48,9 @@ func onAlove(floData string) {
 		Message: message,
 		From:    from,
 		To:      to,
-		// TxId: txid,
+		TxId:    tx.Transaction.Txid,
 	}
-	bir := elastic.NewBulkIndexRequest().Index("aterna").Type("_doc"). /*Id(txid).*/ Doc(a)
+	bir := elastic.NewBulkIndexRequest().Index("aterna").Type("_doc").Id(tx.Transaction.Txid).Doc(a)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -96,13 +96,8 @@ const aternaMapping = `{
           }
         },
         "txId": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
+          "type": "keyword",
+          "ignore_above": 64
         }
       }
     }
