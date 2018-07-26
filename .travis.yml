@@ -13,9 +13,9 @@ env:
   global:
     - DEP_VERSION="0.4.1"
 
-#branches:
-#  except:
-#  - /[0-9]{8}-[0-9a-f]{7}/
+branches:
+  except:
+  - /[0-9]{8}-[0-9a-f]{7}/
 
 before_install:
   - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
@@ -68,6 +68,7 @@ before_deploy:
 deploy:
   provider: releases
   skip_cleanup: true
+  target_commitish: $TRAVIS_COMMIT
   api_key:
     secure: lr3LZU+AYBPbz2uiJQPTpze7XwbG4euLeU+uYs5BN+FqvGkl98w2WzYxCn/E3TcmZSDmTzYHFB99NnZ6nCwXrWB1HNqJe0u9ynM3Ccib81ARGw9Zt8PFRXAIRokrwNHLmHEyqiTbsx9mEbJWBp1VGkag5vXRQeA6rjZtxQYVOGBi4abqZ/eo+oAdOkI6Fe/hd0hBPkDREwkhAQsMo57VtzXr7gwIv+Cx4zBmegnyBbYFp3kPjePSpHmpsT2ojBBxjIpZmff08Z9aNdbPKMPvQUKSdZVJczJozmXs6wklx2kEAGpCuNP0Uv2xPREGhPn8DACOdLTDHHNaKVMyXlWTiFyTPjeK3B6HmmL8o47TpXbIjJnq3LAlpcBZz0wjNjwqF4USBD1VJVswY5x+IuT5DcsAM9PJg1ZaRBy3cfSjKzGG1d1h4eRWyyEITHptuLzBgUPT2waZKkgORezraZxiC3Z75rbjY2HxEI97bFOt80aBQ4igF/unUizs2lgzQUu1wIBG1SnB0tp5OQn4TP/xFW/rgHqNwe95qz14n9ojtb+2r7Gytf55BVjFqzgvLcQzYTt2GwkOQk1Q9xm31MKHw0UfCGidNYDMeMM0Evo7PG6AND6UEtZbReJcF5/KTEX/d9X2HHgxZiRW00sHQ7gCw3g0FDqcJiXUPPUxhJ1nJ1k=
   file:
