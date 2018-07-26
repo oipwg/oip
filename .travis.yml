@@ -15,6 +15,8 @@ env:
 
 branches:
   except:
+  # Don't build Travis CI tags
+  # MMDDyyyy-shortCommitHash
   - /[0-9]{8}-[0-9a-f]{7}/
 
 before_install:
@@ -33,7 +35,7 @@ script:
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=darwin GOARCH=amd64 go build -v -ldflags
+    env GOOS=darwin GOARCH=amd64 go build -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
@@ -42,7 +44,7 @@ script:
     tar -czvf oipd.darwin.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=linux GOARCH=amd64 go build -v -ldflags
+    env GOOS=linux GOARCH=amd64 go build -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
@@ -51,7 +53,7 @@ script:
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
-    env GOOS=windows GOARCH=amd64 go build -v -ldflags
+    env GOOS=windows GOARCH=amd64 go build -ldflags
     "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
     -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
     -X github.com/bitspill/oip/version.BuiltBy=TravisCI
@@ -63,7 +65,7 @@ script:
 before_deploy:
   - git config --local user.name "Jenny Ruok"
   - git config --local user.email "41490681+jennyruok@users.noreply.github.com"
-  - git tag "$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
+  - git tag -a "$(date +'%Y%m%d')-$(git rev-parse --short HEAD)" -m "tagged by Travis-CI"
 
 deploy:
   provider: releases
