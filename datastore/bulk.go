@@ -49,6 +49,8 @@ func (bi *BulkIndexer) timedCommit() {
 }
 
 func (bi *BulkIndexer) quickCommit() {
+	bi.m.Lock()
+	defer bi.m.Unlock()
 	if bi.NumberOfActions() > 0 {
 		t := log.Timer()
 		estimatedSize := bi.EstimateSizeInBytes()
