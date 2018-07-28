@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/azer/logger"
@@ -9,11 +12,9 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
 	_ "github.com/bitspill/oip/modules"
+	"github.com/bitspill/oip/modules/oip"
 	"github.com/bitspill/oip/version"
 	"github.com/davecgh/go-spew/spew"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var FloRPC flo.RPC
@@ -73,6 +74,7 @@ func main() {
 		return
 	}
 
+	oip.IsInitialSync = false
 	datastore.AutoBulk.BeginTimedCommits(5 * time.Second)
 
 	err = FloRPC.BeginNotifyBlocks()

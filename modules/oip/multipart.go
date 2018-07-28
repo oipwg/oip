@@ -2,11 +2,11 @@ package oip
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 	"strings"
 	"sync"
 
+	"encoding/json"
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
@@ -19,6 +19,7 @@ import (
 const multipartIndex = "oip-multipart-single"
 
 var multiPartCommitMutex sync.Mutex
+var IsInitialSync = true
 
 func init() {
 	log.Info("init multipart")
@@ -31,12 +32,17 @@ func onDatastoreCommit() {
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
 
-	q := elastic.NewTermQuery("meta.complete", false)
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.complete", false),
+		elastic.NewTermQuery("meta.stale", false),
+	)
 	results, err := datastore.Client().Search(multipartIndex).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
 		return
 	}
+
+	log.Info("Collecting multiparts to attempt assembly", logger.Attrs{"pendingParts": len(results.Hits.Hits)})
 
 	multiparts := make(map[string]Multipart)
 	for _, v := range results.Hits.Hits {
@@ -57,19 +63,32 @@ func onDatastoreCommit() {
 		}
 	}
 
+	potentialChanges := false
 	for k, mp := range multiparts {
 		if mp.Count >= mp.Total {
 			if mp.Count > mp.Total {
 				log.Info("extra parts", k)
 			}
 			tryCompleteMultipart(mp)
+			potentialChanges = true
 		}
 	}
 
-	_, err = datastore.Client().Refresh(multipartIndex).Do(context.TODO())
-	if err != nil {
-		log.Info("multipart refresh failed")
-		spew.Dump(err)
+	if potentialChanges {
+		ref, err := datastore.Client().Refresh(multipartIndex).Do(context.TODO())
+		if err != nil {
+			log.Info("multipart refresh failed")
+			spew.Dump(err)
+		} else {
+			tot := ref.Shards.Total
+			fai := ref.Shards.Failed
+			suc := ref.Shards.Successful
+			log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
+		}
+	}
+
+	if !IsInitialSync {
+		markStale()
 	}
 }
 
@@ -98,12 +117,11 @@ func tryCompleteMultipart(mp Multipart) {
 	s := elastic.NewScript("ctx._source.meta.complete=true;"+
 		"ctx._source.meta.assembled=params.assembled").Type("inline").Param("assembled", dataString).Lang("painless")
 
-	q := elastic.NewBoolQuery().Must(
-		elastic.NewTermQuery("reference", part0.Reference),
-		elastic.NewTermQuery("meta.complete", false),
-	)
+	q := elastic.NewTermQuery("reference", part0.Reference)
 	cuq := datastore.Client().UpdateByQuery(multipartIndex).Query(q).
 		Type("_doc").Script(s)
+
+	// elastic.NewBulkUpdateRequest()
 
 	res, err := cuq.Do(context.TODO())
 
@@ -118,7 +136,7 @@ func tryCompleteMultipart(mp Multipart) {
 
 	events.Bus.Publish("flo:floData", dataString, part0.Meta.Tx)
 
-	_ = res.Took
+	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
 }
 
 func onMultipartSingle(floData string, tx datastore.TransactionData) {
@@ -233,6 +251,25 @@ func multipartSingleFromString(s string) (MultipartSingle, error) {
 	return ret, nil
 }
 
+func markStale() {
+	s := elastic.NewScript("ctx._source.meta.stale=true;").Type("inline").Lang("painless")
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.complete", false),
+		elastic.NewTermQuery("meta.stale", false),
+		elastic.NewRangeQuery("meta.time").Lte("now-1w"),
+	)
+	cuq := datastore.Client().UpdateByQuery(multipartIndex).Query(q).
+		Type("_doc").Script(s) // .Refresh("wait_for")
+
+	res, err := cuq.Do(context.TODO())
+	if err != nil {
+		spew.Dump(err)
+		panic("")
+	}
+	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
+}
+
 type MultipartSingle struct {
 	Part      int    `json:"part"`
 	Max       int    `json:"max"`
@@ -247,6 +284,7 @@ type MSMeta struct {
 	Block     int64                     `json:"block"`
 	BlockHash string                    `json:"block_hash"`
 	Complete  bool                      `json:"complete"`
+	Stale     bool                      `json:"stale"`
 	Txid      string                    `json:"txid"`
 	Time      int64                     `json:"time"`
 	Tx        datastore.TransactionData `json:"tx"`
@@ -290,6 +328,9 @@ const multipartMapping = `{
               "ignore_above": 64
             },
             "complete": {
+              "type": "boolean"
+            },
+            "stale": {
               "type": "boolean"
             },
             "time": {
