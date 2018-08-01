@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/config"
@@ -51,6 +50,7 @@ func Setup(ctx context.Context) error {
 func getHttpClient() (*http.Client, error) {
 	var httpClient *http.Client
 	if config.Elastic.UseCert {
+		// ToDo: add encrypted key support - potentially via x509.DecryptPEMBloc & tls.ParsePKCS1PrivateKey
 		cert, err := tls.LoadX509KeyPair(config.Elastic.CertFile, config.Elastic.CertKey)
 		if err != nil {
 			log.Error("couldn't LoadX509KeyPair", logger.Attrs{"err": err})
@@ -72,13 +72,11 @@ func getHttpClient() (*http.Client, error) {
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{
-			TLSClientConfig:     tlsConfig,
-			TLSHandshakeTimeout: 5 * time.Second,
+			TLSClientConfig: tlsConfig,
 		}
 
 		httpClient = &http.Client{
 			Transport: transport,
-			Timeout:   time.Second * 10,
 		}
 	} else {
 		httpClient = http.DefaultClient
