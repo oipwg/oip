@@ -3,8 +3,10 @@ package oip
 import (
 	"strings"
 
+	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
+	"github.com/bitspill/oip/filters"
 )
 
 const MinFloDataLen = 35
@@ -22,6 +24,11 @@ func onFloData(floData string, tx datastore.TransactionData) {
 		return
 	}
 	if tx.Block < 1000000 {
+		return
+	}
+
+	if filters.Contains(tx.Transaction.Txid) {
+		log.Error("Filtered out transaction", logger.Attrs{"txid": tx.Transaction.Txid})
 		return
 	}
 
