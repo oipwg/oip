@@ -36,12 +36,13 @@ func on41(floData string, tx datastore.TransactionData) {
 	el := elasticOip041{
 		Artifact: tl.Oip041.Artifact,
 		Meta: OMeta{
-			Block:     tx.Block,
-			BlockHash: tx.BlockHash,
-			Txid:      tx.Transaction.Txid,
-			Tx:        tx,
-			Time:      art.Timestamp,
-			Signature: tl.Oip041.Signature,
+			Block:       tx.Block,
+			BlockHash:   tx.BlockHash,
+			Deactivated: false,
+			Txid:        tx.Transaction.Txid,
+			Tx:          tx,
+			Time:        art.Timestamp,
+			Signature:   tl.Oip041.Signature,
 		},
 	}
 
@@ -73,12 +74,13 @@ type elasticOip041 struct {
 	Meta     OMeta            `json:"meta"`
 }
 type OMeta struct {
-	Block     int64                     `json:"block"`
-	BlockHash string                    `json:"block_hash"`
-	Signature string                    `json:"signature"`
-	Txid      string                    `json:"txid"`
-	Time      int64                     `json:"time"`
-	Tx        datastore.TransactionData `json:"tx"`
+	Block       int64                     `json:"block"`
+	BlockHash   string                    `json:"block_hash"`
+	Deactivated bool                      `json:"deactivated"`
+	Signature   string                    `json:"signature"`
+	Txid        string                    `json:"txid"`
+	Time        int64                     `json:"time"`
+	Tx          datastore.TransactionData `json:"tx"`
 }
 
 func validateOip041(tl topLevel) (Artifact, error) {
@@ -422,6 +424,9 @@ const oip041Mapping = `{
             "block_hash": {
               "type": "keyword",
               "ignore_above": 64
+            },
+            "deactivated": {
+              "type": "boolean"
             },
             "signature": {
               "type": "text",

@@ -12,7 +12,7 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
 	_ "github.com/bitspill/oip/modules"
-	"github.com/bitspill/oip/modules/oip"
+	"github.com/bitspill/oip/sync"
 	"github.com/bitspill/oip/version"
 	"github.com/davecgh/go-spew/spew"
 )
@@ -74,7 +74,7 @@ func main() {
 		return
 	}
 
-	oip.IsInitialSync = false
+	sync.IsInitialSync = false
 	datastore.AutoBulk.BeginTimedCommits(5 * time.Second)
 
 	err = FloRPC.BeginNotifyBlocks()

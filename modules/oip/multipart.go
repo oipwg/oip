@@ -2,15 +2,16 @@ package oip
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 	"strings"
 	"sync"
 
-	"encoding/json"
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
+	oipSync "github.com/bitspill/oip/sync"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
@@ -19,7 +20,6 @@ import (
 const multipartIndex = "oip-multipart-single"
 
 var multiPartCommitMutex sync.Mutex
-var IsInitialSync = true
 
 func init() {
 	log.Info("init multipart")
@@ -85,9 +85,11 @@ func onDatastoreCommit() {
 			suc := ref.Shards.Successful
 			log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
 		}
+
+		events.Bus.Publish("modules:oip:mpCompleted")
 	}
 
-	if !IsInitialSync {
+	if !oipSync.IsInitialSync {
 		markStale()
 	}
 }

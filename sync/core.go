@@ -9,6 +9,8 @@ import (
 var (
 	rpc *flo.RPC
 	ilb datastore.BlockData
+
+	IsInitialSync = true
 )
 
 func Setup(r *flo.RPC) {
