@@ -19,8 +19,12 @@ func init() {
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {
-	if tx.Block < 500000 || tx.Block > 1000000 {
+	if tx.Block < 500000 {
 		return
+	}
+	if tx.Block > 1000000 {
+		events.Bus.Unsubscribe("flo:floData", onFloData)
+		events.Bus.Unsubscribe("modules:aternaLove:alove", onAlove)
 	}
 
 	prefix := "t1:ALOVE>"
