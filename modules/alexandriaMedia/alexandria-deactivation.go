@@ -9,8 +9,6 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
-	oipSync "github.com/bitspill/oip/sync"
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -103,38 +101,6 @@ func onMpCompleted() {
 		up = elastic.NewBulkUpdateRequest().Index(adIndexName).Id(ea.Meta.Txid).Type("_doc").Script(s)
 		datastore.AutoBulk.Add(up)
 	}
-
-	ref, err := datastore.Client().Refresh(adIndexName, amIndexName, "oip041").Do(context.TODO())
-	if err != nil {
-		log.Info("deactivation refresh failed")
-		spew.Dump(err)
-	} else {
-		tot := ref.Shards.Total
-		fai := ref.Shards.Failed
-		suc := ref.Shards.Successful
-		log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
-	}
-
-	if !oipSync.IsInitialSync {
-		markStale()
-	}
-}
-
-func markStale() {
-	s := elastic.NewScript("ctx._source.meta.stale=true;").Type("inline").Lang("painless")
-
-	q := elastic.NewBoolQuery().Must(
-		elastic.NewTermQuery("meta.complete", false),
-		elastic.NewTermQuery("meta.stale", false),
-		elastic.NewRangeQuery("meta.time").Lte("now-1w"),
-	)
-	cuq := datastore.Client().UpdateByQuery(adIndexName).Query(q).Type("_doc").Script(s)
-
-	res, err := cuq.Do(context.TODO())
-	if err != nil {
-		log.Error("update by query failed", logger.Attrs{"err": err})
-	}
-	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
 
 type floAd struct {
