@@ -1,12 +1,11 @@
 package oip041
 
 import (
-	"encoding/json"
-
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
+	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -21,57 +20,21 @@ func init() {
 func on41(floData string, tx datastore.TransactionData) {
 	log.Info("oip041 ", tx.Transaction.Txid)
 
-	var tl topLevel
-	err := json.Unmarshal([]byte(floData), &tl)
-	if err != nil {
-		return
-	}
+	any := jsoniter.Get([]byte(floData))
 
-	art, err := validateOip041(tl)
+	el, err := validateOip041(any, tx)
 	if err != nil {
 		log.Error("validate oip041 failed", logger.Attrs{"err": err})
 		return
-	}
-
-	el := elasticOip041{
-		Artifact: tl.Oip041.Artifact,
-		Meta: OMeta{
-			Block:       tx.Block,
-			BlockHash:   tx.BlockHash,
-			Deactivated: false,
-			Txid:        tx.Transaction.Txid,
-			Tx:          tx,
-			Time:        art.Timestamp,
-			Signature:   tl.Oip041.Signature,
-		},
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index("oip041").Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
-type topLevel struct {
-	Oip041 O41 `json:"oip-041"`
-}
-
-type O41 struct {
-	Artifact  *json.RawMessage `json:"artifact"`
-	Signature string           `json:"signature"`
-}
-
-type Artifact struct {
-	Info       *Info  `json:"info"`
-	FloAddress string `json:"publisher"`
-	Timestamp  int64  `json:"timestamp"`
-}
-
-type Info struct {
-	Title string `json:"title"`
-}
-
 type elasticOip041 struct {
-	Artifact *json.RawMessage `json:"artifact"`
-	Meta     OMeta            `json:"meta"`
+	Artifact jsoniter.Any `json:"artifact"`
+	Meta     OMeta        `json:"meta"`
 }
 type OMeta struct {
 	Block       int64                     `json:"block"`
@@ -83,28 +46,38 @@ type OMeta struct {
 	Tx          datastore.TransactionData `json:"tx"`
 }
 
-func validateOip041(tl topLevel) (Artifact, error) {
-	var art Artifact
+func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip041, error) {
+	var el elasticOip041
 
-	if tl.Oip041.Artifact != nil && len(*tl.Oip041.Artifact) != 0 {
-		err := json.Unmarshal(*tl.Oip041.Artifact, &art)
-		if err != nil {
-			return art, errors.Wrap(err, "artifact invalid json")
-		}
+	o41 := any.Get("oip-041")
+	sig := any.Get("signature")
 
-		if art.Info == nil || len(art.Info.Title) == 0 {
-			return art, errors.New("artifact.info.title missing")
-		}
-
-		ok, err := flo.CheckAddress(art.FloAddress, false)
-		if !ok {
-			return art, errors.Wrap(err, "invalid FLO address")
-		}
-	} else {
-		return art, errors.New("no Artifact data")
+	art := o41.Get("artifact")
+	if art.LastError() != nil {
+		return el, errors.Wrap(art.LastError(), "oip-041.artifact")
 	}
 
-	return art, nil
+	if len(art.Get("info", "title").ToString()) == 0 {
+		return el, errors.New("artifact.info.title missing")
+	}
+
+	ok, err := flo.CheckAddress(art.Get("floAddress").ToString(), false)
+	if !ok {
+		return el, errors.Wrap(err, "invalid FLO address")
+	}
+
+	el.Artifact = art
+	el.Meta = OMeta{
+		Time:        tx.Transaction.Time,
+		Txid:        tx.Transaction.Txid,
+		Signature:   sig.ToString(),
+		BlockHash:   tx.BlockHash,
+		Block:       tx.Block,
+		Deactivated: false,
+		Tx:          tx,
+	}
+
+	return el, nil
 }
 
 const oip041Mapping = `{
