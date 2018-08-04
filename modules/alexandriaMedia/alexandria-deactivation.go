@@ -94,8 +94,9 @@ func onMpCompleted() {
 		s := elastic.NewScript("ctx._source.meta.deactivated=true;").Type("inline").Lang("painless")
 		up := elastic.NewBulkUpdateRequest().Index(amIndexName).Id(ea.Reference).Type("_doc").Script(s)
 		datastore.AutoBulk.Add(up)
-		up = elastic.NewBulkUpdateRequest().Index("oip041").Id(ea.Reference).Type("_doc").Script(s)
-		datastore.AutoBulk.Add(up)
+		// All attempted oip-041 deactivation appear to be invalid
+		// up = elastic.NewBulkUpdateRequest().Index("oip041").Id(ea.Reference).Type("_doc").Script(s)
+		// datastore.AutoBulk.Add(up)
 
 		// tag deactivation as completed
 		s = elastic.NewScript("ctx._source.meta.complete=true;").Type("inline").Lang("painless")
