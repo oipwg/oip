@@ -223,9 +223,9 @@ func (f *RPC) GetTxVerbose(hash *chainhash.Hash) (tr *flojson.TxRawResult, err e
 	return
 }
 
-func CheckAddress(address string, testnet bool) (bool, error) {
+func CheckAddress(address string) (bool, error) {
 	var err error
-	if testnet {
+	if config.Testnet {
 		_, err = floutil.DecodeAddress(address, &chaincfg.TestNet3Params)
 	} else {
 		_, err = floutil.DecodeAddress(address, &chaincfg.MainNetParams)
@@ -236,10 +236,10 @@ func CheckAddress(address string, testnet bool) (bool, error) {
 	return true, nil
 }
 
-func CheckSignature(address string, signature string, message string, testnet bool) (bool, error) {
+func CheckSignature(address string, signature string, message string) (bool, error) {
 	var ok bool
 	var err error
-	if testnet {
+	if config.Testnet {
 		ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.TestNet3Params)
 	}
 	ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.MainNetParams)

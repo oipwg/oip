@@ -1,13 +1,13 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/floutil"
 	"github.com/json-iterator/go"
-	"io/ioutil"
 )
 
 // ToDo: substitute a proper configuration management system rather than stacks of if statements
@@ -27,11 +27,13 @@ var (
 		CertRoot: "config/cert/root-ca.pem",
 		UseCert:  false,
 	}
+	Testnet = false
 )
 
 type cfgFile struct {
 	MainFlod *FlodConnection    `json:"main_flod"`
 	Elastic  *ElasticConnection `json:"elastic"`
+	Testnet  bool               `json:"testnet"`
 }
 
 type FlodConnection struct {
@@ -64,6 +66,8 @@ func init() {
 		log.Error("Unable to read config file, using defaults", logger.Attrs{"err": err})
 		return
 	}
+
+	Testnet = cfg.Testnet
 
 	if cfg.Elastic != nil {
 		if cfg.Elastic.UseCert {

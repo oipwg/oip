@@ -3,6 +3,7 @@ package aternaLove
 import (
 	"strings"
 
+	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"gopkg.in/olivere/elastic.v6"
@@ -10,9 +11,11 @@ import (
 
 func init() {
 	log.Info("init aterna")
-	events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-	events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
-	datastore.RegisterMapping("aterna", aternaMapping)
+	if !config.Testnet {
+		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
+		events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
+		datastore.RegisterMapping("aterna", aternaMapping)
+	}
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {

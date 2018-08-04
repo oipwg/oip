@@ -61,7 +61,7 @@ func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip0
 		return el, errors.New("artifact.info.title missing")
 	}
 
-	ok, err := flo.CheckAddress(art.Get("floAddress").ToString(), false)
+	ok, err := flo.CheckAddress(art.Get("floAddress").ToString())
 	if !ok {
 		return el, errors.Wrap(err, "invalid FLO address")
 	}

@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"gopkg.in/olivere/elastic.v6"
@@ -11,13 +12,14 @@ import (
 
 func init() {
 	log.Info("init tZero")
-	events.Bus.SubscribeAsync("flo:floData", floDataProcessor, false)
-	events.Bus.SubscribeAsync("modules:tZero:cancel", onCancel, false)
-	events.Bus.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
-	events.Bus.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
-	events.Bus.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
-
-	datastore.RegisterMapping("tzero", tZeroMapping)
+	if !config.Testnet {
+		events.Bus.SubscribeAsync("flo:floData", floDataProcessor, false)
+		events.Bus.SubscribeAsync("modules:tZero:cancel", onCancel, false)
+		events.Bus.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
+		events.Bus.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
+		events.Bus.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
+		datastore.RegisterMapping("tzero", tZeroMapping)
+	}
 }
 
 func floDataProcessor(floData string, tx datastore.TransactionData) {

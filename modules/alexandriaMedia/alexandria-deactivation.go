@@ -32,7 +32,7 @@ func onAlexandriaDeactivation(floData string, tx datastore.TransactionData) {
 	}
 
 	// signature pre-image for deactivation is <address>-<txid>
-	ok, err := flo.CheckSignature(ad.AlexandriaDeactivation.Address, ad.Signature, ad.AlexandriaDeactivation.Address+"-"+ad.AlexandriaDeactivation.Txid, false)
+	ok, err := flo.CheckSignature(ad.AlexandriaDeactivation.Address, ad.Signature, ad.AlexandriaDeactivation.Address+"-"+ad.AlexandriaDeactivation.Txid)
 	if !ok {
 		log.Error("signature validation failed", logger.Attrs{"txid": tx.Transaction.Txid})
 		return

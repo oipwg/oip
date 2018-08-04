@@ -3,6 +3,7 @@ package flotorizer
 import (
 	"strings"
 
+	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"gopkg.in/olivere/elastic.v6"
@@ -10,9 +11,11 @@ import (
 
 func init() {
 	log.Info("init flotorizer")
-	events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-	events.Bus.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
-	datastore.RegisterMapping("flotorizer", flotorizerMapping)
+	if !config.Testnet {
+		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
+		events.Bus.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
+		datastore.RegisterMapping("flotorizer", flotorizerMapping)
+	}
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {

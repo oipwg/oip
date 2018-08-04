@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
+	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/json-iterator/go"
@@ -114,7 +115,7 @@ func onJson(floData string, tx datastore.TransactionData) {
 }
 
 func onFloData(floData string, tx datastore.TransactionData) {
-	if tx.Block < 2000000 {
+	if tx.Block < 2000000 && !config.Testnet {
 		return
 	}
 

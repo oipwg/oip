@@ -211,7 +211,7 @@ func multipartSingleFromString(s string) (MultipartSingle, error) {
 
 	// get and check address
 	address := meta[2]
-	if ok, err := flo.CheckAddress(address, false); !ok {
+	if ok, err := flo.CheckAddress(address); !ok {
 		return ret, errors.Wrap(err, "ErrInvalidAddress")
 	}
 
@@ -227,12 +227,12 @@ func multipartSingleFromString(s string) (MultipartSingle, error) {
 	// in the case of multipart[n], where n != 0, txid is the reference txid (from multipart[0])
 	preimage := partS + "-" + maxS + "-" + address + "-" + reference + "-" + dataString
 
-	if ok, err := flo.CheckSignature(address, signature, preimage, false); !ok {
+	if ok, err := flo.CheckSignature(address, signature, preimage); !ok {
 		if part != 0 {
 			return ret, errors.Wrap(err, "ErrBadSignature")
 		}
 		preimage := partS + "-" + maxS + "-" + address + "-" + strings.Repeat("0", 64) + "-" + dataString
-		if ok, err := flo.CheckSignature(address, signature, preimage, false); !ok {
+		if ok, err := flo.CheckSignature(address, signature, preimage); !ok {
 			return ret, errors.Wrap(err, "ErrBadSignature")
 		}
 	}
