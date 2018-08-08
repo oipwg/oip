@@ -1,2 +1,9 @@
 
 vendor/
+
+# Elastic/Flod TLS client certificates
+config/cert
+# Oipd configuration
+config/config.json
+# output from floDataDump module
+textComments.txt
