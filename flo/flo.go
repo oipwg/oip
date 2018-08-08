@@ -241,9 +241,9 @@ func CheckSignature(address string, signature string, message string) (bool, err
 	var err error
 	if config.Testnet {
 		ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.TestNet3Params)
+	} else {
+		ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.MainNetParams)
 	}
-	ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.MainNetParams)
-
 	if !ok && err == nil {
 		err = errors.New("bad signature")
 	}
