@@ -10,7 +10,7 @@ import (
 	"github.com/bitspill/oip/filters"
 )
 
-const MinFloDataLen = 35
+const minFloDataLen = 35
 
 func init() {
 	log.Info("init oip")
@@ -22,7 +22,7 @@ func init() {
 }
 
 func onFloDataMainNet(floData string, tx datastore.TransactionData) {
-	if len(floData) < MinFloDataLen {
+	if len(floData) < minFloDataLen {
 		// impossible to be a valid item at such a short length
 		return
 	}
@@ -71,7 +71,7 @@ func onFloDataMainNet(floData string, tx datastore.TransactionData) {
 }
 
 func onFloDataTestNet(floData string, tx datastore.TransactionData) {
-	if len(floData) < MinFloDataLen {
+	if len(floData) < minFloDataLen {
 		// impossible to be a valid item at such a short length
 		return
 	}
