@@ -11,6 +11,7 @@ import (
 	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
+	"github.com/bitspill/oip/httpapi"
 	_ "github.com/bitspill/oip/modules"
 	"github.com/bitspill/oip/sync"
 	"github.com/bitspill/oip/version"
@@ -92,6 +93,10 @@ func main() {
 
 	if false {
 		spew.Dump(lb)
+	}
+
+	if config.API.Enabled {
+		go httpapi.Serve()
 	}
 
 	<-rootContext.Done()

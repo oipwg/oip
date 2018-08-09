@@ -28,12 +28,22 @@ var (
 		UseCert:  false,
 	}
 	Testnet = false
+	API     = OipApi{
+		Listen:  "localhost:1606",
+		Enabled: false,
+	}
 )
 
 type cfgFile struct {
 	MainFlod *FlodConnection    `json:"main_flod"`
 	Elastic  *ElasticConnection `json:"elastic"`
 	Testnet  bool               `json:"testnet"`
+	Api      *OipApi            `json:"api"`
+}
+
+type OipApi struct {
+	Listen  string `json:"listen"`
+	Enabled bool   `json:"enabled"`
 }
 
 type FlodConnection struct {
@@ -68,6 +78,13 @@ func init() {
 	}
 
 	Testnet = cfg.Testnet
+
+	if cfg.Api != nil {
+		API.Enabled = cfg.Api.Enabled
+		if len(cfg.Api.Listen) > 0 {
+			API.Listen = cfg.Api.Listen
+		}
+	}
 
 	if cfg.Elastic != nil {
 		if cfg.Elastic.UseCert {
