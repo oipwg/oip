@@ -75,27 +75,6 @@ func on42JsonRegisterPub(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonPublish(any jsoniter.Any, tx datastore.TransactionData) {
-	t := log.Timer()
-	defer t.End("on42JsonPublish", logger.Attrs{"txid": tx.Transaction.Txid})
-
-	artifact := any.Get("artifact")
-	err := artifact.LastError()
-	if err != nil {
-		log.Error("%s - %s", tx.Transaction.Txid, err.Error())
-		return
-	}
-
-	title := artifact.Get("info", "title").ToString()
-	if len(title) == 0 {
-		log.Error("oip042 no title", logger.Attrs{"txid": tx.Transaction.Txid})
-		return
-	}
-
-	bir := elastic.NewBulkIndexRequest().Index(oip042ArtifactIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(artifact.GetInterface())
-	datastore.AutoBulk.Add(bir)
-}
-
 func onJson(floData string, tx datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("onJson", logger.Attrs{"txid": tx.Transaction.Txid})

@@ -3,6 +3,7 @@ package oip
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,8 +12,10 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
+	"github.com/bitspill/oip/httpapi"
 	oipSync "github.com/bitspill/oip/sync"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -20,12 +23,100 @@ import (
 const multipartIndex = "oip-multipart-single"
 
 var multiPartCommitMutex sync.Mutex
+var mpRouter = httpapi.NewSubRoute("/multipart")
 
 func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, multipartMapping)
 	events.Bus.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
 	events.Bus.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
+
+	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}/{limit:[0-9]+}", handleGetRef)
+	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
+	mpRouter.HandleFunc("/get/id/{id:[a-f0-9]+}", handleGetId)
+}
+
+func handleGetId(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+	)
+
+	// fsc := elastic.NewFetchSourceContext(true).
+	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(multipartIndex).
+		Type("_doc").
+		Query(q).
+		Size(1).
+		Sort("meta.time", false).
+		// FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		httpapi.RespondJSON(w, 500, map[string]interface{}{
+			"error": "database error",
+		})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
+}
+
+func handleGetRef(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	limit, _ := opts["limit"]
+	size, _ := strconv.ParseInt(limit, 10, 0)
+	if size <= 0 || size > 1000 {
+		size = -1
+	}
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewPrefixQuery("reference", opts["ref"]),
+	)
+
+	// fsc := elastic.NewFetchSourceContext(true).
+	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(multipartIndex).
+		Type("_doc").
+		Query(q).
+		Size(int(size)).
+		Sort("meta.time", false).
+		// FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		httpapi.RespondJSON(w, 500, map[string]interface{}{
+			"error": "database error",
+		})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		// "limit": size,
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
 }
 
 func onDatastoreCommit() {

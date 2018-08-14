@@ -1,20 +1,121 @@
 package oip041
 
 import (
+	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
+	"github.com/bitspill/oip/httpapi"
+	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
 
+const oip41IndexName = "oip041"
+
+var artRouter = httpapi.NewSubRoute("/oip041/artifact")
+
 func init() {
 	log.Info("init oip41")
 	events.Bus.SubscribeAsync("modules:oip:oip041", on41, false)
 
-	datastore.RegisterMapping("oip041", oip041Mapping)
+	datastore.RegisterMapping(oip41IndexName, oip041Mapping)
+
+	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest).Queries("nsfw", "{nsfw}")
+	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
+	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
+}
+
+func handleLatest(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	size, _ := strconv.ParseInt(opts["limit"], 10, 0)
+	if size <= 0 || size > 1000 {
+		size = -1
+	}
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.deactivated", false),
+	)
+
+	if n, ok := opts["nsfw"]; ok {
+		nsfw, _ := strconv.ParseBool(n)
+		q.Must(elastic.NewTermQuery("artifact.info.nsfw", nsfw))
+		log.Info("nsfw: %t", nsfw)
+	}
+
+	fsc := elastic.NewFetchSourceContext(true).
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(oip41IndexName).
+		Type("_doc").
+		Query(q).
+		Size(int(size)).
+		Sort("meta.time", false).
+		FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		httpapi.RespondJSON(w, 500, map[string]interface{}{
+			"error": "database error",
+		})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"count":   len(results.Hits.Hits),
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
+}
+
+func handleGet(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.deactivated", false),
+		// elastic.NewTermQuery("_id", opts["id"]),
+		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+	)
+
+	fsc := elastic.NewFetchSourceContext(true).
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(oip41IndexName).
+		Type("_doc").
+		Query(q).
+		Size(1).
+		Sort("meta.time", false).
+		FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
 }
 
 func on41(floData string, tx datastore.TransactionData) {
@@ -33,8 +134,8 @@ func on41(floData string, tx datastore.TransactionData) {
 }
 
 type elasticOip041 struct {
-	Artifact jsoniter.Any `json:"artifact"`
-	Meta     OMeta        `json:"meta"`
+	Artifact interface{} `json:"artifact"`
+	Meta     OMeta       `json:"meta"`
 }
 type OMeta struct {
 	Block       int64                     `json:"block"`
@@ -50,7 +151,7 @@ func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip0
 	var el elasticOip041
 
 	o41 := any.Get("oip-041")
-	sig := any.Get("signature")
+	sig := o41.Get("signature")
 
 	art := o41.Get("artifact")
 	if art.LastError() != nil {
@@ -61,12 +162,12 @@ func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip0
 		return el, errors.New("artifact.info.title missing")
 	}
 
-	ok, err := flo.CheckAddress(art.Get("floAddress").ToString())
+	ok, err := flo.CheckAddress(art.Get("publisher").ToString())
 	if !ok {
 		return el, errors.Wrap(err, "invalid FLO address")
 	}
 
-	el.Artifact = art
+	el.Artifact = art.GetInterface()
 	el.Meta = OMeta{
 		Time:        tx.Transaction.Time,
 		Txid:        tx.Transaction.Txid,

@@ -1,19 +1,116 @@
 package alexandriaMedia
 
 import (
+	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
+	"github.com/bitspill/oip/httpapi"
+	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
 )
 
+// ToDo: Correct timestamps
+// if timestamp has 12+ digits it's ms
+// https://stackoverflow.com/questions/23929145/how-to-test-if-a-given-time-stamp-is-in-seconds-or-milliseconds
+
 const amIndexName = "alexandria-media"
+
+var artRouter = httpapi.NewSubRoute("/alexandria/artifact")
 
 func init() {
 	log.Info("init alexandria-media")
 	events.Bus.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
 	datastore.RegisterMapping(amIndexName, amMapping)
+	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
+	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
+}
+
+func handleLatest(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	size, _ := strconv.ParseInt(opts["limit"], 10, 0)
+	if size <= 0 || size > 1000 {
+		size = -1
+	}
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.deactivated", false),
+	)
+
+	fsc := elastic.NewFetchSourceContext(true).
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(amIndexName).
+		Type("_doc").
+		Query(q).
+		Size(int(size)).
+		Sort("meta.time", false).
+		FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		httpapi.RespondJSON(w, 500, map[string]interface{}{
+			"error": "database error",
+		})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"count":   len(results.Hits.Hits),
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
+}
+
+func handleGet(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+	)
+
+	fsc := elastic.NewFetchSourceContext(true).
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+
+	results, err := datastore.Client().
+		Search(amIndexName).
+		Type("_doc").
+		Query(q).
+		Size(1).
+		Sort("meta.time", false).
+		FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		httpapi.RespondJSON(w, 500, map[string]interface{}{
+			"error": "database error",
+		})
+		return
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+	})
 }
 
 func onAlexandriaMedia(floData string, tx datastore.TransactionData) {

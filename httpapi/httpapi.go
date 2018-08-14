@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/azer/logger"
@@ -9,13 +8,12 @@ import (
 	"github.com/bitspill/oip/version"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	json "github.com/json-iterator/go"
 )
 
-var router *mux.Router
+var router = mux.NewRouter()
 
 func init() {
-	router = mux.NewRouter()
-	router.StrictSlash(true)
 	router.Use(logRequests)
 	router.NotFoundHandler = http.HandlerFunc(handle404)
 
