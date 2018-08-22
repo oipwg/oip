@@ -131,6 +131,7 @@ func onAlexandriaMedia(floData string, tx datastore.TransactionData) {
 				Txid:        tx.Transaction.Txid,
 				Tx:          tx,
 				Time:        am.Get("timestamp").ToInt64(),
+				Type:        "alexandria-media",
 			},
 		}
 
@@ -154,6 +155,7 @@ type AmMeta struct {
 	Txid        string                    `json:"txid"`
 	Time        int64                     `json:"time"`
 	Tx          datastore.TransactionData `json:"tx"`
+	Type        string                    `json:"type"`
 }
 
 const amMapping = `{
@@ -545,6 +547,10 @@ const amMapping = `{
             "tx": {
               "type": "object",
               "enabled": false
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 16
             }
           }
         }

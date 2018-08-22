@@ -145,6 +145,7 @@ type OMeta struct {
 	Txid        string                    `json:"txid"`
 	Time        int64                     `json:"time"`
 	Tx          datastore.TransactionData `json:"tx"`
+	Type        string                    `json:"type"`
 }
 
 func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip041, error) {
@@ -176,6 +177,7 @@ func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip0
 		Block:       tx.Block,
 		Deactivated: false,
 		Tx:          tx,
+		Type:        "oip041",
 	}
 
 	return el, nil
@@ -517,6 +519,10 @@ const oip041Mapping = `{
             "txid": {
               "type": "keyword",
               "ignore_above": 64
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 16
             }
           }
         }

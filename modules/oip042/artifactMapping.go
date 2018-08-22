@@ -268,6 +268,10 @@ const publishOip042ArtifactMapping = `{
             "txid": {
               "type": "keyword",
               "ignore_above": 64
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 16
             }
           }
         }

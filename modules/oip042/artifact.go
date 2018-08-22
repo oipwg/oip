@@ -57,6 +57,7 @@ func on42JsonPublish(any jsoniter.Any, tx datastore.TransactionData) {
 		Block:       tx.Block,
 		Deactivated: false,
 		Tx:          tx,
+		Type:        "oip042",
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(oip042ArtifactIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
@@ -75,4 +76,5 @@ type OMeta struct {
 	Txid        string                    `json:"txid"`
 	Time        int64                     `json:"time"`
 	Tx          datastore.TransactionData `json:"tx"`
+	Type        string                    `json:"type"`
 }
