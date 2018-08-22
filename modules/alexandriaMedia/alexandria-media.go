@@ -12,11 +12,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
+	"time"
 )
-
-// ToDo: Correct timestamps
-// if timestamp has 12+ digits it's ms
-// https://stackoverflow.com/questions/23929145/how-to-test-if-a-given-time-stamp-is-in-seconds-or-milliseconds
 
 const amIndexName = "alexandria-media"
 
@@ -120,6 +117,12 @@ func onAlexandriaMedia(floData string, tx datastore.TransactionData) {
 	a := jsoniter.Get(bytesFloData)
 	am := a.Get("alexandria-media")
 	title := am.Get("info", "title").ToString()
+	artTime := am.Get("timestamp").ToInt64()
+	if artTime > 999999999999 {
+		// correct ms timestamps to s
+		log.Info("Scaling timestamp", logger.Attrs{"txid": tx.Transaction.Txid, "artTime": artTime, "time": time.Unix(artTime, 0)})
+		artTime /= 1000
+	}
 	if len(title) != 0 {
 		el := elasticAm{
 			Artifact: am.GetInterface(),
@@ -130,7 +133,7 @@ func onAlexandriaMedia(floData string, tx datastore.TransactionData) {
 				Signature:   a.Get("signature").ToString(),
 				Txid:        tx.Transaction.Txid,
 				Tx:          tx,
-				Time:        am.Get("timestamp").ToInt64(),
+				Time:        artTime,
 				Type:        "alexandria-media",
 			},
 		}
