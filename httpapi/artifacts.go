@@ -45,7 +45,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 
 	log.Info(searchQuery)
 	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
 		Search("oip041", "oip042_artifact").
@@ -95,7 +95,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
 		Search("oip041", "oip042_artifact"). // "alexandria-media",
@@ -135,7 +135,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	)
 
 	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
 		Search("oip041", "oip042_artifact", "alexandria-media").
