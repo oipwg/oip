@@ -8,6 +8,7 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/filters"
+	"github.com/json-iterator/go"
 )
 
 const minFloDataLen = 35
@@ -19,6 +20,7 @@ func init() {
 	} else {
 		events.Bus.SubscribeAsync("flo:floData", onFloDataMainNet, false)
 	}
+	events.Bus.SubscribeAsync("sync:floData:json", onJson, false)
 }
 
 func onFloDataMainNet(floData string, tx datastore.TransactionData) {
@@ -68,6 +70,17 @@ func onFloDataMainNet(floData string, tx datastore.TransactionData) {
 		events.Bus.Publish("modules:oip:oip041", floData, tx)
 		return
 	}
+
+	if processPrefix("json:", "sync:floData:json", floData, tx) {
+		return
+	}
+	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
+	//	return
+	// }
+	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
+		return
+	}
+
 }
 
 func onFloDataTestNet(floData string, tx datastore.TransactionData) {
@@ -105,4 +118,41 @@ func onFloDataTestNet(floData string, tx datastore.TransactionData) {
 		events.Bus.Publish("modules:oip:oip041", floData, tx)
 		return
 	}
+	if processPrefix("json:", "sync:floData:json", floData, tx) {
+		return
+	}
+	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
+	//	return
+	// }
+	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
+		return
+	}
+
+}
+
+func processPrefix(prefix string, namespace string, floData string, tx datastore.TransactionData) bool {
+	if strings.HasPrefix(floData, prefix) {
+		log.Info("prefix match", logger.Attrs{"txid": tx.Transaction.Txid, "prefix": prefix, "namespace": namespace})
+		events.Bus.Publish(namespace, strings.TrimPrefix(floData, prefix), tx)
+		return true
+	}
+	return false
+}
+
+func onJson(floData string, tx datastore.TransactionData) {
+	t := log.Timer()
+	defer t.End("onJson", logger.Attrs{"txid": tx.Transaction.Txid})
+	var dj map[string]jsoniter.RawMessage
+	err := jsoniter.Unmarshal([]byte(floData), &dj)
+	if err != nil {
+		return
+	}
+
+	if o42, ok := dj["oip042"]; ok {
+		log.Info("sending oip042 message", logger.Attrs{"txid": tx.Transaction.Txid})
+		events.Bus.Publish("modules:oip042:json", o42, tx)
+		return
+	}
+
+	log.Error("no supported json type", logger.Attrs{"txid": tx.Transaction.Txid})
 }

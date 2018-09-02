@@ -1,44 +1,20 @@
 package oip042
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/flo"
 	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonPublishArtifact(artifact jsoniter.Any, tx datastore.TransactionData) {
-	title := artifact.Get("info", "title").ToString()
-	if len(title) == 0 {
-		log.Error("oip042 no title", logger.Attrs{"txid": tx.Transaction.Txid})
-		return
-	}
+func on42JsonRegisterInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
+	t := log.Timer()
+	defer t.End("on42JsonRegisterInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
-	floAddr := artifact.Get("floAddress").ToString()
-	ok, err := flo.CheckAddress(floAddr)
-	if !ok {
-		log.Error("invalid FLO address", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
-		return
-	}
+	sig := any.Get("signature").ToString()
 
-	v := []string{artifact.Get("storage", "location").ToString(), floAddr,
-		strconv.FormatInt(artifact.Get("timestamp").ToInt64(), 10)}
-	preImage := strings.Join(v, "-")
-
-	sig := artifact.Get("signature").ToString()
-	ok, err = flo.CheckSignature(floAddr, sig, preImage)
-	if !ok {
-		log.Error("invalid signature", logger.Attrs{"txid": tx.Transaction.Txid, "preimage": preImage,
-			"address": floAddr, "sig": sig, "err": err})
-		return
-	}
-
-	var el elasticOip042Artifact
-	el.Artifact = artifact.GetInterface()
+	var el elasticOip042Influencer
+	el.Influencer = any.GetInterface()
 	el.Meta = AMeta{
 		Time:        tx.Transaction.Time,
 		Txid:        tx.Transaction.Txid,
@@ -50,13 +26,13 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx datastore.TransactionData
 		Type:        "oip042",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042ArtifactIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(oip042InfluencerIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
 	t := log.Timer()
-	defer t.End("on42JsonEditArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
+	defer t.End("on42JsonEditInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
 	sig := any.Get("signature").ToString()
 
@@ -70,16 +46,16 @@ func on42JsonEditArtifact(any jsoniter.Any, tx datastore.TransactionData) {
 		Block:     tx.Block,
 		Completed: false,
 		Tx:        tx,
-		Type:      "artifact",
+		Type:      "influencer",
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(oip042EditIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
 	t := log.Timer()
-	defer t.End("on42JsonTransferArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
+	defer t.End("on42JsonTransferInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
 	sig := any.Get("signature").ToString()
 
@@ -93,16 +69,16 @@ func on42JsonTransferArtifact(any jsoniter.Any, tx datastore.TransactionData) {
 		Block:     tx.Block,
 		Completed: false,
 		Tx:        tx,
-		Type:      "artifact",
+		Type:      "influencer",
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(oip042TransferIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivateArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivateInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
 	t := log.Timer()
-	defer t.End("on42JsonDeactivateArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
+	defer t.End("on42JsonDeactivateInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
 	sig := any.Get("signature").ToString()
 
@@ -116,7 +92,7 @@ func on42JsonDeactivateArtifact(any jsoniter.Any, tx datastore.TransactionData) 
 		Block:     tx.Block,
 		Completed: false,
 		Tx:        tx,
-		Type:      "artifact",
+		Type:      "influencer",
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(oip042DeactivateIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
