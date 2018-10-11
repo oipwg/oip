@@ -224,7 +224,7 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 
 	switch msg.MessageType {
 	case oipProto.MessageTypes_Historian:
-		var hdp *oipProto.HistorianDataPoint
+		var hdp = &oipProto.HistorianDataPoint{}
 		err = proto.Unmarshal(msg.SerializedMessage, hdp)
 		if err != nil {
 			log.Error("unable to unmarshal protobuf historian message",
