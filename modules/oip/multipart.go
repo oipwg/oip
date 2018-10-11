@@ -194,7 +194,7 @@ func tryCompleteMultipart(mp Multipart) {
 			part0 = *value
 		}
 		if rebuild[value.Part] != "" {
-			log.Info("dupe", value.Meta.Txid)
+			log.Info("duplicate multipart", logger.Attrs{"txid": value.Meta.Txid, "part": value.Part})
 		}
 		rebuild[value.Part] = value.Data
 	}
