@@ -27,6 +27,10 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 		return lb, err
 	}
 
+	if lb.Block.Hash != b.PreviousHash {
+		return lb, errors.New("block does not follow last known block")
+	}
+
 	var lbt int64
 	if lb.Block == nil {
 		lbt = b.Time
