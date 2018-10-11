@@ -4,7 +4,6 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -25,10 +24,6 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 	b, err := flo.GetBlockVerboseTx(hash)
 	if err != nil {
 		return lb, err
-	}
-
-	if lb.Block.Hash != b.PreviousHash {
-		return lb, errors.New("block does not follow last known block")
 	}
 
 	var lbt int64

@@ -21,9 +21,15 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	// ToDo: manage ilb properly
 	// ToDo: check missed blocks between sync end and first notification
 	// ToDo: commit each new block when live
+
+	if ilb.Block.Hash != header.PrevBlock.String() {
+		// ToDo: handle error regarding last/prev block hash mismatch
+		log.Error("incoming block does not follow last block", &logger.Attrs{"incomingHash": header.PrevBlock.String(), "lastHash": ilb.Block.Hash, "incomingHeight": height, "lastHeight": ilb.Block.Height})
+		return
+	}
+
 	_, err := IndexBlockAtHeight(int64(height), ilb)
 	if err != nil {
-		// ToDo: handle error regarding last/prev block hash mismatch
 	}
 }
 
