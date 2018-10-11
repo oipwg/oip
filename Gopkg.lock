@@ -8,16 +8,16 @@
   revision = "d46933a94f05c6657d7b923fcf5ac563ee37ec79"
 
 [[projects]]
-  branch = "master"
   name = "github.com/azer/is-terminal"
   packages = ["."]
-  revision = "559561a4b3b889f31433e8d5eb30835f5e42f09e"
+  revision = "d890a36967629a256d1488b735cd375e29439507"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/azer/logger"
   packages = ["."]
-  revision = "e1f911eed8997b2415de75a82189f1ec5a313dba"
+  revision = "b2064509a05be7b89fecfe472d13843bcf3a8b3d"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -50,6 +50,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/bitspill/oipProto"
+  packages = ["go/oipProto"]
+  revision = "22eac4ea65fcdcc88adbf3a15998479d8440d5d9"
+
+[[projects]]
+  branch = "master"
   name = "github.com/btcsuite/btclog"
   packages = ["."]
   revision = "84c8d2346e9fc8c7b947e243b9c24e6df9fd206a"
@@ -75,14 +81,19 @@
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/dustin/go-humanize"
   packages = ["."]
   revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -99,8 +110,8 @@
 [[projects]]
   name = "github.com/json-iterator/go"
   packages = ["."]
-  revision = "ab8a2e0c74be9d3be70b3184d9acc634935ded82"
-  version = "1.1.4"
+  revision = "1624edc4454b8682399def8740d46db5e4362ba4"
+  version = "v1.1.5"
 
 [[projects]]
   branch = "master"
@@ -111,7 +122,7 @@
     "jlexer",
     "jwriter"
   ]
-  revision = "efc7eb8984d6655c26b5c9d2e65c024e5767c37c"
+  revision = "60711f1a8329503b04e1c88535f419d0bb440bff"
 
 [[projects]]
   name = "github.com/modern-go/concurrent"
@@ -131,8 +142,8 @@
     "config",
     "uritemplates"
   ]
-  revision = "229adca7643e572e471ea3e8e018d651b728713d"
-  version = "v6.1.25"
+  revision = "156bc8f4ccd31cbf7567a0ed3a64335d6767e4b9"
+  version = "v6.2.10"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -148,17 +159,17 @@
     "ripemd160",
     "scrypt"
   ]
-  revision = "a2144134853fc9a27a7b1e3eb4f19f1a76df13c9"
+  revision = "7c1a557ab941a71c619514f229f0b27ccb0c27cf"
 
 [[projects]]
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
-  revision = "229adca7643e572e471ea3e8e018d651b728713d"
-  version = "v6.1.25"
+  revision = "156bc8f4ccd31cbf7567a0ed3a64335d6767e4b9"
+  version = "v6.2.10"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "47629199b43ce9e4345bb81d958b329ec2fe5fb47903b3bd3254ba4e21e56f03"
+  inputs-digest = "ae2794aa4c83de37d04506d0b6a482978cb122b546feee90d944d05e111e60c4"
   solver-name = "gps-cdcl"
   solver-version = 1
