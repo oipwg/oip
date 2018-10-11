@@ -133,7 +133,7 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(hdp oipProto.HistorianDataPoint, tx *datastore.TransactionData) {
+func onProtoHdp(hdp *oipProto.HistorianDataPoint, tx *datastore.TransactionData) {
 	log.Info("historian dataPoint ", tx.Transaction.Txid)
 
 	var el elasticHdp
