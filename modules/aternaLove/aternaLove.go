@@ -3,6 +3,7 @@ package aternaLove
 import (
 	"strings"
 
+	"github.com/azer/logger"
 	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
@@ -35,26 +36,16 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 }
 
 func onAlove(floData string, tx *datastore.TransactionData) {
-	var message, to, from string
-
-	chunks := strings.SplitN(floData, "|", 2)
-	lc := len(chunks)
-	if lc == 3 {
-		message = chunks[0]
-		to = chunks[1]
-		from = chunks[2]
-	} else if lc > 3 {
-		message = strings.Join(chunks[0:lc-2], "|")
-		to = chunks[lc-2]
-		from = chunks[lc-1]
-	} else {
+	chunks := strings.SplitN(floData, "|", 3)
+	if len(chunks) != 3 {
+		log.Error("invalid aterna", logger.Attrs{"txid": tx.Transaction.Txid, "floData": floData})
 		return
 	}
 
 	a := Alove{
-		Message: message,
-		From:    from,
-		To:      to,
+		Message: chunks[0],
+		From:    chunks[2],
+		To:      chunks[1],
 		TxId:    tx.Transaction.Txid,
 	}
 	bir := elastic.NewBulkIndexRequest().Index("aterna").Type("_doc").Id(tx.Transaction.Txid).Doc(a)
