@@ -83,3 +83,7 @@ deploy:
     branch: build
     repo: bitspill/oip
     condition: $LATEST = true
+
+after_script:
+  - go get -u github.com/go-critic/go-critic/...
+  - gocritic check-package -withExperimental -withOpinionated $(go list ./...)
