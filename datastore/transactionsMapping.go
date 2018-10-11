@@ -2,6 +2,7 @@ package datastore
 
 const transactionsMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

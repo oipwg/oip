@@ -15,6 +15,7 @@ import (
 )
 
 const apIndexName = "alexandria-publisher"
+
 var pubRouter = httpapi.NewSubRoute("/alexandria/publisher")
 
 func init() {
@@ -121,6 +122,7 @@ func onAlexandriaPublisher(floData string, tx datastore.TransactionData) {
 
 const apMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

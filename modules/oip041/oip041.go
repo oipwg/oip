@@ -185,6 +185,7 @@ func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip0
 
 const oip041Mapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

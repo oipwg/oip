@@ -131,6 +131,7 @@ type tZeroTransaction struct {
 
 const tZeroMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

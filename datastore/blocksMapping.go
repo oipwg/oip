@@ -2,6 +2,7 @@ package datastore
 
 const blocksMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

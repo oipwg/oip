@@ -163,6 +163,7 @@ type AmMeta struct {
 
 const amMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

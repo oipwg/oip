@@ -2,6 +2,7 @@ package oip042
 
 const publishOip042ArtifactMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

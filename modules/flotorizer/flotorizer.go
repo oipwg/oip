@@ -45,6 +45,7 @@ type Flotorized struct {
 
 const flotorizerMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {

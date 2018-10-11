@@ -70,6 +70,7 @@ type Alove struct {
 
 const aternaMapping = `{
   "settings": {
+    "number_of_shards": 2
   },
   "mappings": {
     "_doc": {
