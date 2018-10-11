@@ -1,4 +1,4 @@
-package main
+package sync
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/chaincfg/chainhash"
 	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/sync"
+	"github.com/bitspill/oip/flo"
 	"github.com/dustin/go-humanize"
 	"github.com/pkg/errors"
 )
@@ -24,7 +24,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 	if lb.Block != nil {
 		lbh = lb.Block.Height
 
-		hash, err := FloRPC.GetBlockHash(lb.Block.Height)
+		hash, err := flo.GetBlockHash(lb.Block.Height)
 		if err != nil {
 			return lb, err
 		}
@@ -41,7 +41,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 	startup := time.Now()
 	totalEstimatedSize := int64(0)
 
-	sync.Setup(&FloRPC)
+	Setup()
 
 	for nh := lbh + 1; nh <= count; nh++ {
 		if ctx.Err() != nil {
@@ -49,7 +49,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 			break
 		}
 
-		nlb, err := sync.IndexBlockAtHeight(nh, lb)
+		nlb, err := IndexBlockAtHeight(nh, lb)
 		if err != nil {
 			return lb, err
 		}

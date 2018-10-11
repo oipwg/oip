@@ -15,10 +15,7 @@ import (
 	_ "github.com/bitspill/oip/modules"
 	"github.com/bitspill/oip/sync"
 	"github.com/bitspill/oip/version"
-	"github.com/davecgh/go-spew/spew"
 )
-
-var FloRPC flo.RPC
 
 func main() {
 	log.Info("\n\n\n\n\n\n")
@@ -29,8 +26,7 @@ func main() {
 		"goVersion":  version.GoVersion,
 	})
 
-	FloRPC = flo.RPC{}
-	defer FloRPC.Disconnect()
+	defer flo.Disconnect()
 
 	rootContext := context.Background()
 	rootContext, cancelRoot := context.WithCancel(rootContext)
@@ -45,14 +41,14 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
 	defer cancel()
-	err := FloRPC.WaitForFlod(ctx, config.MainFlod.Host, config.MainFlod.User, config.MainFlod.Pass)
+	err := flo.WaitForFlod(ctx, config.MainFlod.Host, config.MainFlod.User, config.MainFlod.Pass)
 	if err != nil {
 		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": config.MainFlod.Host, "err": err})
 		shutdown(err)
 		return
 	}
 
-	count, err := FloRPC.GetBlockCount()
+	count, err := flo.GetBlockCount()
 	if err != nil {
 		log.Error("GetBlockCount failed", logger.Attrs{"err": err})
 		shutdown(err)
@@ -68,7 +64,7 @@ func main() {
 		return
 	}
 
-	lb, err := InitialSync(rootContext, count)
+	_, err = sync.InitialSync(rootContext, count)
 	if err != nil {
 		log.Error("Initial sync failed", logger.Attrs{"err": err})
 		shutdown(err)
@@ -78,21 +74,17 @@ func main() {
 	sync.IsInitialSync = false
 	datastore.AutoBulk.BeginTimedCommits(5 * time.Second)
 
-	err = FloRPC.BeginNotifyBlocks()
+	err = flo.BeginNotifyBlocks()
 	if err != nil {
 		log.Error("BeginNotifyBlocks failed", logger.Attrs{"err": err})
 		shutdown(err)
 		return
 	}
-	err = FloRPC.BeginNotifyTransactions()
+	err = flo.BeginNotifyTransactions()
 	if err != nil {
 		log.Error("BeginNotifyTransactions failed", logger.Attrs{"err": err})
 		shutdown(err)
 		return
-	}
-
-	if false {
-		spew.Dump(lb)
 	}
 
 	if config.API.Enabled {
@@ -105,5 +97,5 @@ func main() {
 }
 
 func shutdown(err error) {
-	log.Error("Shutting down...")
+	log.Error("Shutting down...", err)
 }

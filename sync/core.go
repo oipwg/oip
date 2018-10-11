@@ -4,26 +4,25 @@ import (
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
+	"github.com/pkg/errors"
 )
 
 var (
-	rpc *flo.RPC
 	ilb datastore.BlockData
 
 	IsInitialSync = true
 )
 
-func Setup(r *flo.RPC) {
-	rpc = r
+func Setup() {
 }
 
 func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockData, error) {
-	hash, err := rpc.GetBlockHash(height)
+	hash, err := flo.GetBlockHash(height)
 	if err != nil {
 		return lb, err
 	}
 
-	b, err := rpc.GetBlockVerboseTx(hash)
+	b, err := flo.GetBlockVerboseTx(hash)
 	if err != nil {
 		return lb, err
 	}

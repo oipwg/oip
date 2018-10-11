@@ -21,7 +21,10 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	// ToDo: manage ilb properly
 	// ToDo: check missed blocks between sync end and first notification
 	// ToDo: commit each new block when live
-	_, _ = IndexBlockAtHeight(int64(height), ilb)
+	_, err := IndexBlockAtHeight(int64(height), ilb)
+	if err != nil {
+		// ToDo: handle error regarding last/prev block hash mismatch
+	}
 }
 
 func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {

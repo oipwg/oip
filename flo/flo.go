@@ -20,11 +20,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-type RPC struct {
+var (
 	clients []*rpcclient.Client
-}
+)
 
-func (f *RPC) AddCore(host string, user string, pass string) error {
+func AddCore(host string, user string, pass string) error {
 	cfg := &rpcclient.ConnConfig{
 		Host:         host,
 		User:         user,
@@ -33,11 +33,11 @@ func (f *RPC) AddCore(host string, user string, pass string) error {
 		DisableTLS:   true,
 	}
 	c, err := rpcclient.New(cfg, nil)
-	f.clients = append(f.clients, c)
+	clients = append(clients, c)
 	return err
 }
 
-func (f *RPC) WaitForFlod(ctx context.Context, host string, user string, pass string) error {
+func WaitForFlod(ctx context.Context, host string, user string, pass string) error {
 	attempts := 0
 	a := logger.Attrs{"host": host, "attempts": attempts}
 	b := backoff.NewWithoutJitter(10*time.Minute, 1*time.Second)
@@ -47,7 +47,7 @@ func (f *RPC) WaitForFlod(ctx context.Context, host string, user string, pass st
 		attempts++
 		a["attempts"] = attempts
 		log.Info("attempting connection to flod", a)
-		err := f.AddFlod(host, user, pass)
+		err := AddFlod(host, user, pass)
 		if err != nil {
 			a["err"] = err
 			log.Error("unable to connect to flod", a)
@@ -77,7 +77,7 @@ func (f *RPC) WaitForFlod(ctx context.Context, host string, user string, pass st
 	return nil
 }
 
-func (f *RPC) AddFlod(host string, user string, pass string) error {
+func AddFlod(host string, user string, pass string) error {
 	// Connect to flod RPC server using websockets.
 	certs, err := ioutil.ReadFile(config.MainFlod.CertFile)
 	if err != nil {
@@ -113,27 +113,27 @@ func (f *RPC) AddFlod(host string, user string, pass string) error {
 	if err != nil {
 		return errors.Wrap(err, "unable to create new rpc client")
 	}
-	f.clients = append(f.clients, c)
+	clients = append(clients, c)
 	return nil
 }
 
-func (f *RPC) Disconnect() {
-	if len(f.clients) == 1 {
-		f.clients[0].Disconnect()
+func Disconnect() {
+	if len(clients) == 1 {
+		clients[0].Disconnect()
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			c.Disconnect()
 		}
 	}
 }
 
-func (f *RPC) GetBlockCount() (blockCount int64, err error) {
+func GetBlockCount() (blockCount int64, err error) {
 	err = errors.New("no clients connected")
 
-	if len(f.clients) == 1 {
-		blockCount, err = f.clients[0].GetBlockCount()
+	if len(clients) == 1 {
+		blockCount, err = clients[0].GetBlockCount()
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			blockCount, err = c.GetBlockCount()
 			if err == nil {
 				return
@@ -143,13 +143,13 @@ func (f *RPC) GetBlockCount() (blockCount int64, err error) {
 	return
 }
 
-func (f *RPC) BeginNotifyBlocks() (err error) {
+func BeginNotifyBlocks() (err error) {
 	err = errors.New("no clients connected")
 
-	if len(f.clients) == 1 {
-		err = f.clients[0].NotifyBlocks()
+	if len(clients) == 1 {
+		err = clients[0].NotifyBlocks()
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			err = c.NotifyBlocks()
 			if err == nil {
 				return
@@ -159,13 +159,13 @@ func (f *RPC) BeginNotifyBlocks() (err error) {
 	return
 }
 
-func (f *RPC) BeginNotifyTransactions() (err error) {
+func BeginNotifyTransactions() (err error) {
 	err = errors.New("no clients connected")
 
-	if len(f.clients) == 1 {
-		err = f.clients[0].NotifyNewTransactions(true)
+	if len(clients) == 1 {
+		err = clients[0].NotifyNewTransactions(true)
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			err = c.NotifyNewTransactions(true)
 			if err == nil {
 				return
@@ -175,16 +175,16 @@ func (f *RPC) BeginNotifyTransactions() (err error) {
 	return
 }
 
-func (f *RPC) GetFirstClient() *rpcclient.Client {
-	if len(f.clients) > 0 {
-		return f.clients[0]
+func GetFirstClient() *rpcclient.Client {
+	if len(clients) > 0 {
+		return clients[0]
 	}
 	return nil
 }
 
-func (f *RPC) GetBlockHash(i int64) (hash *chainhash.Hash, err error) {
+func GetBlockHash(i int64) (hash *chainhash.Hash, err error) {
 	err = errors.New("no clients connected")
-	for _, c := range f.clients {
+	for _, c := range clients {
 		hash, err = c.GetBlockHash(i)
 		if err == nil {
 			return
@@ -193,12 +193,12 @@ func (f *RPC) GetBlockHash(i int64) (hash *chainhash.Hash, err error) {
 	return
 }
 
-func (f *RPC) GetBlockVerboseTx(hash *chainhash.Hash) (br *flojson.GetBlockVerboseResult, err error) {
+func GetBlockVerboseTx(hash *chainhash.Hash) (br *flojson.GetBlockVerboseResult, err error) {
 	err = errors.New("no clients connected")
-	if len(f.clients) == 1 {
-		br, err = f.clients[0].GetBlockVerboseTx(hash)
+	if len(clients) == 1 {
+		br, err = clients[0].GetBlockVerboseTx(hash)
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			br, err = c.GetBlockVerboseTx(hash)
 			if err == nil {
 				return
@@ -208,12 +208,12 @@ func (f *RPC) GetBlockVerboseTx(hash *chainhash.Hash) (br *flojson.GetBlockVerbo
 	return
 }
 
-func (f *RPC) GetTxVerbose(hash *chainhash.Hash) (tr *flojson.TxRawResult, err error) {
+func GetTxVerbose(hash *chainhash.Hash) (tr *flojson.TxRawResult, err error) {
 	err = errors.New("no clients connected")
-	if len(f.clients) == 1 {
-		tr, err = f.clients[0].GetRawTransactionVerbose(hash)
+	if len(clients) == 1 {
+		tr, err = clients[0].GetRawTransactionVerbose(hash)
 	} else {
-		for _, c := range f.clients {
+		for _, c := range clients {
 			tr, err = c.GetRawTransactionVerbose(hash)
 			if err == nil {
 				return
