@@ -10,6 +10,6 @@ import (
 const floData = "CmUIARIiRlRmcjNWVjFhZEdIQ2lwaEtqZXZhbWd1U2JqckdOZnRDZhnXzU3IXmirPiEMi9WSISyzPikAAACAKrzLQTHutJ2vEWlKQjnzhgM69mDgPkG9x7o0VWKoP0nPZtXnardTQBACGAEiIkZUZnIzVlYxYWRHSENpcGhLamV2YW1ndVNianJHTmZ0Q2YqQR/yZ26g/uWHXuIxJZILWXQA/ZSskrcqzccmBg4suALQ7jdj7O1dkPwm3uZ6IXB3mtclubmynAYYX1XfhdeUpUEt"
 
 func TestOnP64(t *testing.T) {
-	onP64(floData, datastore.TransactionData{})
+	onP64(floData, &datastore.TransactionData{})
 	// ToDo: validate results, only useful in debugger for now
 }

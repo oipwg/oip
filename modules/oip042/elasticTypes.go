@@ -3,25 +3,25 @@ package oip042
 import "github.com/bitspill/oip/datastore"
 
 type OMeta struct {
-	Block     int64                     `json:"block"`
-	BlockHash string                    `json:"block_hash"`
-	Completed bool                      `json:"completed"`
-	Signature string                    `json:"signature"`
-	Txid      string                    `json:"txid"`
-	Time      int64                     `json:"time"`
-	Tx        datastore.TransactionData `json:"tx"`
-	Type      string                    `json:"type"`
+	Block     int64                      `json:"block"`
+	BlockHash string                     `json:"block_hash"`
+	Completed bool                       `json:"completed"`
+	Signature string                     `json:"signature"`
+	Txid      string                     `json:"txid"`
+	Time      int64                      `json:"time"`
+	Tx        *datastore.TransactionData `json:"tx"`
+	Type      string                     `json:"type"`
 }
 
 type AMeta struct {
-	Block       int64                     `json:"block"`
-	BlockHash   string                    `json:"block_hash"`
-	Deactivated bool                      `json:"deactivated"`
-	Signature   string                    `json:"signature"`
-	Txid        string                    `json:"txid"`
-	Time        int64                     `json:"time"`
-	Tx          datastore.TransactionData `json:"tx"`
-	Type        string                    `json:"type"`
+	Block       int64                      `json:"block"`
+	BlockHash   string                     `json:"block_hash"`
+	Deactivated bool                       `json:"deactivated"`
+	Signature   string                     `json:"signature"`
+	Txid        string                     `json:"txid"`
+	Time        int64                      `json:"time"`
+	Tx          *datastore.TransactionData `json:"tx"`
+	Type        string                     `json:"type"`
 }
 
 type elasticOip042Edit struct {

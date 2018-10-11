@@ -110,7 +110,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func onAlexandriaMedia(floData string, tx datastore.TransactionData) {
+func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
 	log.Info("onAlexandriaMedia", logger.Attrs{"txid": tx.Transaction.Txid})
 
 	bytesFloData := []byte(floData)
@@ -151,14 +151,14 @@ type elasticAm struct {
 }
 
 type AmMeta struct {
-	Block       int64                     `json:"block"`
-	BlockHash   string                    `json:"block_hash"`
-	Deactivated bool                      `json:"deactivated"`
-	Signature   string                    `json:"signature"`
-	Txid        string                    `json:"txid"`
-	Time        int64                     `json:"time"`
-	Tx          datastore.TransactionData `json:"tx"`
-	Type        string                    `json:"type"`
+	Block       int64                      `json:"block"`
+	BlockHash   string                     `json:"block_hash"`
+	Deactivated bool                       `json:"deactivated"`
+	Signature   string                     `json:"signature"`
+	Txid        string                     `json:"txid"`
+	Time        int64                      `json:"time"`
+	Tx          *datastore.TransactionData `json:"tx"`
+	Type        string                     `json:"type"`
 }
 
 const amMapping = `{

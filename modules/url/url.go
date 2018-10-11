@@ -12,7 +12,7 @@ func init() {
 	events.Bus.SubscribeAsync("modules:url", onUrl, false)
 }
 
-func onFloData(floData string, tx datastore.TransactionData) {
+func onFloData(floData string, tx *datastore.TransactionData) {
 	if strings.HasPrefix(floData, "http://") || strings.HasPrefix(floData, "https://") {
 		events.Bus.Publish("modules:url", floData)
 		return

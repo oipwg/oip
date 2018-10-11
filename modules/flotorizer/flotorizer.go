@@ -18,7 +18,7 @@ func init() {
 	}
 }
 
-func onFloData(floData string, tx datastore.TransactionData) {
+func onFloData(floData string, tx *datastore.TransactionData) {
 	if tx.Block < 1500000 {
 		return
 	}

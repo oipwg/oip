@@ -24,7 +24,7 @@ func init() {
 	datastore.RegisterMapping(oip042ArtifactIndex, publishOip042ArtifactMapping)
 }
 
-func on42Json(message jsoniter.RawMessage, tx datastore.TransactionData) {
+func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42Json", logger.Attrs{"txid": tx.Transaction.Txid})
 	if !jsoniter.Valid(message) {
@@ -66,7 +66,7 @@ func on42Json(message jsoniter.RawMessage, tx datastore.TransactionData) {
 	log.Error("no publisher/register message %s", tx.Transaction.Txid)
 }
 
-func on42JsonPublish(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonPublish(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonPublish", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -86,7 +86,7 @@ func on42JsonPublish(any jsoniter.Any, tx datastore.TransactionData) {
 	log.Error("no publish %s", tx.Transaction.Txid)
 }
 
-func on42JsonRegister(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonRegister(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegister", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -130,7 +130,7 @@ func on42JsonRegister(any jsoniter.Any, tx datastore.TransactionData) {
 	log.Error("no supported register %s", tx.Transaction.Txid)
 }
 
-func on42JsonEdit(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEdit(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEdit", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -180,7 +180,7 @@ func on42JsonEdit(any jsoniter.Any, tx datastore.TransactionData) {
 	log.Error("no supported edit %s", tx.Transaction.Txid)
 }
 
-func on42JsonTransfer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransfer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransfer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -230,7 +230,7 @@ func on42JsonTransfer(any jsoniter.Any, tx datastore.TransactionData) {
 	log.Error("no supported transfer %s", tx.Transaction.Txid)
 }
 
-func on42JsonDeactivate(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivate(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivate", logger.Attrs{"txid": tx.Transaction.Txid})
 

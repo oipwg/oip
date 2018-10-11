@@ -41,7 +41,7 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 	datastore.AutoBulk.StoreBlock(bd)
 
 	for _, v := range bd.Block.RawTx {
-		tx := datastore.TransactionData{
+		tx := &datastore.TransactionData{
 			Block:       bd.Block.Height,
 			BlockHash:   bd.Block.Hash,
 			Confirmed:   true,

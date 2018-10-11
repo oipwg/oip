@@ -94,7 +94,7 @@ func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 	bi.Add(bir)
 }
 
-func (bi *BulkIndexer) StoreTransaction(td TransactionData) {
+func (bi *BulkIndexer) StoreTransaction(td *TransactionData) {
 	bir := elastic.NewBulkIndexRequest().
 		Index("transactions").
 		Type("_doc").

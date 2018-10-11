@@ -233,7 +233,7 @@ func tryCompleteMultipart(mp Multipart) {
 	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
 }
 
-func onMultipartSingle(floData string, tx datastore.TransactionData) {
+func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 	ms, err := multipartSingleFromString(floData)
 	if err != nil {
 		log.Info("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
@@ -375,13 +375,13 @@ type MultipartSingle struct {
 }
 
 type MSMeta struct {
-	Block     int64                     `json:"block"`
-	BlockHash string                    `json:"block_hash"`
-	Complete  bool                      `json:"complete"`
-	Stale     bool                      `json:"stale"`
-	Txid      string                    `json:"txid"`
-	Time      int64                     `json:"time"`
-	Tx        datastore.TransactionData `json:"tx"`
+	Block     int64                      `json:"block"`
+	BlockHash string                     `json:"block_hash"`
+	Complete  bool                       `json:"complete"`
+	Stale     bool                       `json:"stale"`
+	Txid      string                     `json:"txid"`
+	Time      int64                      `json:"time"`
+	Tx        *datastore.TransactionData `json:"tx"`
 }
 
 type Multipart struct {

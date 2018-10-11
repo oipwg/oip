@@ -29,7 +29,7 @@ func init() {
 	events.Bus.SubscribeAsync("sync:floData:p64", onP64, false)
 }
 
-func onFloDataMainNet(floData string, tx datastore.TransactionData) {
+func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
 	if len(floData) < minFloDataLen {
 		// impossible to be a valid item at such a short length
 		return
@@ -100,7 +100,7 @@ func onFloDataMainNet(floData string, tx datastore.TransactionData) {
 
 }
 
-func onFloDataTestNet(floData string, tx datastore.TransactionData) {
+func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
 	if len(floData) < minFloDataLen {
 		// impossible to be a valid item at such a short length
 		return
@@ -147,7 +147,7 @@ func onFloDataTestNet(floData string, tx datastore.TransactionData) {
 
 }
 
-func processPrefix(prefix, namespace, floData string, tx datastore.TransactionData) bool {
+func processPrefix(prefix, namespace, floData string, tx *datastore.TransactionData) bool {
 	if strings.HasPrefix(floData, prefix) {
 		log.Info("prefix match", logger.Attrs{"txid": tx.Transaction.Txid, "prefix": prefix, "namespace": namespace})
 		events.Bus.Publish(namespace, strings.TrimPrefix(floData, prefix), tx)
@@ -156,7 +156,7 @@ func processPrefix(prefix, namespace, floData string, tx datastore.TransactionDa
 	return false
 }
 
-func onJson(floData string, tx datastore.TransactionData) {
+func onJson(floData string, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("onJson", logger.Attrs{"txid": tx.Transaction.Txid})
 	var dj map[string]jsoniter.RawMessage
@@ -174,7 +174,7 @@ func onJson(floData string, tx datastore.TransactionData) {
 	log.Error("no supported json type", logger.Attrs{"txid": tx.Transaction.Txid})
 }
 
-func onP64(p64 string, tx datastore.TransactionData) {
+func onP64(p64 string, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("onP64", logger.Attrs{"txid": tx.Transaction.Txid})
 

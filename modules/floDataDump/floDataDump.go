@@ -142,7 +142,7 @@ func onCommit() {
 	}
 }
 
-func onFloData(floData string, tx datastore.TransactionData) {
+func onFloData(floData string, tx *datastore.TransactionData) {
 	// if !spamCheck(floData) {
 	//	log.Info(floData)
 	// }

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonRegisterInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonRegisterInfluencer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegisterInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -30,7 +30,7 @@ func on42JsonRegisterInfluencer(any jsoniter.Any, tx datastore.TransactionData) 
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditInfluencer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEditInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -53,7 +53,7 @@ func on42JsonEditInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferInfluencer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransferInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -76,7 +76,7 @@ func on42JsonTransferInfluencer(any jsoniter.Any, tx datastore.TransactionData) 
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivateInfluencer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivateInfluencer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivateInfluencer", logger.Attrs{"txid": tx.Transaction.Txid})
 

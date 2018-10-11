@@ -34,7 +34,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 }
 
 func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
-	tx := datastore.TransactionData{
+	tx := &datastore.TransactionData{
 		Block:       -1,
 		BlockHash:   "",
 		Confirmed:   false,

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonRegisterPool(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonRegisterPool(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegisterPool", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -30,7 +30,7 @@ func on42JsonRegisterPool(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditPool(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditPool(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEditPool", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -53,7 +53,7 @@ func on42JsonEditPool(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferPool(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferPool(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransferPool", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -76,7 +76,7 @@ func on42JsonTransferPool(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivatePool(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivatePool(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivatePool", logger.Attrs{"txid": tx.Transaction.Txid})
 

@@ -18,7 +18,7 @@ func init() {
 	}
 }
 
-func onFloData(floData string, tx datastore.TransactionData) {
+func onFloData(floData string, tx *datastore.TransactionData) {
 	if tx.Block < 500000 {
 		return
 	}
@@ -34,7 +34,7 @@ func onFloData(floData string, tx datastore.TransactionData) {
 	}
 }
 
-func onAlove(floData string, tx datastore.TransactionData) {
+func onAlove(floData string, tx *datastore.TransactionData) {
 	var message, to, from string
 
 	chunks := strings.SplitN(floData, "|", 2)

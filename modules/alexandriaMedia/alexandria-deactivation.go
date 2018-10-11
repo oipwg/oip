@@ -23,7 +23,7 @@ func init() {
 	datastore.RegisterMapping(adIndexName, adMapping)
 }
 
-func onAlexandriaDeactivation(floData string, tx datastore.TransactionData) {
+func onAlexandriaDeactivation(floData string, tx *datastore.TransactionData) {
 	var ad floAd
 	err := json.Unmarshal([]byte(floData), &ad)
 	if err != nil {
@@ -119,13 +119,13 @@ type elasticAd struct {
 }
 
 type AdMeta struct {
-	Block     int64                     `json:"block"`
-	BlockHash string                    `json:"block_hash"`
-	Complete  bool                      `json:"complete"`
-	Stale     bool                      `json:"stale"`
-	Txid      string                    `json:"txid"`
-	Time      int64                     `json:"time"`
-	Tx        datastore.TransactionData `json:"tx"`
+	Block     int64                      `json:"block"`
+	BlockHash string                     `json:"block_hash"`
+	Complete  bool                       `json:"complete"`
+	Stale     bool                       `json:"stale"`
+	Txid      string                     `json:"txid"`
+	Time      int64                      `json:"time"`
+	Tx        *datastore.TransactionData `json:"tx"`
 }
 
 const adMapping = `{

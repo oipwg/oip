@@ -7,7 +7,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonRegisterAutominer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonRegisterAutominer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegisterAutominer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -30,7 +30,7 @@ func on42JsonRegisterAutominer(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditAutominer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditAutominer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEditAutominer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -53,7 +53,7 @@ func on42JsonEditAutominer(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferAutominer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferAutominer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransferAutominer", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -76,7 +76,7 @@ func on42JsonTransferAutominer(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivateAutominer(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivateAutominer(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivateAutominer", logger.Attrs{"txid": tx.Transaction.Txid})
 

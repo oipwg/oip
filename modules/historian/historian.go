@@ -120,7 +120,7 @@ func handle24hr(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func onStringHdp(floData string, tx datastore.TransactionData) {
+func onStringHdp(floData string, tx *datastore.TransactionData) {
 	log.Info("historian dataPoint ", tx.Transaction.Txid)
 
 	el, err := validateHdp(floData, tx)
@@ -133,7 +133,7 @@ func onStringHdp(floData string, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(hdp oipProto.HistorianDataPoint, tx datastore.TransactionData) {
+func onProtoHdp(hdp oipProto.HistorianDataPoint, tx *datastore.TransactionData) {
 	log.Info("historian dataPoint ", tx.Transaction.Txid)
 
 	var el elasticHdp
@@ -154,11 +154,11 @@ type elasticHdp struct {
 	Meta      HMeta       `json:"meta"`
 }
 type HMeta struct {
-	Block     int64                     `json:"block"`
-	BlockHash string                    `json:"block_hash"`
-	Txid      string                    `json:"txid"`
-	Time      int64                     `json:"time"`
-	Tx        datastore.TransactionData `json:"tx"`
+	Block     int64                      `json:"block"`
+	BlockHash string                     `json:"block_hash"`
+	Txid      string                     `json:"txid"`
+	Time      int64                      `json:"time"`
+	Tx        *datastore.TransactionData `json:"tx"`
 }
 type DataPoint struct {
 	Version      int     `json:"version,omitempty"`
@@ -183,7 +183,7 @@ const (
 	oipV3  = iota
 )
 
-func validateHdp(floData string, tx datastore.TransactionData) (elasticHdp, error) {
+func validateHdp(floData string, tx *datastore.TransactionData) (elasticHdp, error) {
 	if tx.Block > 2731000 {
 		return elasticHdp{}, errors.New("deprecated")
 	}

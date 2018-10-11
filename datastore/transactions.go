@@ -13,7 +13,7 @@ func init() {
 	RegisterMapping("transactions", transactionsMapping)
 }
 
-func StoreTransaction(ctx context.Context, t TransactionData) (*elastic.IndexResponse, error) {
+func StoreTransaction(ctx context.Context, t *TransactionData) (*elastic.IndexResponse, error) {
 	put1, err := client.Index().
 		Index("transaction").
 		Type("_doc").

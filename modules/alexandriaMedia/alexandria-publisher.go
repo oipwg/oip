@@ -108,7 +108,7 @@ func handleGetPublisher(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func onAlexandriaPublisher(floData string, tx datastore.TransactionData) {
+func onAlexandriaPublisher(floData string, tx *datastore.TransactionData) {
 	var ap map[string]json.RawMessage
 	err := json.Unmarshal([]byte(floData), &ap)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonPublishArtifact(artifact jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionData) {
 	title := artifact.Get("info", "title").ToString()
 	if len(title) == 0 {
 		log.Error("oip042 no title", logger.Attrs{"txid": tx.Transaction.Txid})
@@ -54,7 +54,7 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx datastore.TransactionData
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEditArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -77,7 +77,7 @@ func on42JsonEditArtifact(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransferArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -100,7 +100,7 @@ func on42JsonTransferArtifact(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivateArtifact(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivateArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivateArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
 

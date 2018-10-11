@@ -118,7 +118,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func on41(floData string, tx datastore.TransactionData) {
+func on41(floData string, tx *datastore.TransactionData) {
 	log.Info("oip041 ", tx.Transaction.Txid)
 
 	any := jsoniter.Get([]byte(floData))
@@ -138,17 +138,17 @@ type elasticOip041 struct {
 	Meta     OMeta       `json:"meta"`
 }
 type OMeta struct {
-	Block       int64                     `json:"block"`
-	BlockHash   string                    `json:"block_hash"`
-	Deactivated bool                      `json:"deactivated"`
-	Signature   string                    `json:"signature"`
-	Txid        string                    `json:"txid"`
-	Time        int64                     `json:"time"`
-	Tx          datastore.TransactionData `json:"tx"`
-	Type        string                    `json:"type"`
+	Block       int64                      `json:"block"`
+	BlockHash   string                     `json:"block_hash"`
+	Deactivated bool                       `json:"deactivated"`
+	Signature   string                     `json:"signature"`
+	Txid        string                     `json:"txid"`
+	Time        int64                      `json:"time"`
+	Tx          *datastore.TransactionData `json:"tx"`
+	Type        string                     `json:"type"`
 }
 
-func validateOip041(any jsoniter.Any, tx datastore.TransactionData) (elasticOip041, error) {
+func validateOip041(any jsoniter.Any, tx *datastore.TransactionData) (elasticOip041, error) {
 	var el elasticOip041
 
 	o41 := any.Get("oip-041")

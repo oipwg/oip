@@ -7,7 +7,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func on42JsonRegisterPlatform(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonRegisterPlatform(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonRegisterPlatform", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -30,7 +30,7 @@ func on42JsonRegisterPlatform(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditPlatform(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonEditPlatform(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEditPlatform", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -53,7 +53,7 @@ func on42JsonEditPlatform(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonTransferPlatform(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonTransferPlatform(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonTransferPlatform", logger.Attrs{"txid": tx.Transaction.Txid})
 
@@ -76,7 +76,7 @@ func on42JsonTransferPlatform(any jsoniter.Any, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonDeactivatePlatform(any jsoniter.Any, tx datastore.TransactionData) {
+func on42JsonDeactivatePlatform(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonDeactivatePlatform", logger.Attrs{"txid": tx.Transaction.Txid})
 

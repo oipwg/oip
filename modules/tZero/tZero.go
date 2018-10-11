@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-func floDataProcessor(floData string, tx datastore.TransactionData) {
+func floDataProcessor(floData string, tx *datastore.TransactionData) {
 	if tx.Block < 2000000 {
 		return
 	}
@@ -45,7 +45,7 @@ func floDataProcessor(floData string, tx datastore.TransactionData) {
 	}
 }
 
-func onCancel(floData string, tx datastore.TransactionData) {
+func onCancel(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "Cancel"
@@ -53,7 +53,7 @@ func onCancel(floData string, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onInventoryPosted(floData string, tx datastore.TransactionData) {
+func onInventoryPosted(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "InventoryPosted"
@@ -61,7 +61,7 @@ func onInventoryPosted(floData string, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onClientInterest(floData string, tx datastore.TransactionData) {
+func onClientInterest(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "ClientInterest"
@@ -69,7 +69,7 @@ func onClientInterest(floData string, tx datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onExecutionReport(floData string, tx datastore.TransactionData) {
+func onExecutionReport(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "ExecutionReport"
