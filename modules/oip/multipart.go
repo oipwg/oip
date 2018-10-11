@@ -188,9 +188,10 @@ func onDatastoreCommit() {
 func tryCompleteMultipart(mp Multipart) {
 	rebuild := make([]string, mp.Total)
 	var part0 MultipartSingle
-	for _, value := range mp.Parts {
+	for i := range mp.Parts {
+		value := &mp.Parts[i]
 		if value.Part == 0 {
-			part0 = value
+			part0 = *value
 		}
 		if rebuild[value.Part] != "" {
 			log.Info("dupe", value.Meta.Txid)
