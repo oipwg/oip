@@ -18,6 +18,16 @@ func init() {
 }
 
 func onMpCompleted() {
+	exist, err := datastore.Client().IndexExists(oip042DeactivateIndex).Do(context.TODO())
+	if err != nil {
+		log.Error("elastic index exists failed", logger.Attrs{"err": err, "index": oip042DeactivateIndex})
+		return
+	}
+	if !exist {
+		log.Info("elastic index doesn't exist", logger.Attrs{"index": oip042DeactivateIndex})
+		return
+	}
+
 	deactivationCommitMutex.Lock()
 	defer deactivationCommitMutex.Unlock()
 
