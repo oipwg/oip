@@ -1,13 +1,18 @@
 package oip
 
 import (
+	"encoding/base64"
 	"strings"
 
 	"github.com/azer/logger"
+	"github.com/bitspill/oip/btc"
 	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/filters"
+	"github.com/bitspill/oip/flo"
+	"github.com/bitspill/oipProto/go/oipProto"
+	"github.com/golang/protobuf/proto"
 	"github.com/json-iterator/go"
 )
 
@@ -21,6 +26,7 @@ func init() {
 		events.Bus.SubscribeAsync("flo:floData", onFloDataMainNet, false)
 	}
 	events.Bus.SubscribeAsync("sync:floData:json", onJson, false)
+	events.Bus.SubscribeAsync("sync:floData:p64", onP64, false)
 }
 
 func onFloDataMainNet(floData string, tx datastore.TransactionData) {
@@ -39,6 +45,17 @@ func onFloDataMainNet(floData string, tx datastore.TransactionData) {
 
 	simplified := strings.TrimSpace(floData[0:35])
 	simplified = strings.Replace(simplified, " ", "", -1)
+
+	if tx.Block < 2731000 && tx.Transaction.Vin[0].IsCoinBase() {
+		// oip-historian-3
+		// oip-historian-2
+		// oip-historian-1
+		// alexandria-historian-v001
+		if strings.HasPrefix(simplified, "oip-historian-") ||
+			strings.HasPrefix(simplified, "alexandria-historian-") {
+			events.Bus.Publish("modules:historian:stringDataPoint", floData, tx)
+		}
+	}
 
 	if (tx.Block > 2263000 && strings.HasPrefix(simplified, "oip-mp(")) ||
 		(tx.Block < 2400000 && strings.HasPrefix(simplified, "alexandria-media-multipart(")) {
@@ -75,7 +92,7 @@ func onFloDataMainNet(floData string, tx datastore.TransactionData) {
 		return
 	}
 	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	//	return
+	// 	return
 	// }
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
@@ -122,7 +139,7 @@ func onFloDataTestNet(floData string, tx datastore.TransactionData) {
 		return
 	}
 	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	//	return
+	// 	return
 	// }
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
@@ -155,4 +172,71 @@ func onJson(floData string, tx datastore.TransactionData) {
 	}
 
 	log.Error("no supported json type", logger.Attrs{"txid": tx.Transaction.Txid})
+}
+
+func onP64(p64 string, tx datastore.TransactionData) {
+	t := log.Timer()
+	defer t.End("onP64", logger.Attrs{"txid": tx.Transaction.Txid})
+
+	b, err := base64.StdEncoding.DecodeString(p64)
+	if err != nil {
+		log.Error("unable to decode base 64 message",
+			logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+		return
+	}
+
+	var msg oipProto.SignedMessage
+	err = proto.Unmarshal(b, &msg)
+	if err != nil {
+		log.Error("unable to unmarshal protobuf message",
+			logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+		return
+	}
+
+	signature := base64.StdEncoding.EncodeToString(msg.Signature)
+	pubKey := string(msg.PubKey)
+	signedMessage := base64.StdEncoding.EncodeToString(msg.SerializedMessage)
+
+	switch msg.SignatureType {
+	case oipProto.SignatureTypes_Btc:
+		valid, err := btc.CheckSignature(pubKey, signature, signedMessage)
+		if err != nil || !valid {
+			log.Error("btc signature validation failed",
+				logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType,
+					"pubKey": pubKey, "signature": signature,
+					"message": signedMessage})
+			return
+		}
+	case oipProto.SignatureTypes_Flo:
+		valid, err := flo.CheckSignature(pubKey, signature, signedMessage)
+		if err != nil || !valid {
+			log.Error("flo signature validation failed",
+				logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType,
+					"pubKey": pubKey, "signature": signature,
+					"message": signedMessage})
+			return
+		}
+	default:
+		log.Error("unsupported proto signature type",
+			logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType})
+		return
+	}
+
+	switch msg.MessageType {
+	case oipProto.MessageTypes_Historian:
+		var hdp oipProto.HistorianDataPoint
+		err = proto.Unmarshal(msg.SerializedMessage, &hdp)
+		if err != nil {
+			log.Error("unable to unmarshal protobuf historian message",
+				logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+			return
+		}
+		events.Bus.Publish("modules:historian:protoDataPoint", hdp, tx)
+	case oipProto.MessageTypes_OIP05:
+		// ToDo
+		log.Info("unexpected OIP 0.5 message", logger.Attrs{"txid": tx.Transaction.Txid})
+	default:
+		log.Error("unsupported proto message type",
+			logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "msgType": msg.MessageType})
+	}
 }
