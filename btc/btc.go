@@ -22,7 +22,7 @@ func CheckAddress(address string) (bool, error) {
 	*/
 }
 
-func CheckSignature(address string, signature string, message string) (bool, error) {
+func CheckSignature(address, signature, message string) (bool, error) {
 	// ToDo: need BTC chaincfg params
 	return false, errors.New("Bitcoin signature validation not implemented")
 

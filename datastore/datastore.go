@@ -85,7 +85,7 @@ func getHttpClient() (*http.Client, error) {
 	return httpClient, nil
 }
 
-func RegisterMapping(index string, mapping string) error {
+func RegisterMapping(index, mapping string) error {
 	mappings[index] = mapping
 	if client != nil {
 		return createIndex(context.TODO(), index, mapping)
@@ -93,7 +93,7 @@ func RegisterMapping(index string, mapping string) error {
 	return nil
 }
 
-func createIndex(ctx context.Context, index string, mapping string) error {
+func createIndex(ctx context.Context, index, mapping string) error {
 	exists, err := client.IndexExists(index).Do(ctx)
 	if err != nil {
 		return errors.Wrap(err, "index existence check failure")

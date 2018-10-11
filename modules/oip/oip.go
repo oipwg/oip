@@ -147,7 +147,7 @@ func onFloDataTestNet(floData string, tx datastore.TransactionData) {
 
 }
 
-func processPrefix(prefix string, namespace string, floData string, tx datastore.TransactionData) bool {
+func processPrefix(prefix, namespace, floData string, tx datastore.TransactionData) bool {
 	if strings.HasPrefix(floData, prefix) {
 		log.Info("prefix match", logger.Attrs{"txid": tx.Transaction.Txid, "prefix": prefix, "namespace": namespace})
 		events.Bus.Publish(namespace, strings.TrimPrefix(floData, prefix), tx)

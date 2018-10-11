@@ -24,7 +24,7 @@ var (
 	clients []*rpcclient.Client
 )
 
-func AddCore(host string, user string, pass string) error {
+func AddCore(host, user, pass string) error {
 	cfg := &rpcclient.ConnConfig{
 		Host:         host,
 		User:         user,
@@ -37,7 +37,7 @@ func AddCore(host string, user string, pass string) error {
 	return err
 }
 
-func WaitForFlod(ctx context.Context, host string, user string, pass string) error {
+func WaitForFlod(ctx context.Context, host, user, pass string) error {
 	attempts := 0
 	a := logger.Attrs{"host": host, "attempts": attempts}
 	b := backoff.NewWithoutJitter(10*time.Minute, 1*time.Second)
@@ -77,7 +77,7 @@ func WaitForFlod(ctx context.Context, host string, user string, pass string) err
 	return nil
 }
 
-func AddFlod(host string, user string, pass string) error {
+func AddFlod(host, user, pass string) error {
 	// Connect to flod RPC server using websockets.
 	certs, err := ioutil.ReadFile(config.MainFlod.CertFile)
 	if err != nil {
@@ -236,7 +236,7 @@ func CheckAddress(address string) (bool, error) {
 	return true, nil
 }
 
-func CheckSignature(address string, signature string, message string) (bool, error) {
+func CheckSignature(address, signature, message string) (bool, error) {
 	var ok bool
 	var err error
 	if config.Testnet {
