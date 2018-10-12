@@ -41,14 +41,12 @@ func onMpCompleted() {
 		return
 	}
 
-	// ToDo: move early abort here
-
-	log.Info("Collecting deactivates to attempt applying", logger.Attrs{"pendingDeactivations": len(results.Hits.Hits)})
-
 	if len(results.Hits.Hits) == 0 {
 		// early abort
 		return
 	}
+
+	log.Info("Collecting deactivates to attempt applying", logger.Attrs{"pendingDeactivations": len(results.Hits.Hits)})
 
 	for _, v := range results.Hits.Hits {
 		var ea elasticOip042Deactivate
