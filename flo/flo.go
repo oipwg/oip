@@ -79,7 +79,8 @@ func WaitForFlod(ctx context.Context, host, user, pass string) error {
 
 func AddFlod(host, user, pass string) error {
 	// Connect to flod RPC server using websockets.
-	certs, err := ioutil.ReadFile(config.MainFlod.CertFile)
+	certFile := config.Get("flod.certFile").String("rpc.cert")
+	certs, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		return errors.Wrap(err, "unable to read rpc.cert")
 	}
@@ -225,7 +226,7 @@ func GetTxVerbose(hash *chainhash.Hash) (tr *flojson.TxRawResult, err error) {
 
 func CheckAddress(address string) (bool, error) {
 	var err error
-	if config.Testnet {
+	if config.IsTestnet() {
 		_, err = floutil.DecodeAddress(address, &chaincfg.TestNet3Params)
 	} else {
 		_, err = floutil.DecodeAddress(address, &chaincfg.MainNetParams)
@@ -239,7 +240,7 @@ func CheckAddress(address string) (bool, error) {
 func CheckSignature(address, signature, message string) (bool, error) {
 	var ok bool
 	var err error
-	if config.Testnet {
+	if config.IsTestnet() {
 		ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.TestNet3Params)
 	} else {
 		ok, err = flosig.CheckSignature(address, signature, message, "Florincoin", &chaincfg.MainNetParams)

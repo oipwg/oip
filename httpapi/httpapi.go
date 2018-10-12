@@ -21,7 +21,8 @@ func init() {
 }
 
 func Serve() {
-	http.ListenAndServe(config.API.Listen, router)
+	listen := config.Get("api.listen").String("127.0.0.1:1606")
+	http.ListenAndServe(listen, router)
 }
 
 func NewSubRoute(prefix string) *mux.Router {

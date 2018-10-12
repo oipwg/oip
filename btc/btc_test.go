@@ -11,10 +11,10 @@ func TestCheckSignature(t *testing.T) {
 	t.Skip("requires BTC chaincfg params")
 
 	// save setting to restore post-test
-	testnet := config.Testnet
+	testnet := config.IsTestnet()
 
 	// MainNet
-	config.Testnet = false
+	config.SetTestnet(false)
 	adr := "1PVdqQygncV32a5YMWUmfEz2h3CqdHfXJe"
 	sig := "G25OicB3g46g9kZ0dGOI8+d9ZTlGrH8yKbCa5Xcd10UHcXZ0NRncgwCsKKGyXkU2+BLy0aq3013a0dTFfWf6mDQ="
 	msg := "Bitcoin signed message test"
@@ -27,9 +27,9 @@ func TestCheckSignature(t *testing.T) {
 	}
 
 	// TestNet
-	config.Testnet = true
+	config.SetTestnet(true)
 	// ToDo: add testnet test case
 
 	// restore pre-test setting
-	config.Testnet = testnet
+	config.SetTestnet(testnet)
 }

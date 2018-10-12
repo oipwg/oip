@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/BurntSushi/toml"
+  packages = ["."]
+  revision = "3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
+  version = "v0.3.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/asaskevich/EventBus"
   packages = ["."]
@@ -18,6 +24,12 @@
   packages = ["."]
   revision = "b2064509a05be7b89fecfe472d13843bcf3a8b3d"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/bitly/go-simplejson"
+  packages = ["."]
+  revision = "aabad6e819789e569bd6aabf444c935aa9ba1e44"
+  version = "v0.5.0"
 
 [[projects]]
   branch = "master"
@@ -90,10 +102,28 @@
   revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
 
 [[projects]]
+  name = "github.com/fsnotify/fsnotify"
+  packages = ["."]
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
+
+[[projects]]
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "d460ce9f8df2e77fb1ba55ca87fafed96c607494"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -106,6 +136,28 @@
   packages = ["."]
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
+
+[[projects]]
+  name = "github.com/hashicorp/hcl"
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token"
+  ]
+  revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
+  version = "v0.3.6"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -123,6 +175,27 @@
     "jwriter"
   ]
   revision = "60711f1a8329503b04e1c88535f419d0bb440bff"
+
+[[projects]]
+  name = "github.com/micro/go-config"
+  packages = [
+    ".",
+    "encoder",
+    "encoder/hcl",
+    "encoder/json",
+    "encoder/toml",
+    "encoder/xml",
+    "encoder/yaml",
+    "loader",
+    "loader/memory",
+    "reader",
+    "reader/json",
+    "source",
+    "source/file",
+    "source/memory"
+  ]
+  revision = "5257420bbbf11e151d5a44f031cc26fee3b12963"
+  version = "v0.9.0"
 
 [[projects]]
   name = "github.com/modern-go/concurrent"
@@ -146,6 +219,12 @@
   version = "v6.2.10"
 
 [[projects]]
+  name = "github.com/pborman/uuid"
+  packages = ["."]
+  revision = "adf5a7427709b9deb95d29d3fa8a2bf9cfd388f1"
+  version = "v1.2"
+
+[[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
@@ -162,14 +241,26 @@
   revision = "7c1a557ab941a71c619514f229f0b27ccb0c27cf"
 
 [[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "fa43e7bc11baaae89f3f902b2b4d832b68234844"
+
+[[projects]]
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
   revision = "156bc8f4ccd31cbf7567a0ed3a64335d6767e4b9"
   version = "v6.2.10"
 
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ae2794aa4c83de37d04506d0b6a482978cb122b546feee90d944d05e111e60c4"
+  inputs-digest = "04ea37afd62edf66e4bd2997318417c6bf383d2e76926a43ce2db6d3e7ea8598"
   solver-name = "gps-cdcl"
   solver-version = 1

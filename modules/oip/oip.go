@@ -20,7 +20,7 @@ const minFloDataLen = 35
 
 func init() {
 	log.Info("init oip")
-	if config.Testnet {
+	if config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", onFloDataTestNet, false)
 	} else {
 		events.Bus.SubscribeAsync("flo:floData", onFloDataMainNet, false)

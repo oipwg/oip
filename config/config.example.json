@@ -1,16 +1,21 @@
 {
   "elastic": {
-    "use_cert": true,
-    "cert_file": "config/cert/oipd.pem",
-    "cert_key": "config/cert/oipd.key",
-    "cert_root": "config/cert/root-ca.pem",
+    "useCert": true,
+    "certFile": "config/cert/oipd.pem",
+    "certKey": "config/cert/oipd.key",
+    "certRoot": "config/cert/root-ca.pem",
     "host": "https://127.0.0.1:9200"
   },
-  "main_flod": {
+  "flod": {
     "host": "127.0.0.1:8334",
     "user": "user",
     "pass": "pass",
-    "cert_file": "~/.flod/rpc.cert"
+    "certFile": "~/.flod/rpc.cert"
+  },
+  "testnet": false,
+  "api": {
+    "listen": "0.0.0.0:1606",
+    "enabled": false
   }
 }
 

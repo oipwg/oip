@@ -11,7 +11,7 @@ import (
 
 func init() {
 	log.Info("init flotorizer")
-	if !config.Testnet {
+	if !config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
 		events.Bus.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
 		datastore.RegisterMapping("flotorizer", flotorizerMapping)

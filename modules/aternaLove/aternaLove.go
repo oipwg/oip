@@ -12,7 +12,7 @@ import (
 
 func init() {
 	log.Info("init aterna")
-	if !config.Testnet {
+	if !config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
 		events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
 		datastore.RegisterMapping("aterna", aternaMapping)

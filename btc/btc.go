@@ -10,7 +10,7 @@ func CheckAddress(address string) (bool, error) {
 
 	/*
 		var err error
-		if config.Testnet {
+		if config.IsTestnet() {
 			_, err = floutil.DecodeAddress(address, &chaincfg.BtcTestNet3Params)
 		} else {
 			_, err = floutil.DecodeAddress(address, &chaincfg.BtcMainNetParams)
@@ -29,7 +29,7 @@ func CheckSignature(address, signature, message string) (bool, error) {
 	/*
 		var ok bool
 		var err error
-		if config.Testnet {
+		if config.IsTestnet() {
 			ok, err = flosig.CheckSignature(address, signature, message, "Bitcoin", &chaincfg.BtcTestNet3Params)
 		} else {
 			ok, err = flosig.CheckSignature(address, signature, message, "Bitcoin", &chaincfg.BtcMainNetParams)

@@ -41,9 +41,14 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
 	defer cancel()
-	err := flo.WaitForFlod(ctx, config.MainFlod.Host, config.MainFlod.User, config.MainFlod.Pass)
+
+	host := config.Get("flod.host").String("127.0.0.1:8334")
+	user := config.Get("flod.user").String("user")
+	pass := config.Get("flod.pass").String("pass")
+
+	err := flo.WaitForFlod(ctx, host, user, pass)
 	if err != nil {
-		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": config.MainFlod.Host, "err": err})
+		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": host, "err": err})
 		shutdown(err)
 		return
 	}
@@ -87,7 +92,9 @@ func main() {
 		return
 	}
 
-	if config.API.Enabled {
+	apiEnabled := config.Get("api.enabled").Bool(false)
+	if apiEnabled {
+		log.Info("starting http api")
 		go httpapi.Serve()
 	}
 

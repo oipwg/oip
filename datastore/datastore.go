@@ -29,7 +29,7 @@ func Setup(ctx context.Context) error {
 	}
 
 	client, err = elastic.NewClient(elastic.SetSniff(false), elastic.SetHttpClient(httpClient),
-		elastic.SetURL(config.Elastic.Host))
+		elastic.SetURL(config.Get("elastic.host").String("http://127.0.0.1:9200")))
 	if err != nil {
 		log.Error("unable to connect to elasticsearch", logger.Attrs{"err": err})
 		return errors.Wrap(err, "datastore.setup.newClient")
@@ -49,14 +49,19 @@ func Setup(ctx context.Context) error {
 
 func getHttpClient() (*http.Client, error) {
 	var httpClient *http.Client
-	if config.Elastic.UseCert {
+	useCert := config.Get("elastic.use_cert").Bool(false)
+	if useCert {
+		certFile := config.Get("elastic.cert_file").String("config/cert/oipd.pem")
+		certKey := config.Get("elastic.cert_key").String("config/cert/oipd.key")
+		rootCertPath := config.Get("elastic.cert_root").String("config/cert/root-ca.pem")
+
 		// ToDo: add encrypted key support - potentially via x509.DecryptPEMBloc & tls.ParsePKCS1PrivateKey
-		cert, err := tls.LoadX509KeyPair(config.Elastic.CertFile, config.Elastic.CertKey)
+		cert, err := tls.LoadX509KeyPair(certFile, certKey)
 		if err != nil {
 			log.Error("couldn't LoadX509KeyPair", logger.Attrs{"err": err})
 			return nil, err
 		}
-		caCert, err := ioutil.ReadFile(config.Elastic.CertRoot)
+		caCert, err := ioutil.ReadFile(rootCertPath)
 		if err != nil {
 			log.Error("couldn't read root certificate", logger.Attrs{"err": err})
 			return nil, err

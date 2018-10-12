@@ -12,7 +12,7 @@ import (
 
 func init() {
 	log.Info("init tZero")
-	if !config.Testnet {
+	if !config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", floDataProcessor, false)
 		events.Bus.SubscribeAsync("modules:tZero:cancel", onCancel, false)
 		events.Bus.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
