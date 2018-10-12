@@ -38,7 +38,7 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 		Block:       -1,
 		BlockHash:   "",
 		Confirmed:   false,
-		Transaction: *txDetails,
+		Transaction: txDetails,
 	}
 
 	datastore.AutoBulk.StoreTransaction(tx)
