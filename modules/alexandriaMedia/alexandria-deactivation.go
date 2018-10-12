@@ -58,6 +58,16 @@ func onAlexandriaDeactivation(floData string, tx *datastore.TransactionData) {
 }
 
 func onMpCompleted() {
+	exist, err := datastore.Client().IndexExists(adIndexName).Do(context.TODO())
+	if err != nil {
+		log.Error("elastic index exists failed", logger.Attrs{"err": err, "index": adIndexName})
+		return
+	}
+	if !exist {
+		log.Info("elastic index doesn't exist", logger.Attrs{"index": adIndexName})
+		return
+	}
+
 	deactivationCommitMutex.Lock()
 	defer deactivationCommitMutex.Unlock()
 
