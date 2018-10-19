@@ -26,7 +26,16 @@ func TestCheckSignature(t *testing.T) {
 
 	// TestNet
 	config.SetTestnet(true)
-	// ToDo: add testnet test case
+	adr = "oWPVMaVa5S3WmQfaSzB3sgJ5EZv2im98XK"
+	sig = "H4nt3If+Hapgdw+MuaF9v8YOPLuT0fAco+UIIXlsPLJjEMw3+HIGHQUIjMNhuIU5XK3TVBlLMPixl+STbb0mhsw="
+	msg = "Flo signed message test"
+	valid, err = CheckSignature(adr, sig, msg)
+	if err != nil {
+		t.Error(err)
+	}
+	if !valid {
+		t.Fail()
+	}
 
 	// restore pre-test setting
 	config.SetTestnet(testnet)
