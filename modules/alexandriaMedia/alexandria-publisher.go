@@ -2,7 +2,6 @@ package alexandriaMedia
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
+	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -109,15 +109,14 @@ func handleGetPublisher(w http.ResponseWriter, r *http.Request) {
 }
 
 func onAlexandriaPublisher(floData string, tx *datastore.TransactionData) {
-	var ap map[string]json.RawMessage
-	err := json.Unmarshal([]byte(floData), &ap)
-	if err != nil {
+	pub := jsoniter.Get([]byte(floData), "alexandria-publisher")
+	if pub.LastError() != nil {
+		log.Error("invalid json", logger.Attrs{"floData": floData, "txid": tx.Transaction.Txid})
 		return
 	}
-	if pub, ok := ap["alexandria-publisher"]; ok {
-		bir := elastic.NewBulkIndexRequest().Index("alexandria-publisher").Type("_doc").Doc(pub).Id(tx.Transaction.Txid)
-		datastore.AutoBulk.Add(bir)
-	}
+
+	bir := elastic.NewBulkIndexRequest().Index("alexandria-publisher").Type("_doc").Doc(pub).Id(tx.Transaction.Txid)
+	datastore.AutoBulk.Add(bir)
 }
 
 const apMapping = `{
