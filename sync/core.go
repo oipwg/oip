@@ -1,7 +1,6 @@
 package sync
 
 import (
-	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
 	"github.com/bitspill/oip/flo"
@@ -16,7 +15,6 @@ func Setup() {
 }
 
 func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockData, error) {
-	log.Info("indexing block at height", logger.Attrs{"height": height, "lb.hash": lb.Block.Hash, "lb.prevhash": lb.Block.PreviousHash, "lb.height": lb.Block.Height})
 	hash, err := flo.GetBlockHash(height)
 	if err != nil {
 		return lb, err
