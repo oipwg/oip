@@ -42,7 +42,7 @@
     "rpcclient",
     "wire"
   ]
-  revision = "11d2de1794e04871911af706ed88ac15dbd17e29"
+  revision = "55d309f84558bed9a1f62ab8bc4e9d1c641ffa4a"
 
 [[projects]]
   branch = "master"
@@ -100,6 +100,7 @@
   name = "github.com/dustin/go-humanize"
   packages = ["."]
   revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -215,8 +216,8 @@
     "config",
     "uritemplates"
   ]
-  revision = "156bc8f4ccd31cbf7567a0ed3a64335d6767e4b9"
-  version = "v6.2.10"
+  revision = "425e5369a8f054f4f447f7c8ee1bf605f48425ab"
+  version = "v6.2.11"
 
 [[projects]]
   name = "github.com/pborman/uuid"
@@ -238,19 +239,19 @@
     "ripemd160",
     "scrypt"
   ]
-  revision = "7c1a557ab941a71c619514f229f0b27ccb0c27cf"
+  revision = "0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "fa43e7bc11baaae89f3f902b2b4d832b68234844"
+  revision = "8a28ead16f52c8aaeffbf79239b251dfdf6c4f96"
 
 [[projects]]
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
-  revision = "156bc8f4ccd31cbf7567a0ed3a64335d6767e4b9"
-  version = "v6.2.10"
+  revision = "425e5369a8f054f4f447f7c8ee1bf605f48425ab"
+  version = "v6.2.11"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
