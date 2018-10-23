@@ -39,25 +39,25 @@ func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {
 		return
 	}
 	register := jsoniter.Get(message, "register")
-	err = publish.LastError()
+	err = register.LastError()
 	if err == nil {
 		on42JsonRegister(register, tx)
 		return
 	}
 	edit := jsoniter.Get(message, "edit")
-	err = publish.LastError()
+	err = edit.LastError()
 	if err == nil {
 		on42JsonEdit(edit, tx)
 		return
 	}
 	transfer := jsoniter.Get(message, "transfer")
-	err = publish.LastError()
+	err = transfer.LastError()
 	if err == nil {
 		on42JsonTransfer(transfer, tx)
 		return
 	}
 	deactivate := jsoniter.Get(message, "deactivate")
-	err = publish.LastError()
+	err = deactivate.LastError()
 	if err == nil {
 		on42JsonDeactivate(deactivate, tx)
 		return
