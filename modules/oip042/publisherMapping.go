@@ -1,0 +1,72 @@
+package oip042
+
+const registerOip042PublisherMapping = `{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "strict",
+      "properties": {
+        "publisher": {
+          "properties": {
+            "alias": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "floAddress": {
+              "type": "keyword"
+            },
+            "signature": {
+              "type": "text",
+              "index": false
+            },
+            "timestamp": {
+              "type": "date",
+              "format": "epoch_second"
+            }
+          }
+        },
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "deactivated": {
+              "type": "boolean"
+            },
+            "signature": {
+              "type": "text",
+              "index": false
+            },
+            "time": {
+              "type": "date",
+              "format": "epoch_second"
+            },
+            "tx": {
+              "type": "object",
+              "enabled": false
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 16
+            }
+          }
+        }
+      }
+    }
+  }
+}`
