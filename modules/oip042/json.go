@@ -8,7 +8,7 @@ import (
 )
 
 const oip042ArtifactIndex = `oip042_artifact`
-const oip042PublisherIndex = `oip042_ publisher`
+const oip042PublisherIndex = `oip042_publisher`
 const oip042InfluencerIndex = `oip042_influencer`
 const oip042PlatformIndex = `oip042_platform`
 const oip042AutominerIndex = `oip042_autominer`
