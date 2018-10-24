@@ -17,7 +17,6 @@ func GetLastBlock(ctx context.Context) (BlockData, error) {
 	sRes, err := client.Search().
 		Index(Index("blocks")).
 		Sort("block.height", false).
-		Query(elastic.NewExistsQuery("_id")). // guaranteed true
 		Size(1).
 		Do(ctx)
 
