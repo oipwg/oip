@@ -26,25 +26,25 @@ func TestBlockBuffer(t *testing.T) {
 
 	b := bb.PeekFront()
 	if b == nil || b.SecSinceLastBlock != insCount {
-		t.Errorf("unexpected front block recieved (%v); expected SecSinceLastBlock=%d", b, insCount)
+		t.Errorf("unexpected front block received (%v); expected SecSinceLastBlock=%d", b, insCount)
 	}
 
 	b = bb.PeekBack()
 	if b == nil || b.SecSinceLastBlock != insCount-bbCapacity {
-		t.Errorf("unexpected front block recieved (%v); expected SecSinceLastBlock=%d", b, insCount-bbCapacity)
+		t.Errorf("unexpected front block received (%v); expected SecSinceLastBlock=%d", b, insCount-bbCapacity)
 	}
 
 	for i := insCount; i > insCount-20; i-- {
 		b = bb.PopFront()
 		if b == nil || b.SecSinceLastBlock != i {
-			t.Errorf("unexpected front block recieved (%v); expected SecSinceLastBlock=%d", b, insCount)
+			t.Errorf("unexpected front block received (%v); expected SecSinceLastBlock=%d", b, insCount)
 		}
 	}
 
 	for i := int64(0); i < 20; i++ {
 		b = bb.PopBack()
 		if b == nil || b.SecSinceLastBlock != insCount-bbCapacity+i {
-			t.Errorf("unexpected front block recieved (%v); expected SecSinceLastBlock=%d", b, insCount-bbCapacity+i)
+			t.Errorf("unexpected front block received (%v); expected SecSinceLastBlock=%d", b, insCount-bbCapacity+i)
 		}
 	}
 
