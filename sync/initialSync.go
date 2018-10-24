@@ -21,6 +21,8 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 		return lb, err
 	}
 
+	recentBlocks.Push(&lb)
+
 	if lb.Block != nil {
 		lbh = lb.Block.Height
 
