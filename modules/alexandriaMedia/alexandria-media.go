@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
@@ -12,7 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
-	"time"
 )
 
 const amIndexName = "alexandria-media"
