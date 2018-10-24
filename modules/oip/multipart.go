@@ -358,8 +358,8 @@ func markStale() {
 
 	res, err := cuq.Do(context.TODO())
 	if err != nil {
-		spew.Dump(err)
-		panic("")
+		log.Error("unable to mark stale", logger.Attrs{"err": err})
+		return
 	}
 	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
