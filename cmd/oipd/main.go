@@ -39,14 +39,14 @@ func main() {
 		cancelRoot()
 	}()
 
-	ctx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
+	tenMinuteCtx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
 	defer cancel()
 
 	host := config.Get("flod.host").String("127.0.0.1:8334")
 	user := config.Get("flod.user").String("user")
 	pass := config.Get("flod.pass").String("pass")
 
-	err := flo.WaitForFlod(ctx, host, user, pass)
+	err := flo.WaitForFlod(tenMinuteCtx, host, user, pass)
 	if err != nil {
 		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": host, "err": err})
 		shutdown(err)
