@@ -42,7 +42,7 @@
     "rpcclient",
     "wire"
   ]
-  revision = "55d309f84558bed9a1f62ab8bc4e9d1c641ffa4a"
+  revision = "54c9ceb23b80c4b396657fdc612f0e1e5d2fae84"
 
 [[projects]]
   branch = "master"

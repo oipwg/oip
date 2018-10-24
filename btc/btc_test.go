@@ -7,9 +7,6 @@ import (
 )
 
 func TestCheckSignature(t *testing.T) {
-	// ToDo: requires BTC chaincfg params
-	t.Skip("requires BTC chaincfg params")
-
 	// save setting to restore post-test
 	testnet := config.IsTestnet()
 
