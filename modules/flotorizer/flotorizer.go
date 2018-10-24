@@ -34,7 +34,7 @@ func onFlotorized(floData string) {
 		Hash: floData,
 		// TxId: txid,
 	}
-	bir := elastic.NewBulkIndexRequest().Index("flotorizer").Type("_doc"). /*Id(txid).*/ Doc(f)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("flotorizer")).Type("_doc"). /*Id(txid).*/ Doc(f)
 	datastore.AutoBulk.Add(bir)
 }
 

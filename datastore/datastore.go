@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/config"
@@ -91,6 +92,7 @@ func getHttpClient() (*http.Client, error) {
 }
 
 func RegisterMapping(index, mapping string) error {
+	index = Index(index) // apply proper prefix
 	mappings[index] = mapping
 	if client != nil {
 		return createIndex(context.TODO(), index, mapping)
@@ -99,13 +101,13 @@ func RegisterMapping(index, mapping string) error {
 }
 
 func createIndex(ctx context.Context, index, mapping string) error {
-	exists, err := client.IndexExists(index).Do(ctx)
+	exists, err := client.IndexExists(Index(index)).Do(ctx)
 	if err != nil {
 		return errors.Wrap(err, "index existence check failure")
 	}
 
 	if !exists {
-		createIndex, err := client.CreateIndex(index).BodyString(mapping).Do(ctx)
+		createIndex, err := client.CreateIndex(Index(index)).BodyString(mapping).Do(ctx)
 		if err != nil {
 			return errors.Wrap(err, "create index failed")
 		}
@@ -119,4 +121,17 @@ func createIndex(ctx context.Context, index, mapping string) error {
 
 func Client() *elastic.Client {
 	return client
+}
+
+func Index(index string) string {
+	if config.IsTestnet() {
+		if strings.HasPrefix(index, "testnet-") {
+			return index
+		}
+		return "testnet-" + index
+	}
+	if strings.HasPrefix(index, "mainnet-") {
+		return index
+	}
+	return "mainnet-" + index
 }

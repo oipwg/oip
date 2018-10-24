@@ -48,7 +48,7 @@ func onAlove(floData string, tx *datastore.TransactionData) {
 		To:      chunks[1],
 		TxId:    tx.Transaction.Txid,
 	}
-	bir := elastic.NewBulkIndexRequest().Index("aterna").Type("_doc").Id(tx.Transaction.Txid).Doc(a)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("aterna")).Type("_doc").Id(tx.Transaction.Txid).Doc(a)
 	datastore.AutoBulk.Add(bir)
 }
 

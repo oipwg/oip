@@ -43,7 +43,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(amIndexName).
+		Search(datastore.Index(amIndexName)).
 		Type("_doc").
 		Query(q).
 		Size(int(size)).
@@ -83,7 +83,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(amIndexName).
+		Search(datastore.Index(amIndexName)).
 		Type("_doc").
 		Query(q).
 		Size(1).
@@ -138,7 +138,7 @@ func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
 			},
 		}
 
-		bir := elastic.NewBulkIndexRequest().Index(amIndexName).Type("_doc").Doc(el).Id(tx.Transaction.Txid)
+		bir := elastic.NewBulkIndexRequest().Index(datastore.Index(amIndexName)).Type("_doc").Doc(el).Id(tx.Transaction.Txid)
 		datastore.AutoBulk.Add(bir)
 	} else {
 		log.Info("no title", logger.Attrs{"txid": tx.Transaction.Txid})

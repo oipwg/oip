@@ -15,7 +15,7 @@ func init() {
 
 func GetLastBlock(ctx context.Context) (BlockData, error) {
 	sRes, err := client.Search().
-		Index("blocks").
+		Index(Index("blocks")).
 		Sort("block.height", false).
 		Query(elastic.NewExistsQuery("_id")). // guaranteed true
 		Size(1).
@@ -43,7 +43,7 @@ func GetLastBlock(ctx context.Context) (BlockData, error) {
 
 func StoreBlock(ctx context.Context, b BlockData) (*elastic.IndexResponse, error) {
 	put1, err := client.Index().
-		Index("blocks").
+		Index(Index("blocks")).
 		Type("_doc").
 		Id(b.Block.Hash).
 		BodyJson(b).
@@ -56,7 +56,7 @@ func StoreBlock(ctx context.Context, b BlockData) (*elastic.IndexResponse, error
 }
 
 func GetBlockFromID(ctx context.Context, id string) (BlockData, error) {
-	get, err := client.Get().Index("blocks").Type("_doc").Id(id).Do(ctx)
+	get, err := client.Get().Index(Index("blocks")).Type("_doc").Id(id).Do(ctx)
 	if err != nil {
 		return BlockData{}, err
 	}

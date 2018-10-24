@@ -49,7 +49,7 @@ func onCancel(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "Cancel"
-	bir := elastic.NewBulkIndexRequest().Index("tzero").Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("tzero")).Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -57,7 +57,7 @@ func onInventoryPosted(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "InventoryPosted"
-	bir := elastic.NewBulkIndexRequest().Index("tzero").Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("tzero")).Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -65,7 +65,7 @@ func onClientInterest(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "ClientInterest"
-	bir := elastic.NewBulkIndexRequest().Index("tzero").Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("tzero")).Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -73,7 +73,7 @@ func onExecutionReport(floData string, tx *datastore.TransactionData) {
 	gi := extractGeneralInfo(floData)
 
 	gi.Action = "ExecutionReport"
-	bir := elastic.NewBulkIndexRequest().Index("tzero").Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("tzero")).Type("_doc").Id(tx.Transaction.Txid).Doc(gi)
 	datastore.AutoBulk.Add(bir)
 }
 

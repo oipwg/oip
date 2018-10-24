@@ -32,7 +32,7 @@ func on42JsonRegisterPub(any jsoniter.Any, tx *datastore.TransactionData) {
 		Type:        "oip042",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042PublisherIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042PublisherIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -55,7 +55,7 @@ func on42JsonEditPub(any jsoniter.Any, tx *datastore.TransactionData) {
 		Type:      "pub",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042EditIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -78,7 +78,7 @@ func on42JsonTransferPub(any jsoniter.Any, tx *datastore.TransactionData) {
 		Type:      "pub",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042TransferIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042TransferIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -101,6 +101,6 @@ func on42JsonDeactivatePub(any jsoniter.Any, tx *datastore.TransactionData) {
 		Type:      "pub",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042DeactivateIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042DeactivateIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }

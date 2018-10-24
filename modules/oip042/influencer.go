@@ -26,7 +26,7 @@ func on42JsonRegisterInfluencer(any jsoniter.Any, tx *datastore.TransactionData)
 		Type:        "oip042",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042InfluencerIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042InfluencerIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -49,7 +49,7 @@ func on42JsonEditInfluencer(any jsoniter.Any, tx *datastore.TransactionData) {
 		Type:      "influencer",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042EditIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -72,7 +72,7 @@ func on42JsonTransferInfluencer(any jsoniter.Any, tx *datastore.TransactionData)
 		Type:      "influencer",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042TransferIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042TransferIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -95,6 +95,6 @@ func on42JsonDeactivateInfluencer(any jsoniter.Any, tx *datastore.TransactionDat
 		Type:      "influencer",
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(oip042DeactivateIndex).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042DeactivateIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }

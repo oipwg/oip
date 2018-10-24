@@ -28,7 +28,7 @@ func StoreTransaction(ctx context.Context, t *TransactionData) (*elastic.IndexRe
 }
 
 func GetTransactionFromID(ctx context.Context, id string) (TransactionData, error) {
-	get, err := client.Get().Index("transactions").Type("_doc").Id(id).Do(ctx)
+	get, err := client.Get().Index(Index("transactions")).Type("_doc").Id(id).Do(ctx)
 	if err != nil {
 		return TransactionData{}, err
 	}

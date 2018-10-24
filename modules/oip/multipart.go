@@ -47,7 +47,7 @@ func handleGetId(w http.ResponseWriter, r *http.Request) {
 	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(multipartIndex).
+		Search(datastore.Index(multipartIndex)).
 		Type("_doc").
 		Query(q).
 		Size(1).
@@ -91,7 +91,7 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(multipartIndex).
+		Search(datastore.Index(multipartIndex)).
 		Type("_doc").
 		Query(q).
 		Size(int(size)).
@@ -127,7 +127,7 @@ func onDatastoreCommit() {
 		elastic.NewTermQuery("meta.complete", false),
 		elastic.NewTermQuery("meta.stale", false),
 	)
-	results, err := datastore.Client().Search(multipartIndex).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
+	results, err := datastore.Client().Search(datastore.Index(multipartIndex)).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
 		return
@@ -166,7 +166,7 @@ func onDatastoreCommit() {
 	}
 
 	if potentialChanges {
-		ref, err := datastore.Client().Refresh(multipartIndex).Do(context.TODO())
+		ref, err := datastore.Client().Refresh(datastore.Index(multipartIndex)).Do(context.TODO())
 		if err != nil {
 			log.Info("multipart refresh failed")
 			spew.Dump(err)
@@ -212,7 +212,7 @@ func tryCompleteMultipart(mp Multipart) {
 		"ctx._source.meta.assembled=params.assembled").Type("inline").Param("assembled", dataString).Lang("painless")
 
 	q := elastic.NewTermQuery("reference", part0.Reference)
-	cuq := datastore.Client().UpdateByQuery(multipartIndex).Query(q).
+	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
 		Type("_doc").Script(s)
 
 	// elastic.NewBulkUpdateRequest()
@@ -255,7 +255,7 @@ func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 		Tx:        tx,
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(multipartIndex).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -353,7 +353,7 @@ func markStale() {
 		elastic.NewTermQuery("meta.stale", false),
 		elastic.NewRangeQuery("meta.time").Lte("now-1w"),
 	)
-	cuq := datastore.Client().UpdateByQuery(multipartIndex).Query(q).
+	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
 		Type("_doc").Script(s) // .Refresh("wait_for")
 
 	res, err := cuq.Do(context.TODO())

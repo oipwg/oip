@@ -87,7 +87,7 @@ func (bi *BulkIndexer) EstimateSizeInBytes() int64 {
 
 func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 	bir := elastic.NewBulkIndexRequest().
-		Index("blocks").
+		Index(Index("blocks")).
 		Type("_doc").
 		Id(bd.Block.Hash).
 		Doc(bd)
@@ -96,7 +96,7 @@ func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 
 func (bi *BulkIndexer) StoreTransaction(td *TransactionData) {
 	bir := elastic.NewBulkIndexRequest().
-		Index("transactions").
+		Index(Index("transactions")).
 		Type("_doc").
 		Id(td.Transaction.Hash).
 		Doc(td)

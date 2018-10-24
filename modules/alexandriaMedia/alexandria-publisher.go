@@ -42,7 +42,7 @@ func handleLatestPublishers(w http.ResponseWriter, r *http.Request) {
 	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(apIndexName).
+		Search(datastore.Index(apIndexName)).
 		Type("_doc").
 		// Query(q).
 		Size(int(size)).
@@ -81,7 +81,7 @@ func handleGetPublisher(w http.ResponseWriter, r *http.Request) {
 	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(apIndexName).
+		Search(datastore.Index(apIndexName)).
 		Type("_doc").
 		Query(q).
 		Size(1).
@@ -115,7 +115,7 @@ func onAlexandriaPublisher(floData string, tx *datastore.TransactionData) {
 		return
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index("alexandria-publisher").Type("_doc").Doc(pub).Id(tx.Transaction.Txid)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("alexandria-publisher")).Type("_doc").Doc(pub).Id(tx.Transaction.Txid)
 	datastore.AutoBulk.Add(bir)
 }
 

@@ -53,7 +53,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(oip41IndexName).
+		Search(datastore.Index(oip41IndexName)).
 		Type("_doc").
 		Query(q).
 		Size(int(size)).
@@ -94,7 +94,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(oip41IndexName).
+		Search(datastore.Index(oip41IndexName)).
 		Type("_doc").
 		Query(q).
 		Size(1).
@@ -129,7 +129,7 @@ func on41(floData string, tx *datastore.TransactionData) {
 		return
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index("oip041").Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("oip041")).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 

@@ -50,7 +50,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(histDataPointIndexName).
+		Search(datastore.Index(histDataPointIndexName)).
 		Type("_doc").
 		// Query(q).
 		Size(int(size)).
@@ -89,7 +89,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(histDataPointIndexName).
+		Search(datastore.Index(histDataPointIndexName)).
 		Type("_doc").
 		Query(q).
 		Size(1).
@@ -129,7 +129,7 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 		return
 	}
 
-	bir := elastic.NewBulkIndexRequest().Index(histDataPointIndexName + "string").Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(histDataPointIndexName + "string")).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 
@@ -145,7 +145,7 @@ func onProtoHdp(hdp *oipProto.HistorianDataPoint, tx *datastore.TransactionData)
 		Block:     tx.Block,
 		Tx:        tx,
 	}
-	bir := elastic.NewBulkIndexRequest().Index(histDataPointIndexName + "proto").Type("_doc").Id(tx.Transaction.Txid).Doc(el)
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(histDataPointIndexName + "proto")).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
 

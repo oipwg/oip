@@ -41,7 +41,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	// Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(oip042ArtifactIndex).
+		Search(datastore.Index(oip042ArtifactIndex)).
 		Type("_doc").
 		Query(q).
 		Size(int(size)).

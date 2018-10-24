@@ -48,7 +48,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
-		Search("oip041", "oip042_artifact").
+		Search(datastore.Index("oip041"), datastore.Index("oip042_artifact")).
 		Type("_doc").
 		Query(q).
 		Size(int(size)).
@@ -98,7 +98,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
-		Search("oip041", "oip042_artifact"). // "alexandria-media",
+		Search(datastore.Index("oip041"), datastore.Index("oip042_artifact")). // "alexandria-media",
 		Type("_doc").
 		Query(q).
 		Size(int(size)).
@@ -138,7 +138,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
-		Search("oip041", "oip042_artifact", "alexandria-media").
+		Search(datastore.Index("oip041"), datastore.Index("oip042_artifact"), datastore.Index("alexandria-media")).
 		Type("_doc").
 		Query(q).
 		Size(1).
