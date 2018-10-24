@@ -16,7 +16,9 @@ func init() {
 }
 
 func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
-	log.Info("BlockConnected", logger.Attrs{"height": height})
+	attr := logger.Attrs{"incomingHeight": height}
+
+	log.Info("BlockConnected", attr)
 
 	ilb := recentBlocks.PeekFront()
 
@@ -24,7 +26,8 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 		// easy case new block follows; add it
 		_, err := IndexBlockAtHeight(int64(height), *ilb)
 		if err != nil {
-			log.Error("onFilteredBlockConnected unable to index block", logger.Attrs{"err": err})
+			attr["err"] = err
+			log.Error("onFilteredBlockConnected unable to index block", attr)
 		}
 
 		return
@@ -33,12 +36,9 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	// more difficult cases; new block does not follow
 	// maybe orphan, fork, or future block
 
-	attr := logger.Attrs{
-		"incomingHash":   header.PrevBlock.String(),
-		"lastHash":       ilb.Block.Hash,
-		"incomingHeight": height,
-		"lastHeight":     ilb.Block.Height,
-	}
+	attr["incomingHash"] = header.PrevBlock.String()
+	attr["lastHash"] = ilb.Block.Hash
+	attr["lastHeight"] = ilb.Block.Height
 
 	if int64(height) > ilb.Block.Height+1 {
 		log.Info("gap in block heights syncing...", attr)
@@ -50,7 +50,8 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			log.Info("filling gap", attr)
 			nlb, err := IndexBlockAtHeight(int64(i), *ilb)
 			if err != nil {
-				log.Error("onFilteredBlockConnected unable to index block", logger.Attrs{"err": err})
+				attr["err"] = err
+				log.Error("onFilteredBlockConnected unable to index block", attr)
 				return
 			}
 			ilb = &nlb
@@ -69,7 +70,8 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			}
 			_, err := IndexBlockAtHeight(int64(height), *ilb)
 			if err != nil {
-				log.Error("onFilteredBlockConnected unable to index block", logger.Attrs{"err": err})
+				attr["err"] = err
+				log.Error("onFilteredBlockConnected unable to index block", attr)
 			}
 
 			return

@@ -111,7 +111,8 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
-	log.Info("onAlexandriaMedia", logger.Attrs{"txid": tx.Transaction.Txid})
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
+	log.Info("onAlexandriaMedia", attr)
 
 	bytesFloData := []byte(floData)
 	a := jsoniter.Get(bytesFloData)
@@ -120,7 +121,9 @@ func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
 	artTime := am.Get("timestamp").ToInt64()
 	if artTime > 999999999999 {
 		// correct ms timestamps to s
-		log.Info("Scaling timestamp", logger.Attrs{"txid": tx.Transaction.Txid, "artTime": artTime, "time": time.Unix(artTime, 0)})
+		attr["artTime"] = artTime
+		attr["time"] = time.Unix(artTime, 0)
+		log.Info("Scaling timestamp", attr)
 		artTime /= 1000
 	}
 	if len(title) != 0 {
@@ -141,7 +144,7 @@ func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
 		bir := elastic.NewBulkIndexRequest().Index(datastore.Index(amIndexName)).Type("_doc").Doc(el).Id(tx.Transaction.Txid)
 		datastore.AutoBulk.Add(bir)
 	} else {
-		log.Info("no title", logger.Attrs{"txid": tx.Transaction.Txid})
+		log.Info("no title", attr)
 	}
 }
 

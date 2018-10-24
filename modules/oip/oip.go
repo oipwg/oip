@@ -157,8 +157,9 @@ func processPrefix(prefix, namespace, floData string, tx *datastore.TransactionD
 }
 
 func onJson(floData string, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	t := log.Timer()
-	defer t.End("onJson", logger.Attrs{"txid": tx.Transaction.Txid})
+	defer t.End("onJson", attr)
 	var dj map[string]jsoniter.RawMessage
 	err := jsoniter.Unmarshal([]byte(floData), &dj)
 	if err != nil {
@@ -166,30 +167,33 @@ func onJson(floData string, tx *datastore.TransactionData) {
 	}
 
 	if o42, ok := dj["oip042"]; ok {
-		log.Info("sending oip042 message", logger.Attrs{"txid": tx.Transaction.Txid})
+		log.Info("sending oip042 message", attr)
 		events.Bus.Publish("modules:oip042:json", o42, tx)
 		return
 	}
 
-	log.Error("no supported json type", logger.Attrs{"txid": tx.Transaction.Txid})
+	log.Error("no supported json type", attr)
 }
 
 func onP64(p64 string, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64}
 	t := log.Timer()
-	defer t.End("onP64", logger.Attrs{"txid": tx.Transaction.Txid})
+	defer t.End("onP64", attr)
 
 	b, err := base64.StdEncoding.DecodeString(p64)
 	if err != nil {
+		attr["err"] = err
 		log.Error("unable to decode base 64 message",
-			logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+			attr)
 		return
 	}
 
 	var msg oipProto.SignedMessage
 	err = proto.Unmarshal(b, &msg)
 	if err != nil {
+		attr["err"] = err
 		log.Error("unable to unmarshal protobuf message",
-			logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+			attr)
 		return
 	}
 
@@ -201,24 +205,28 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 	case oipProto.SignatureTypes_Btc:
 		valid, err := btc.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
-			log.Error("btc signature validation failed",
-				logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType,
-					"pubKey": pubKey, "signature": signature,
-					"message": signedMessage})
+			attr["err"] = err
+			attr["message"] = signedMessage
+			attr["pubKey"] = pubKey
+			attr["sigType"] = msg.SignatureType
+			attr["signature"] = signature
+			log.Error("btc signature validation failed", attr)
 			return
 		}
 	case oipProto.SignatureTypes_Flo:
 		valid, err := flo.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
-			log.Error("flo signature validation failed",
-				logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType,
-					"pubKey": pubKey, "signature": signature,
-					"message": signedMessage})
+			attr["err"] = err
+			attr["message"] = signedMessage
+			attr["pubKey"] = pubKey
+			attr["sigType"] = msg.SignatureType
+			attr["signature"] = signature
+			log.Error("flo signature validation failed", attr)
 			return
 		}
 	default:
-		log.Error("unsupported proto signature type",
-			logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "sigType": msg.SignatureType})
+		attr["sigType"] = msg.SignatureType
+		log.Error("unsupported proto signature type", attr)
 		return
 	}
 
@@ -227,16 +235,17 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 		var hdp = &oipProto.HistorianDataPoint{}
 		err = proto.Unmarshal(msg.SerializedMessage, hdp)
 		if err != nil {
-			log.Error("unable to unmarshal protobuf historian message",
-				logger.Attrs{"txid": tx.Transaction.Txid, "p64": p64, "err": err})
+			attr["err"] = err
+			log.Error("unable to unmarshal protobuf historian message", attr)
 			return
 		}
 		events.Bus.Publish("modules:historian:protoDataPoint", hdp, tx)
 	case oipProto.MessageTypes_OIP05:
 		// ToDo
-		log.Info("unexpected OIP 0.5 message", logger.Attrs{"txid": tx.Transaction.Txid})
+		log.Info("unexpected OIP 0.5 message", attr)
 	default:
-		log.Error("unsupported proto message type",
-			logger.Attrs{"txid": tx.Transaction.Txid, "err": err, "msgType": msg.MessageType})
+		attr["err"] = err
+		attr["msgType"] = msg.MessageType
+		log.Error("unsupported proto message type", attr)
 	}
 }

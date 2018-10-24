@@ -12,16 +12,19 @@ import (
 )
 
 func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
+
 	title := artifact.Get("info", "title").ToString()
 	if len(title) == 0 {
-		log.Error("oip042 no title", logger.Attrs{"txid": tx.Transaction.Txid})
+		log.Error("oip042 no title", attr)
 		return
 	}
 
 	floAddr := artifact.Get("floAddress").ToString()
 	ok, err := flo.CheckAddress(floAddr)
 	if !ok {
-		log.Error("invalid FLO address", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
+		attr["err"] = err
+		log.Error("invalid FLO address", attr)
 		return
 	}
 
@@ -32,8 +35,11 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 	sig := artifact.Get("signature").ToString()
 	ok, err = flo.CheckSignature(floAddr, sig, preImage)
 	if !ok {
-		log.Error("invalid signature", logger.Attrs{"txid": tx.Transaction.Txid, "preimage": preImage,
-			"address": floAddr, "sig": sig, "err": err})
+		attr["err"] = err
+		attr["preimage"] = preImage
+		attr["address"] = floAddr
+		attr["sig"] = sig
+		log.Error("invalid signature", attr)
 		return
 	}
 
