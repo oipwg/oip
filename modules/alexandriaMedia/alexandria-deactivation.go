@@ -120,8 +120,8 @@ type floAd struct {
 }
 
 type elasticAd struct {
-	Reference string `json:"reference"`
 	Address   string `json:"address"`
+	Reference string `json:"reference"`
 	Signature string `json:"signature"`
 	Meta      AdMeta `json:"meta"`
 }
@@ -131,9 +131,9 @@ type AdMeta struct {
 	BlockHash string                     `json:"block_hash"`
 	Complete  bool                       `json:"complete"`
 	Stale     bool                       `json:"stale"`
-	Txid      string                     `json:"txid"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"tx"`
+	Txid      string                     `json:"txid"`
 }
 
 const adMapping = `{

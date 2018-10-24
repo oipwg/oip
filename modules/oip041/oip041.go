@@ -142,9 +142,9 @@ type OMeta struct {
 	BlockHash   string                     `json:"block_hash"`
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
-	Txid        string                     `json:"txid"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"tx"`
+	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }
 
@@ -170,13 +170,13 @@ func validateOip041(any jsoniter.Any, tx *datastore.TransactionData) (elasticOip
 
 	el.Artifact = art.GetInterface()
 	el.Meta = OMeta{
-		Time:        tx.Transaction.Time,
-		Txid:        tx.Transaction.Txid,
-		Signature:   sig.ToString(),
-		BlockHash:   tx.BlockHash,
 		Block:       tx.Block,
+		BlockHash:   tx.BlockHash,
 		Deactivated: false,
+		Signature:   sig.ToString(),
+		Time:        tx.Transaction.Time,
 		Tx:          tx,
+		Txid:        tx.Transaction.Txid,
 		Type:        "oip041",
 	}
 

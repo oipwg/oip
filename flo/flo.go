@@ -29,8 +29,8 @@ func AddCore(host, user, pass string) error {
 		Host:         host,
 		User:         user,
 		Pass:         pass,
-		HTTPPostMode: true,
 		DisableTLS:   true,
+		HTTPPostMode: true,
 	}
 	c, err := rpcclient.New(cfg, nil)
 	clients = append(clients, c)
@@ -105,9 +105,9 @@ func AddFlod(host, user, pass string) error {
 
 	cfg := &rpcclient.ConnConfig{
 		Host:         host,
+		Endpoint:     "ws",
 		User:         user,
 		Pass:         pass,
-		Endpoint:     "ws",
 		Certificates: certs,
 	}
 	c, err := rpcclient.New(cfg, &ntfnHandlers)

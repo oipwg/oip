@@ -251,8 +251,8 @@ func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 		BlockHash: tx.BlockHash,
 		Complete:  false,
 		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
@@ -379,9 +379,9 @@ type MSMeta struct {
 	BlockHash string                     `json:"block_hash"`
 	Complete  bool                       `json:"complete"`
 	Stale     bool                       `json:"stale"`
-	Txid      string                     `json:"txid"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"tx"`
+	Txid      string                     `json:"txid"`
 }
 
 type Multipart struct {

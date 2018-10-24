@@ -139,11 +139,11 @@ func onProtoHdp(hdp *oipProto.HistorianDataPoint, tx *datastore.TransactionData)
 	var el elasticHdp
 	el.DataPoint = hdp
 	el.Meta = HMeta{
-		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
-		BlockHash: tx.BlockHash,
 		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
+		Time:      tx.Transaction.Time,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 	}
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(histDataPointIndexName + "proto")).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
@@ -156,9 +156,9 @@ type elasticHdp struct {
 type HMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
-	Txid      string                     `json:"txid"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"tx"`
+	Txid      string                     `json:"txid"`
 }
 type DataPoint struct {
 	Version      int     `json:"version,omitempty"`
@@ -251,11 +251,11 @@ func validateHdp(floData string, tx *datastore.TransactionData) (elasticHdp, err
 
 	el.DataPoint = hdp
 	el.Meta = HMeta{
-		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
-		BlockHash: tx.BlockHash,
 		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
+		Time:      tx.Transaction.Time,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 	}
 
 	return el, nil

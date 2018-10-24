@@ -70,6 +70,6 @@ func GetBlockFromID(ctx context.Context, id string) (BlockData, error) {
 }
 
 type BlockData struct {
-	SecSinceLastBlock int64                          `json:"sec_since_last_block"`
 	Block             *flojson.GetBlockVerboseResult `json:"block"`
+	SecSinceLastBlock int64                          `json:"sec_since_last_block"`
 }

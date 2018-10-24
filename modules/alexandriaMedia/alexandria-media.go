@@ -131,9 +131,9 @@ func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
 				BlockHash:   tx.BlockHash,
 				Deactivated: false,
 				Signature:   a.Get("signature").ToString(),
-				Txid:        tx.Transaction.Txid,
-				Tx:          tx,
 				Time:        artTime,
+				Tx:          tx,
+				Txid:        tx.Transaction.Txid,
 				Type:        "alexandria-media",
 			},
 		}
@@ -155,9 +155,9 @@ type AmMeta struct {
 	BlockHash   string                     `json:"block_hash"`
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
-	Txid        string                     `json:"txid"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"tx"`
+	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }
 

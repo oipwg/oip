@@ -40,13 +40,13 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 	var el elasticOip042Artifact
 	el.Artifact = artifact.GetInterface()
 	el.Meta = AMeta{
-		Time:        tx.Transaction.Time,
-		Txid:        tx.Transaction.Txid,
-		Signature:   sig,
-		BlockHash:   tx.BlockHash,
 		Block:       tx.Block,
+		BlockHash:   tx.BlockHash,
 		Deactivated: false,
+		Signature:   sig,
+		Time:        tx.Transaction.Time,
 		Tx:          tx,
+		Txid:        tx.Transaction.Txid,
 		Type:        "oip042",
 	}
 
@@ -63,13 +63,13 @@ func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 	var el elasticOip042Edit
 	el.Edit = any.GetInterface()
 	el.Meta = OMeta{
-		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
-		Signature: sig,
-		BlockHash: tx.BlockHash,
 		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
 		Completed: false,
+		Signature: sig,
+		Time:      tx.Transaction.Time,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 		Type:      "artifact",
 	}
 
@@ -86,13 +86,13 @@ func on42JsonTransferArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 	var el elasticOip042Transfer
 	el.Transfer = any.GetInterface()
 	el.Meta = OMeta{
-		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
-		Signature: sig,
-		BlockHash: tx.BlockHash,
 		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
 		Completed: false,
+		Signature: sig,
+		Time:      tx.Transaction.Time,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 		Type:      "artifact",
 	}
 
@@ -109,13 +109,13 @@ func on42JsonDeactivateArtifact(any jsoniter.Any, tx *datastore.TransactionData)
 	var el elasticOip042DeactivateInterface
 	el.Deactivate = any.GetInterface()
 	el.Meta = OMeta{
-		Time:      tx.Transaction.Time,
-		Txid:      tx.Transaction.Txid,
-		Signature: sig,
-		BlockHash: tx.BlockHash,
 		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
 		Completed: false,
+		Signature: sig,
+		Time:      tx.Transaction.Time,
 		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
 		Type:      "artifact",
 	}
 

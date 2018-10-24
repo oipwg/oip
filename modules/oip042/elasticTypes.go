@@ -7,9 +7,9 @@ type OMeta struct {
 	BlockHash string                     `json:"block_hash"`
 	Completed bool                       `json:"completed"`
 	Signature string                     `json:"signature"`
-	Txid      string                     `json:"txid"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"tx"`
+	Txid      string                     `json:"txid"`
 	Type      string                     `json:"type"`
 }
 
@@ -18,9 +18,9 @@ type AMeta struct {
 	BlockHash   string                     `json:"block_hash"`
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
-	Txid        string                     `json:"txid"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"tx"`
+	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }
 

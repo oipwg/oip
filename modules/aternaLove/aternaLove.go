@@ -44,8 +44,8 @@ func onAlove(floData string, tx *datastore.TransactionData) {
 
 	a := Alove{
 		Message: chunks[0],
-		From:    chunks[2],
 		To:      chunks[1],
+		From:    chunks[2],
 		TxId:    tx.Transaction.Txid,
 	}
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("aterna")).Type("_doc").Id(tx.Transaction.Txid).Doc(a)
