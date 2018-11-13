@@ -52,7 +52,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
 		Search(datastore.Index(oip41IndexName)).
