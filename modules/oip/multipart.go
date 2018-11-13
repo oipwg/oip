@@ -241,9 +241,15 @@ func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 	}
 
 	if ms.Part == 0 {
-		ms.Reference = tx.Transaction.Txid[0:10]
+		if len(tx.Transaction.Txid) > 10 {
+			ms.Reference = tx.Transaction.Txid[0:10]
+		} else {
+			ms.Reference = tx.Transaction.Txid
+		}
 	} else {
-		ms.Reference = ms.Reference[0:10]
+		if len(ms.Reference) > 10 {
+			ms.Reference = ms.Reference[0:10]
+		}
 	}
 
 	ms.Meta = MSMeta{
