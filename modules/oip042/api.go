@@ -28,7 +28,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := elastic.NewBoolQuery().Must(
-	// elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.deactivated", false),
 	)
 
 	if n, ok := opts["nsfw"]; ok {
