@@ -41,6 +41,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 		elastic.NewQueryStringQuery(searchQuery).
 			// DefaultField("artifact.info.description").
 			AnalyzeWildcard(false),
+		elastic.NewTermQuery("meta.deactivated", false),
 	)
 
 	log.Info(searchQuery)

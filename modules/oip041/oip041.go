@@ -45,12 +45,14 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 
 	if n, ok := opts["nsfw"]; ok {
 		nsfw, _ := strconv.ParseBool(n)
-		q.Must(elastic.NewTermQuery("artifact.info.nsfw", nsfw))
+		if nsfw == false {
+			q.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
+		}
 		log.Info("nsfw: %t", nsfw)
 	}
 
 	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 
 	results, err := datastore.Client().
 		Search(datastore.Index(oip41IndexName)).
