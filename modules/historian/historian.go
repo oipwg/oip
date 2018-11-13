@@ -42,15 +42,15 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		size = -1
 	}
 
-	// q := elastic.NewBoolQuery().Must(
-	// 	elastic.NewTermQuery("meta.deactivated", false),
-	// )
+	//q := elastic.NewBoolQuery().Must(
+	//	elastic.NewTermQuery("meta.deactivated", false),
+	//)
 
 	fsc := elastic.NewFetchSourceContext(true).
 		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(datastore.Index(histDataPointIndexName)).
+		Search(datastore.Index(histDataPointIndexName+"string"), datastore.Index(histDataPointIndexName+"proto")).
 		Type("_doc").
 		// Query(q).
 		Size(int(size)).
@@ -89,7 +89,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
 
 	results, err := datastore.Client().
-		Search(datastore.Index(histDataPointIndexName)).
+		Search(datastore.Index(histDataPointIndexName+"string"), datastore.Index(histDataPointIndexName+"proto")).
 		Type("_doc").
 		Query(q).
 		Size(1).
