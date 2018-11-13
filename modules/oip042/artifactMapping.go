@@ -11,10 +11,11 @@ const publishOip042ArtifactMapping = `{
         "artifact": {
           "properties": {
             "details": {
+			  "dynamic": "true",
               "properties": {
                 "NBCItaxID": {
                   "type": "long"
-                },
+                },"
                 "NCBItaxID": {
                   "type": "long"
                 },
@@ -213,32 +214,6 @@ const publishOip042ArtifactMapping = `{
             "type": {
               "type": "keyword",
               "ignore_above": 256
-            },
-            "meta": {
-              "properties": {
-                "block": {
-                  "type": "long"
-                },
-                "block_hash": {
-                  "type": "keyword",
-                  "ignore_above": 64
-                },
-                "deactivated": {
-                  "type": "boolean"
-                },
-                "time": {
-                  "type": "date",
-                  "format": "epoch_second"
-                },
-                "txid": {
-                  "type": "keyword",
-                  "ignore_above": 64
-                },
-                "tx": {
-                  "type": "object",
-                  "enabled": false
-                }
-              }
             }
           }
         },
