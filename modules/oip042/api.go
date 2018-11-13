@@ -31,11 +31,13 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	// elastic.NewTermQuery("meta.deactivated", false),
 	)
 
-	// if n, ok := opts["nsfw"]; ok {
-	// 	nsfw, _ := strconv.ParseBool(n)
-	// 	q.Must(elastic.NewTermQuery("artifact.info.nsfw", true))
-	// 	log.Info("nsfw: %t", nsfw)
-	// }
+	if n, ok := opts["nsfw"]; ok {
+		nsfw, _ := strconv.ParseBool(n)
+		if nsfw == false {
+			q.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
+		}
+		log.Info("nsfw: %t", nsfw)
+	}
 
 	// fsc := elastic.NewFetchSourceContext(true) // .
 	// Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
