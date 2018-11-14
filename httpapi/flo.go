@@ -15,6 +15,46 @@ import (
 func init() {
 	router.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
 	router.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
+	router.HandleFunc("/floData/get/{id:[a-f0-9]+}", handleGetFloData)
+
+}
+
+func handleGetFloData(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+	log.Info("handleGetFloData", logger.Attrs{"opts": opts})
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewPrefixQuery("tx.txid", opts["id"]),
+	)
+
+	fsc := elastic.NewFetchSourceContext(true).
+		Include("tx.floData", "tx.txid", "block", "tx.time")
+
+	results, err := datastore.Client().
+		Search(datastore.Index("transactions")).
+		Type("_doc").
+		Query(q).
+		Size(1).
+		Sort("tx.time", false).
+		FetchSourceContext(fsc).
+		Do(context.TODO())
+
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		RespondJSON(w, 500, map[string]interface{} {
+			"error": "database error",
+		})
+	}
+
+	sources := make([]interface{}, len(results.Hits.Hits))
+	for k, v := range results.Hits.Hits {
+		sources[k] = v.Source
+	}
+
+	RespondJSON(w, http.StatusOK, map[string]interface{} {
+		"total": results.Hits.TotalHits,
+		"results": sources,
+	})
 }
 
 func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
