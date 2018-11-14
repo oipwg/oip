@@ -31,7 +31,7 @@ func handleGetFloData(w http.ResponseWriter, r *http.Request) {
 		Include("tx.floData", "tx.txid", "block", "tx.time")
 
 	results, err := datastore.Client().
-		Search(datastore.Index("mainnet-transactions")).
+		Search(datastore.Index("transactions")).
 		Type("_doc").
 		Query(q).
 		Size(1).
