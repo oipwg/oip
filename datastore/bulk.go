@@ -98,7 +98,7 @@ func (bi *BulkIndexer) StoreTransaction(td *TransactionData) {
 	bir := elastic.NewBulkIndexRequest().
 		Index(Index("transactions")).
 		Type("_doc").
-		Id(td.Transaction.Hash).
+		Id(td.Transaction.Txid).
 		Doc(td)
 	bi.Add(bir)
 }
