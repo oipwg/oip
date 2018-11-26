@@ -45,6 +45,7 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 			Block:       bd.Block.Height,
 			BlockHash:   bd.Block.Hash,
 			Confirmed:   true,
+			IsCoinbase:  rawTx.Vin[0].IsCoinBase(),
 			Transaction: rawTx,
 		}
 

@@ -45,5 +45,6 @@ type TransactionData struct {
 	Block       int64                `json:"block"`
 	BlockHash   string               `json:"block_hash"`
 	Confirmed   bool                 `json:"confirmed"`
+	IsCoinbase  bool                 `json:"is_coinbase"`
 	Transaction *flojson.TxRawResult `json:"tx"`
 }

@@ -18,6 +18,9 @@ const transactionsMapping = `{
         "confirmed": {
           "type": "boolean"
         },
+        "is_coinbase": {
+          "type": "boolean"
+        },
         "tx": {
           "properties": {
             "blockhash": {

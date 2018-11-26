@@ -86,6 +86,7 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 		Block:       -1,
 		BlockHash:   "",
 		Confirmed:   false,
+		IsCoinbase:  txDetails.Vin[0].IsCoinBase(),
 		Transaction: txDetails,
 	}
 
