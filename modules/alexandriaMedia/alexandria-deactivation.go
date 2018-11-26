@@ -64,7 +64,6 @@ func onMpCompleted() {
 		return
 	}
 	if !exist {
-		log.Info("elastic index doesn't exist", logger.Attrs{"index": adIndexName})
 		return
 	}
 
