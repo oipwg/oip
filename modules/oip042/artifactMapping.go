@@ -15,7 +15,7 @@ const publishOip042ArtifactMapping = `{
               "properties": {
                 "NBCItaxID": {
                   "type": "long"
-                },"
+                },
                 "NCBItaxID": {
                   "type": "long"
                 },
