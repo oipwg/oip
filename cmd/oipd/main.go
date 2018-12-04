@@ -48,7 +48,7 @@ func main() {
 
 	err := flo.WaitForFlod(tenMinuteCtx, host, user, pass)
 	if err != nil {
-		log.Error("Unable to connect to Flod after 10 minutes", logger.Attrs{"host": host, "err": err})
+		log.Error("Unable to connect to Flod", logger.Attrs{"host": host, "err": err})
 		shutdown(err)
 		return
 	}
