@@ -60,8 +60,11 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	}
 
 	// ToDo: test rewind/re-org
-	for i := -1; i > -recentBlocks.Cap(); i-- {
+	attr["recentBlocksLen"] = recentBlocks.Len()
+	for i := -1; i > -recentBlocks.Len(); i-- {
 		b := recentBlocks.Get(i)
+		attr["i"] = i
+		log.Info("unrolling block", attr)
 		if b.Block.Hash == header.PrevBlock.String() {
 			attr["rewind"] = -i
 			log.Info("re-org detected", attr)
