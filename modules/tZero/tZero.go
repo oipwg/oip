@@ -18,7 +18,7 @@ func init() {
 		events.Bus.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
 		events.Bus.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
 		events.Bus.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
-		datastore.RegisterMapping("tzero", tZeroMapping)
+		datastore.RegisterMapping("tzero", "tZero.json")
 	}
 }
 
@@ -128,64 +128,3 @@ type tZeroTransaction struct {
 	TimeInForce string `json:"time_in_force"`
 	Action      string `json:"action"`
 }
-
-const tZeroMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "account": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "action": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "broker": {
-          "type": "long"
-        },
-        "order_type": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "price": {
-          "type": "float"
-        },
-        "qty": {
-          "type": "long"
-        },
-        "side": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "soi": {
-          "type": "long"
-        },
-        "sti": {
-          "type": "long"
-        },
-        "symbol": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "time": {
-          "type": "date",
-          "format": "MM/dd/yyyy HH:mm:ss.SSS"
-        },
-        "time_in_force": {
-          "type": "keyword",
-          "ignore_above": 256
-        }
-      }
-    }
-  }
-}`

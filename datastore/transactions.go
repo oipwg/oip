@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	RegisterMapping("transactions", transactionsMapping)
+	RegisterMapping("transactions", "transactions.json")
 }
 
 func StoreTransaction(ctx context.Context, t *TransactionData) (*elastic.IndexResponse, error) {

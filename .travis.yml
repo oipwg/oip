@@ -24,6 +24,7 @@ before_install:
   - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
     -o $GOPATH/bin/dep
   - chmod +x $GOPATH/bin/dep
+  - go get -u github.com/gobuffalo/packr/v2/packr2
 
 install:
   - dep ensure
@@ -33,6 +34,7 @@ cache:
   - "$GOPATH/pkg/dep"
 
 script:
+  - cd $GOPATH/github.com/bitspill/oip/cmd/oipd && packr2 -v && cd -
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then

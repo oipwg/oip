@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "strict",
+      "properties": {
+        "address": {
+          "type": "keyword",
+          "ignore_above": 36
+        },
+        "bitcoin": {
+          "type": "keyword",
+          "ignore_above": 36
+        },
+        "bitmessage": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "emailmd5": {
+          "type": "keyword",
+          "ignore_above": 32
+        },
+        "email": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "name": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "timestamp": {
+          "type": "date",
+          "format": "epoch_second"
+        }
+      }
+    }
+  }
+}

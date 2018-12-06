@@ -15,7 +15,7 @@ func init() {
 	if !config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
 		events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
-		datastore.RegisterMapping("aterna", aternaMapping)
+		datastore.RegisterMapping("aterna", "aterna.json")
 	}
 }
 
@@ -58,47 +58,3 @@ type Alove struct {
 	From    string `json:"from"`
 	TxId    string `json:"txId"`
 }
-
-const aternaMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "from": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "message": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "to": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "txId": {
-          "type": "keyword",
-          "ignore_above": 64
-        }
-      }
-    }
-  }
-}`

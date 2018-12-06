@@ -26,8 +26,8 @@ func init() {
 	events.Bus.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
 	events.Bus.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
 
-	datastore.RegisterMapping(histDataPointIndexName+"string", histDataPointMapping)
-	datastore.RegisterMapping(histDataPointIndexName+"proto", histDataPointMapping)
+	datastore.RegisterMapping(histDataPointIndexName+"string", "historianDataPoint.json")
+	datastore.RegisterMapping(histDataPointIndexName+"proto", "historianDataPoint.json")
 
 	histRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
 	histRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
@@ -260,47 +260,3 @@ func validateHdp(floData string, tx *datastore.TransactionData) (elasticHdp, err
 
 	return el, nil
 }
-
-const histDataPointMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "true",
-      "properties": {
-        "data_point" : {
-			"type": "object"
-        },
-        "meta": {
-          "properties": {
-            "block": {
-              "type": "long"
-            },
-            "block_hash": {
-              "type": "keyword",
-              "ignore_above": 64
-            },
-            "signature": {
-              "type": "text",
-              "index": false
-            },
-            "time": {
-              "type": "date",
-              "format": "epoch_second"
-            },
-            "tx": {
-              "type": "object",
-              "enabled": false
-            },
-            "txid": {
-              "type": "keyword",
-              "ignore_above": 64
-            }
-          }
-        }
-      }
-    }
-  }
-}
-`

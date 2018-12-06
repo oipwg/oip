@@ -27,7 +27,7 @@ var mpRouter = httpapi.NewSubRoute("/multipart")
 
 func init() {
 	log.Info("init multipart")
-	datastore.RegisterMapping(multipartIndex, multipartMapping)
+	datastore.RegisterMapping(multipartIndex, "multipart.json")
 	events.Bus.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
 	events.Bus.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
 
@@ -395,75 +395,3 @@ type Multipart struct {
 	Count int
 	Total int
 }
-
-const multipartMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "address": {
-          "type": "keyword",
-          "ignore_above": 36
-        },
-        "data": {
-          "type": "text",
-          "index": false
-        },
-        "max": {
-          "type": "long"
-        },
-        "meta": {
-          "properties": {
-            "assembled": {
-              "type": "text",
-              "index": false
-            },
-            "block": {
-              "type": "long"
-            },
-            "block_hash": {
-              "type": "keyword",
-              "ignore_above": 64
-            },
-            "complete": {
-              "type": "boolean"
-            },
-            "stale": {
-              "type": "boolean"
-            },
-            "time": {
-              "type": "date",
-              "format": "epoch_second"
-            },
-            "txid": {
-              "type": "keyword",
-              "ignore_above": 64
-            },
-            "tx": {
-              "type": "object",
-              "enabled": false
-            }
-          }
-        },
-        "part": {
-          "type": "long"
-        },
-        "reference": {
-          "type": "keyword",
-          "ignore_above": 64
-        },
-        "signature": {
-          "type": "text",
-          "index": false
-        },
-        "txid": {
-          "type": "keyword",
-          "ignore_above": 64
-        }
-      }
-    }
-  }
-}`

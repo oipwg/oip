@@ -1,6 +1,4 @@
-package oip042
-
-const publishOip042ArtifactMapping = `{
+{
   "settings": {
     "number_of_shards": 2
   },
@@ -11,7 +9,7 @@ const publishOip042ArtifactMapping = `{
         "artifact": {
           "properties": {
             "details": {
-			  "dynamic": "true",
+              "dynamic": "true",
               "properties": {
                 "NBCItaxID": {
                   "type": "long"
@@ -255,4 +253,3 @@ const publishOip042ArtifactMapping = `{
     }
   }
 }
-`

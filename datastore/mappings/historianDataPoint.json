@@ -1,0 +1,42 @@
+{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "true",
+      "properties": {
+        "data_point" : {
+          "type": "object"
+        },
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "signature": {
+              "type": "text",
+              "index": false
+            },
+            "time": {
+              "type": "date",
+              "format": "epoch_second"
+            },
+            "tx": {
+              "type": "object",
+              "enabled": false
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 64
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -21,8 +21,8 @@ func init() {
 	log.Info("init oip042 json")
 	events.Bus.SubscribeAsync("modules:oip042:json", on42Json, false)
 
-	datastore.RegisterMapping(oip042ArtifactIndex, publishOip042ArtifactMapping)
-	datastore.RegisterMapping(oip042PublisherIndex, registerOip042PublisherMapping)
+	datastore.RegisterMapping(oip042ArtifactIndex, "oip042_artifact.json")
+	datastore.RegisterMapping(oip042PublisherIndex, "oip042_publisher.json")
 }
 
 func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {

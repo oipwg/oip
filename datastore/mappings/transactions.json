@@ -1,6 +1,4 @@
-package datastore
-
-const transactionsMapping = `{
+{
   "settings": {
     "number_of_shards": 2
   },
@@ -143,4 +141,4 @@ const transactionsMapping = `{
       }
     }
   }
-}`
+}

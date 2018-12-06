@@ -21,7 +21,7 @@ var pubRouter = httpapi.NewSubRoute("/alexandria/publisher")
 func init() {
 	log.Info("init alexandria-publisher")
 	events.Bus.SubscribeAsync("modules:oip:alexandriaPublisher", onAlexandriaPublisher, false)
-	datastore.RegisterMapping(apIndexName, apMapping)
+	datastore.RegisterMapping(apIndexName, "alexandria-publisher.json")
 	pubRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatestPublishers)
 	pubRouter.HandleFunc("/get/{address:[A-Za-z0-9]+}", handleGetPublisher)
 }
@@ -118,49 +118,3 @@ func onAlexandriaPublisher(floData string, tx *datastore.TransactionData) {
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index("alexandria-publisher")).Type("_doc").Doc(pub).Id(tx.Transaction.Txid)
 	datastore.AutoBulk.Add(bir)
 }
-
-const apMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "address": {
-          "type": "keyword",
-          "ignore_above": 36
-        },
-        "bitcoin": {
-          "type": "keyword",
-          "ignore_above": 36
-        },
-        "bitmessage": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "emailmd5": {
-          "type": "keyword",
-          "ignore_above": 32
-        },
-        "email": {
-          "type": "keyword",
-          "ignore_above": 256
-        },
-        "name": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "timestamp": {
-          "type": "date",
-          "format": "epoch_second"
-        }
-      }
-    }
-  }
-}`

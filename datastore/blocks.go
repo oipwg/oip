@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	RegisterMapping("blocks", blocksMapping)
+	RegisterMapping("blocks", "blocks.json")
 }
 
 func GetLastBlock(ctx context.Context) (BlockData, error) {

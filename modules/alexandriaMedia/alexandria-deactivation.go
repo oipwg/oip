@@ -20,7 +20,7 @@ func init() {
 	log.Info("init alexandria-deactivation")
 	events.Bus.SubscribeAsync("modules:oip:alexandriaDeactivation", onAlexandriaDeactivation, false)
 	events.Bus.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
-	datastore.RegisterMapping(adIndexName, adMapping)
+	datastore.RegisterMapping(adIndexName, "alexandria-deactivation.json")
 }
 
 func onAlexandriaDeactivation(floData string, tx *datastore.TransactionData) {
@@ -134,57 +134,3 @@ type AdMeta struct {
 	Tx        *datastore.TransactionData `json:"tx"`
 	Txid      string                     `json:"txid"`
 }
-
-const adMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "address": {
-          "type": "keyword",
-          "ignore_above": 36
-        },
-        "reference": {
-          "type": "keyword",
-          "ignore_above": 36
-        },
-        "signature": {
-          "type": "text",
-          "index": false
-        },
-        "meta": {
-          "properties": {
-            "block": {
-              "type": "long"
-            },
-            "block_hash": {
-              "type": "keyword",
-              "ignore_above": 64
-            },
-            "complete": {
-              "type": "boolean"
-            },
-            "stale": {
-              "type": "boolean"
-            },
-            "time": {
-              "type": "date",
-              "format": "epoch_second"
-            },
-            "txid": {
-              "type": "keyword",
-              "ignore_above": 64
-            },
-            "tx": {
-              "type": "object",
-              "enabled": false
-            }
-          }
-        }
-      }
-    }
-  }
-}`

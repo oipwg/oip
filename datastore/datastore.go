@@ -11,6 +11,7 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/config"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -19,6 +20,7 @@ var client *elastic.Client
 var AutoBulk BulkIndexer
 
 var mappings = make(map[string]string)
+var mapBox = packr.New("mappings", "./mappings")
 
 func Setup(ctx context.Context) error {
 	var err error
@@ -91,8 +93,9 @@ func getHttpClient() (*http.Client, error) {
 	return httpClient, nil
 }
 
-func RegisterMapping(index, mapping string) error {
+func RegisterMapping(index, fileName string) error {
 	index = Index(index) // apply proper prefix
+	mapping, _ := mapBox.FindString(fileName)
 	mappings[index] = mapping
 	if client != nil {
 		return createIndex(context.TODO(), index, mapping)

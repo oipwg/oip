@@ -1,6 +1,4 @@
-package oip042
-
-const registerOip042PublisherMapping = `{
+{
   "settings": {
     "number_of_shards": 2
   },
@@ -69,4 +67,4 @@ const registerOip042PublisherMapping = `{
       }
     }
   }
-}`
+}

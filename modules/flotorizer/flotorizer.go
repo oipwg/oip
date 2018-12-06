@@ -14,7 +14,7 @@ func init() {
 	if !config.IsTestnet() {
 		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
 		events.Bus.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
-		datastore.RegisterMapping("flotorizer", flotorizerMapping)
+		datastore.RegisterMapping("flotorizer", "flotorizer.json")
 	}
 }
 
@@ -42,24 +42,3 @@ type Flotorized struct {
 	Hash string `json:"hash"`
 	TxId string `json:"txId"`
 }
-
-const flotorizerMapping = `{
-  "settings": {
-    "number_of_shards": 2
-  },
-  "mappings": {
-    "_doc": {
-      "dynamic": "strict",
-      "properties": {
-        "hash": {
-          "type": "keyword",
-          "index": false
-        },
-        "txId": {
-          "type": "keyword",
-          "ignore_above": 64
-        }
-      }
-    }
-  }
-}`
