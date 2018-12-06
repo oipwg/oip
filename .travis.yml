@@ -34,7 +34,7 @@ cache:
   - "$GOPATH/pkg/dep"
 
 script:
-  - cd $GOPATH/github.com/bitspill/oip/cmd/oipd && packr2 -v && cd -
+  - cd $GOPATH/src/github.com/bitspill/oip/cmd/oipd && packr2 -v && cd -
   - go test -v -race ./...
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then
