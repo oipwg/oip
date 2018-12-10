@@ -18,20 +18,13 @@
   revision = "d46933a94f05c6657d7b923fcf5ac563ee37ec79"
 
 [[projects]]
-  digest = "1:f89c911f2c7c5306eee33eb166cf334759dfd20b50555bd462b797b4be147026"
-  name = "github.com/azer/is-terminal"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d890a36967629a256d1488b735cd375e29439507"
-  version = "v1.0.0"
-
-[[projects]]
-  digest = "1:c67dd8288c1cc315477dc27650290f5f2c843827f65216fa503564446cdbbb56"
+  branch = "forceColors"
+  digest = "1:9fad82b0e74b152a10be0b7b997b7182d07ef62e023305e06bce62dce88a862b"
   name = "github.com/azer/logger"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b2064509a05be7b89fecfe472d13843bcf3a8b3d"
-  version = "v1.0.0"
+  revision = "7bb3a84c2e07337811920a8fdb7bb318b54a5155"
+  source = "github.com/bitspill/logger"
 
 [[projects]]
   digest = "1:b520b55fc1146c5b0eea03b07233f7a3d4a9be985c037c91ea6b82ecb81bd521"
@@ -232,7 +225,8 @@
   revision = "c49825f8f6f458178e241c985b37f979045e6879"
 
 [[projects]]
-  digest = "1:8a7ad265c2d193026c395c58961b4286d68bbe884d5604a96b685a9fad0cf364"
+  branch = "importRelativePath"
+  digest = "1:3faf290f1d8ed339e6cbe6965a99a4b7e7706c5ee5ca7cd92c7de865883b7034"
   name = "github.com/gobuffalo/packr"
   packages = [
     "v2",
@@ -243,8 +237,8 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "153c849cd9bc75c20c759472f9ed1609744ff709"
-  version = "v1.21.8"
+  revision = "1d02ecba9e4eec7f7271eb054e932d7b8e2ad48f"
+  source = "github.com/bitspill/packr"
 
 [[projects]]
   branch = "master"
