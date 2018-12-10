@@ -95,7 +95,10 @@ func getHttpClient() (*http.Client, error) {
 
 func RegisterMapping(index, fileName string) error {
 	index = Index(index) // apply proper prefix
-	mapping, _ := mapBox.FindString(fileName)
+	mapping, err := mapBox.FindString(fileName)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to find mapping %s for index %s", fileName, index))
+	}
 	mappings[index] = mapping
 	if client != nil {
 		return createIndex(context.TODO(), index, mapping)
