@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/config"
@@ -11,22 +12,31 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-var router = mux.NewRouter()
+var rootRouter = mux.NewRouter()
+var daemonRoutes = NewSubRoute("/daemon")
+
+var (
+	apiStartup time.Time
+)
 
 func init() {
-	router.Use(logRequests)
-	router.NotFoundHandler = http.HandlerFunc(handle404)
+	rootRouter.Use(logRequests)
+	rootRouter.NotFoundHandler = http.HandlerFunc(handle404)
 
-	router.HandleFunc("/version", handleVersion)
+	daemonRoutes.HandleFunc("/version", handleVersion)
 }
 
 func Serve() {
+	apiStartup = time.Now()
 	listen := config.Get("api.listen").String("127.0.0.1:1606")
-	http.ListenAndServe(listen, router)
+	err := http.ListenAndServe(listen, rootRouter)
+	if err != nil {
+		log.Error("Error serving http api", logger.Attrs{"err": err, "listen": listen})
+	}
 }
 
 func NewSubRoute(prefix string) *mux.Router {
-	return router.PathPrefix(prefix).Subrouter()
+	return rootRouter.PathPrefix(prefix).Subrouter()
 }
 
 func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
@@ -49,6 +59,8 @@ func handleVersion(w http.ResponseWriter, _ *http.Request) {
 		"BuildDate":     version.BuildDate,
 		"GoVersion":     version.GoVersion,
 		"GitCommitHash": version.GitCommitHash,
+		"Started":       apiStartup.Format(time.RFC1123Z),
+		"Uptime":        time.Since(apiStartup).String(),
 	})
 }
 

@@ -13,11 +13,11 @@ import (
 )
 
 func init() {
-	router.HandleFunc("/artifact/get/latest/{limit:[0-9]+}", handleLatest).Queries("nsfw", "{nsfw}")
-	router.HandleFunc("/artifact/get/latest/{limit:[0-9]+}", handleLatest)
-	router.HandleFunc("/artifact/get/{id:[a-f0-9]+}", handleGet)
-	router.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
-	router.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}")
+	rootRouter.HandleFunc("/artifact/get/latest/{limit:[0-9]+}", handleLatest).Queries("nsfw", "{nsfw}")
+	rootRouter.HandleFunc("/artifact/get/latest/{limit:[0-9]+}", handleLatest)
+	rootRouter.HandleFunc("/artifact/get/{id:[a-f0-9]+}", handleGet)
+	rootRouter.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
+	rootRouter.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}")
 }
 
 func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {

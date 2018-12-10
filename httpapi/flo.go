@@ -13,11 +13,11 @@ import (
 )
 
 func init() {
-	router.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
-	router.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
-	router.HandleFunc("/floData/get/{id:[a-f0-9]+}", handleGetFloData)
-	router.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest).Queries("coinbase", "{coinbase}")
-	router.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest)
+	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
+	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
+	rootRouter.HandleFunc("/floData/get/{id:[a-f0-9]+}", handleGetFloData)
+	rootRouter.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest).Queries("coinbase", "{coinbase}")
+	rootRouter.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest)
 }
 
 func handleGetFloData(w http.ResponseWriter, r *http.Request) {

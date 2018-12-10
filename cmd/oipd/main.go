@@ -53,6 +53,12 @@ func main() {
 		return
 	}
 
+	apiEnabled := config.Get("api.enabled").Bool(false)
+	if apiEnabled {
+		log.Info("starting http api")
+		go httpapi.Serve()
+	}
+
 	count, err := flo.GetBlockCount()
 	if err != nil {
 		log.Error("GetBlockCount failed", logger.Attrs{"err": err})
@@ -90,12 +96,6 @@ func main() {
 		log.Error("BeginNotifyTransactions failed", logger.Attrs{"err": err})
 		shutdown(err)
 		return
-	}
-
-	apiEnabled := config.Get("api.enabled").Bool(false)
-	if apiEnabled {
-		log.Info("starting http api")
-		go httpapi.Serve()
 	}
 
 	<-rootContext.Done()
