@@ -2,6 +2,8 @@ package config
 
 import (
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestSetTestnet(t *testing.T) {
@@ -9,12 +11,12 @@ func TestSetTestnet(t *testing.T) {
 	testnet := IsTestnet()
 
 	SetTestnet(true)
-	if Get("testnet").Bool(false) != true {
+	if viper.GetBool("testnet") != true {
 		t.Error("expected true, received false")
 	}
 
 	SetTestnet(false)
-	if Get("testnet").Bool(true) != false {
+	if viper.GetBool("testnet") != false {
 		t.Error("expected false, received true")
 	}
 
