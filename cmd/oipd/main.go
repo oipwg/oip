@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oip/httpapi"
 	_ "github.com/bitspill/oip/modules"
 	"github.com/bitspill/oip/sync"
 	"github.com/bitspill/oip/version"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -42,9 +42,9 @@ func main() {
 	tenMinuteCtx, cancel := context.WithTimeout(rootContext, 10*time.Minute)
 	defer cancel()
 
-	host := config.Get("flod.host").String("127.0.0.1:8334")
-	user := config.Get("flod.user").String("user")
-	pass := config.Get("flod.pass").String("pass")
+	host := viper.GetString("flod.host")
+	user := viper.GetString("flod.user")
+	pass := viper.GetString("flod.pass")
 
 	err := flo.WaitForFlod(tenMinuteCtx, host, user, pass)
 	if err != nil {
@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 
-	apiEnabled := config.Get("api.enabled").Bool(false)
+	apiEnabled := viper.GetBool("api.enabled")
 	if apiEnabled {
 		log.Info("starting http api")
 		go httpapi.Serve()

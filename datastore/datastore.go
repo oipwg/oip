@@ -13,6 +13,7 @@ import (
 	"github.com/bitspill/oip/config"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -32,7 +33,7 @@ func Setup(ctx context.Context) error {
 	}
 
 	client, err = elastic.NewClient(elastic.SetSniff(false), elastic.SetHttpClient(httpClient),
-		elastic.SetURL(config.Get("elastic.host").String("http://127.0.0.1:9200")))
+		elastic.SetURL(viper.GetString("elastic.host")))
 	if err != nil {
 		log.Error("unable to connect to elasticsearch", logger.Attrs{"err": err})
 		return errors.Wrap(err, "datastore.setup.newClient")
@@ -52,11 +53,11 @@ func Setup(ctx context.Context) error {
 
 func getHttpClient() (*http.Client, error) {
 	var httpClient *http.Client
-	useCert := config.Get("elastic.use_cert").Bool(false)
+	useCert := viper.GetBool("elastic.use_cert")
 	if useCert {
-		certFile := config.Get("elastic.cert_file").String("config/cert/oipd.pem")
-		certKey := config.Get("elastic.cert_key").String("config/cert/oipd.key")
-		rootCertPath := config.Get("elastic.cert_root").String("config/cert/root-ca.pem")
+		certFile := viper.GetString("elastic.cert_file")
+		certKey := viper.GetString("elastic.cert_key")
+		rootCertPath := viper.GetString("elastic.cert_root")
 
 		// ToDo: add encrypted key support - potentially via x509.DecryptPEMBloc & tls.ParsePKCS1PrivateKey
 		cert, err := tls.LoadX509KeyPair(certFile, certKey)

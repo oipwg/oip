@@ -27,14 +27,6 @@
   source = "github.com/bitspill/logger"
 
 [[projects]]
-  digest = "1:b520b55fc1146c5b0eea03b07233f7a3d4a9be985c037c91ea6b82ecb81bd521"
-  name = "github.com/bitly/go-simplejson"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "aabad6e819789e569bd6aabf444c935aa9ba1e44"
-  version = "v0.5.0"
-
-[[projects]]
   branch = "master"
   digest = "1:436ee0e915066e2aaae511e3fa1753ff56e939c8ee7cf6085d9d8ee137191f24"
   name = "github.com/bitspill/flod"
@@ -132,14 +124,6 @@
   pruneopts = "UT"
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
-
-[[projects]]
-  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
-  name = "github.com/ghodss/yaml"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
-  version = "v1.0.0"
 
 [[projects]]
   digest = "1:d935ee2d953f19b2072c98356e819a42ee367454ab7968f504a2252903f21101"
@@ -257,14 +241,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:236d7e1bdb50d8f68559af37dbcf9d142d56b431c9b2176d41e2a009b664cda8"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
   name = "github.com/gorilla/context"
   packages = ["."]
@@ -281,12 +257,13 @@
   version = "v1.6.2"
 
 [[projects]]
-  digest = "1:ea40c24cdbacd054a6ae9de03e62c5f252479b96c716375aace5c120d68647c8"
+  digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
     "hcl/ast",
     "hcl/parser",
+    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -297,14 +274,6 @@
   pruneopts = "UT"
   revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
   version = "v1.0.0"
-
-[[projects]]
-  digest = "1:8eb1de8112c9924d59bf1d3e5c26f5eaa2bfc2a5fcbb92dc1c2e4546d695f277"
-  name = "github.com/imdario/mergo"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
-  version = "v0.3.6"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -347,6 +316,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
+  name = "github.com/magiconair/properties"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
+
+[[projects]]
   branch = "master"
   digest = "1:aa3d8d42865c42626b5c1add193692d045b3188b1479f0a0a88690d21fe20083"
   name = "github.com/mailru/easyjson"
@@ -376,27 +353,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:aec6de2b678687c3cdd4c64dd1a1241637ee2b482374122d736e74a8f413b22a"
-  name = "github.com/micro/go-config"
-  packages = [
-    ".",
-    "encoder",
-    "encoder/hcl",
-    "encoder/json",
-    "encoder/toml",
-    "encoder/xml",
-    "encoder/yaml",
-    "loader",
-    "loader/memory",
-    "reader",
-    "reader/json",
-    "source",
-    "source/file",
-    "source/memory",
-  ]
+  digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "beb1552e4eac267d924dad2d9b18be58f30281af"
-  version = "v0.10.0"
+  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
+  version = "v1.1.2"
 
 [[projects]]
   digest = "1:33422d238f147d247752996a26574ac48dcf472976eda7f5134015f06bf16563"
@@ -426,12 +388,12 @@
   version = "v6.2.14"
 
 [[projects]]
-  digest = "1:e5d0bd87abc2781d14e274807a470acd180f0499f8bf5bb18606e9ec22ad9de9"
-  name = "github.com/pborman/uuid"
+  digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
+  name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "adf5a7427709b9deb95d29d3fa8a2bf9cfd388f1"
-  version = "v1.2"
+  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -462,6 +424,25 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:6a4a11ba764a56d2758899ec6f3848d24698d48442ebce85ee7a3f63284526cd"
+  name = "github.com/spf13/afero"
+  packages = [
+    ".",
+    "mem",
+  ]
+  pruneopts = "UT"
+  revision = "d40851caa0d747393da1ffb28f7f9d8b4eeffebd"
+  version = "v1.1.2"
+
+[[projects]]
+  digest = "1:08d65904057412fc0270fc4812a1c90c594186819243160dc779a402d4b6d0bc"
+  name = "github.com/spf13/cast"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
@@ -470,12 +451,28 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:68ea4e23713989dc20b1bded5d9da2c5f9be14ff9885beef481848edd18c26cb"
+  name = "github.com/spf13/jwalterweatherman"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4a4406e478ca629068e7768fc33f3f044173c0a6"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
   name = "github.com/spf13/pflag"
   packages = ["."]
   pruneopts = "UT"
   revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
   version = "v1.0.3"
+
+[[projects]]
+  digest = "1:de37e343c64582d7026bf8ab6ac5b22a72eac54f3a57020db31524affed9f423"
+  name = "github.com/spf13/viper"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6d33b5a963d922d182c91e8a1c88d81fd150cfd4"
+  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
@@ -502,8 +499,23 @@
   revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
 
 [[projects]]
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm",
+  ]
+  pruneopts = "UT"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
-  digest = "1:77d6de8214ced0990843a75e7d93d6253c7862242e35e4be98d302eddc57fe90"
+  digest = "1:c0b86bd440a307a1616ec16bf95ab66b6fdd9e7ca2ecd79e58f2d96d60eda1d7"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -512,7 +524,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = "UT"
-  revision = "4c53570e0460bc32468f75bf9dd71c018d03bfa9"
+  revision = "6a3e9aa2ab7749d72d1006ee484271b4a11f96c2"
 
 [[projects]]
   digest = "1:58574d0cb7462f186eb90407e32f4865a109de668da63551af7fec1106d3c403"
@@ -551,11 +563,8 @@
     "github.com/golang/protobuf/proto",
     "github.com/gorilla/mux",
     "github.com/json-iterator/go",
-    "github.com/micro/go-config",
-    "github.com/micro/go-config/reader",
-    "github.com/micro/go-config/source/file",
-    "github.com/micro/go-config/source/memory",
     "github.com/pkg/errors",
+    "github.com/spf13/viper",
     "gopkg.in/olivere/elastic.v6",
   ]
   solver-name = "gps-cdcl"

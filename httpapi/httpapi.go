@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/version"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	json "github.com/json-iterator/go"
+	"github.com/spf13/viper"
 )
 
 var rootRouter = mux.NewRouter()
@@ -28,7 +28,7 @@ func init() {
 
 func Serve() {
 	apiStartup = time.Now()
-	listen := config.Get("api.listen").String("127.0.0.1:1606")
+	listen := viper.GetString("api.listen")
 	err := http.ListenAndServe(listen, rootRouter)
 	if err != nil {
 		log.Error("Error serving http api", logger.Attrs{"err": err, "listen": listen})

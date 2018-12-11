@@ -1,47 +1,65 @@
 package config
 
 import (
+	"fmt"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"github.com/azer/logger"
-	"github.com/micro/go-config"
-	"github.com/micro/go-config/reader"
-	"github.com/micro/go-config/source/file"
-	"github.com/micro/go-config/source/memory"
+	"github.com/bitspill/floutil"
+	"github.com/spf13/viper"
+)
+
+var (
+	appDir = floutil.AppDataDir("oipd", false)
 )
 
 func init() {
 	logger.SetOutput(os.Stdout)
 
-	err := config.Load(file.NewSource(file.WithPath("config/config.json")))
+	loadDefaults()
+
+	err := os.MkdirAll(filepath.Join(appDir, "certs"), os.ModePerm)
 	if err != nil {
-		log.Error("Unable to load configuration file, using default values")
+		panic(err)
+	}
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(appDir)
+	viper.AddConfigPath(".")
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error loading config file: %s \n", err))
 	}
 }
 
-func Get(path string) reader.Value {
-	p := strings.Split(path, ".")
-	return config.Get(p...)
+func loadDefaults() {
+	// Elastic defaults
+	viper.SetDefault("elastic.host", "http://127.0.0.1:9200")
+	viper.SetDefault("elastic.cert_file", filepath.Join(appDir, "certs/oipd.pem"))
+	viper.SetDefault("elastic.cert_key", filepath.Join(appDir, "certs/oipd.key"))
+	viper.SetDefault("elastic.cert_root", filepath.Join(appDir, "certs/root-ca.pem"))
+
+	// Flod defaults
+	defaultFlodDir := floutil.AppDataDir("flod", false)
+	defaultFlodCert := filepath.Join(defaultFlodDir, "rpc.cert")
+	viper.SetDefault("flod.certFile", defaultFlodCert)
+	viper.SetDefault("flod.host", "127.0.0.1:8334")
+	viper.SetDefault("flod.user", "user")
+	viper.SetDefault("flod.pass", "pass")
+
+	// HttpApi defaults
+	viper.SetDefault("api.listen", "127.0.0.1:1606")
+	viper.SetDefault("api.enabled", false)
+
+	// Testnet defaults
+	viper.SetDefault("testnet", false)
 }
 
 func IsTestnet() bool {
-	return config.Get("testnet").Bool(false)
+	return viper.GetBool("testnet")
 }
 
 func SetTestnet(testnet bool) {
-	// ToDo: is this really the best way?
-	t := []byte(`{"testnet": true}`)
-	f := []byte(`{"testnet": false}`)
-
-	data := t
-	if !testnet {
-		data = f
-	}
-
-	memorySource := memory.NewSource(
-		memory.WithData(data),
-	)
-
-	config.Load(memorySource)
+	viper.Set("testnet", testnet)
 }

@@ -1,9 +1,9 @@
 {
   "elastic": {
     "useCert": true,
-    "certFile": "config/cert/oipd.pem",
-    "certKey": "config/cert/oipd.key",
-    "certRoot": "config/cert/root-ca.pem",
+    "certFile": "certs/oipd.pem",
+    "certKey": "certs/oipd.key",
+    "certRoot": "certs/root-ca.pem",
     "host": "https://127.0.0.1:9200"
   },
   "flod": {
