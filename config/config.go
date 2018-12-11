@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -29,7 +28,7 @@ func init() {
 	viper.AddConfigPath(".")
 	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error loading config file: %s \n", err))
+		log.Error("error loading config file, utilizing defaults", logger.Attrs{"err": err})
 	}
 }
 
