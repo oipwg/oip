@@ -53,11 +53,11 @@ func Setup(ctx context.Context) error {
 
 func getHttpClient() (*http.Client, error) {
 	var httpClient *http.Client
-	useCert := viper.GetBool("elastic.use_cert")
+	useCert := viper.GetBool("elastic.useCert")
 	if useCert {
-		certFile := viper.GetString("elastic.cert_file")
-		certKey := viper.GetString("elastic.cert_key")
-		rootCertPath := viper.GetString("elastic.cert_root")
+		certFile := config.GetFilePath("elastic.certFile")
+		certKey := config.GetFilePath("elastic.certKey")
+		rootCertPath := config.GetFilePath("elastic.certRoot")
 
 		// ToDo: add encrypted key support - potentially via x509.DecryptPEMBloc & tls.ParsePKCS1PrivateKey
 		cert, err := tls.LoadX509KeyPair(certFile, certKey)

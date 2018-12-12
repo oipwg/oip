@@ -1,16 +1,20 @@
 package config
 
 import (
+	"bytes"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/azer/logger"
 	"github.com/bitspill/floutil"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/spf13/viper"
 )
 
 var (
-	appDir = floutil.AppDataDir("oipd", false)
+	appDir    = floutil.AppDataDir("oipd", false)
+	configBox = packr.New("defaults", "./defaults")
 )
 
 func init() {
@@ -20,6 +24,26 @@ func init() {
 
 	err := os.MkdirAll(filepath.Join(appDir, "certs"), os.ModePerm)
 	if err != nil {
+		panic(err)
+	}
+
+	b, err := configBox.Find("config.example.yml")
+	if err != nil {
+		panic(err)
+	}
+	err = viper.ReadConfig(bytes.NewReader(b))
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = os.Stat(filepath.Join(appDir, "config.yml"))
+	if os.IsNotExist(err) {
+		log.Info("config.yml not found, writing default config file")
+		err = ioutil.WriteFile(filepath.Join(appDir, "config.yml"), b, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+	} else if err != nil {
 		panic(err)
 	}
 
@@ -35,9 +59,10 @@ func init() {
 func loadDefaults() {
 	// Elastic defaults
 	viper.SetDefault("elastic.host", "http://127.0.0.1:9200")
-	viper.SetDefault("elastic.cert_file", filepath.Join(appDir, "certs/oipd.pem"))
-	viper.SetDefault("elastic.cert_key", filepath.Join(appDir, "certs/oipd.key"))
-	viper.SetDefault("elastic.cert_root", filepath.Join(appDir, "certs/root-ca.pem"))
+	viper.SetDefault("elastic.useCert", false)
+	viper.SetDefault("elastic.certFile", filepath.Join(appDir, "certs/oipd.pem"))
+	viper.SetDefault("elastic.certKey", filepath.Join(appDir, "certs/oipd.key"))
+	viper.SetDefault("elastic.certRoot", filepath.Join(appDir, "certs/root-ca.pem"))
 
 	// Flod defaults
 	defaultFlodDir := floutil.AppDataDir("flod", false)
@@ -47,18 +72,30 @@ func loadDefaults() {
 	viper.SetDefault("flod.user", "user")
 	viper.SetDefault("flod.pass", "pass")
 
-	// HttpApi defaults
-	viper.SetDefault("api.listen", "127.0.0.1:1606")
-	viper.SetDefault("api.enabled", false)
-
 	// Testnet defaults
-	viper.SetDefault("testnet", false)
+	viper.SetDefault("oip.network", "mainnet")
+
+	// HttpApi defaults
+	viper.SetDefault("oip.api.listen", "127.0.0.1:1606")
+	viper.SetDefault("oip.api.enabled", false)
 }
 
 func IsTestnet() bool {
-	return viper.GetBool("testnet")
+	return viper.GetString("oip.network") != "mainnet"
 }
 
 func SetTestnet(testnet bool) {
-	viper.Set("testnet", testnet)
+	n := "mainnet"
+	if testnet {
+		n = "testnet"
+	}
+	viper.Set("oip.network", n)
+}
+
+func GetFilePath(key string) string {
+	v := viper.GetString(key)
+	if filepath.IsAbs(v) {
+		return v
+	}
+	return filepath.Join(appDir, v)
 }

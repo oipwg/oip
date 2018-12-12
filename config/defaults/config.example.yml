@@ -1,0 +1,35 @@
+---
+# All file paths are relative to oipd data directory unless absolute
+
+
+# Elastic search
+elastic:
+  # Use client certificates for authentication
+  useCert: true
+  certFile: certs/oipd.pem
+  certKey: certs/oipd.key
+  certRoot: certs/root-ca.pem
+  # Elastic search address
+  host: https://127.0.0.1:9200
+
+# go-flo daemon
+flod:
+  # Flod websocket RPC address
+  host: 127.0.0.1:8334
+  # Flod RPC authentication
+  user: user
+  pass: pass
+  # Flod RPC authorization certificate
+  # By default reads certificate directly from Flod data directory
+  # certFile: certs/rpc.cert
+
+# Oip daemon
+oip:
+  # Flo network to validate "mainnet" or "testnet"
+  network: mainnet
+  # network: testnet
+
+  # http-api
+  api:
+    listen: 127.0.0.1:1606
+    enabled: true

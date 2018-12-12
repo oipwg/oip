@@ -18,7 +18,6 @@ import (
 	"github.com/bitspill/oip/events"
 	"github.com/cloudflare/backoff"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -80,7 +79,7 @@ func WaitForFlod(ctx context.Context, host, user, pass string) error {
 
 func AddFlod(host, user, pass string) error {
 	// Connect to flod RPC server using websockets.
-	certFile := viper.GetString("flod.certFile")
+	certFile := config.GetFilePath("flod.certFile")
 	certs, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		return errors.Wrap(err, "unable to read rpc.cert")
