@@ -18,6 +18,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 
 	lb, err := datastore.GetLastBlock(ctx)
 	if err != nil {
+		log.Error("Get last block failed", logger.Attrs{"err": err})
 		return lb, err
 	}
 
@@ -28,14 +29,17 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 
 		hash, err := flo.GetBlockHash(lb.Block.Height)
 		if err != nil {
+			log.Error("Get block hash failed", logger.Attrs{"err": err, "height": lb.Block.Height})
 			return lb, err
 		}
 
 		hash2, err := chainhash.NewHashFromStr(lb.Block.Hash)
 		if err != nil {
+			log.Error("hash from string failed", logger.Attrs{"err": err, "hash": lb.Block.Hash})
 			return lb, err
 		}
 		if !hash.IsEqual(hash2) {
+			log.Error("database and blockchain hash mismatch", logger.Attrs{"err": err, "floHash": hash, "dbHash": hash2, "height": lb.Block.Height})
 			return lb, errors.Errorf("initialSync: Database and Blockchain hash mismatch %s != %s", hash, hash2)
 		}
 	}
