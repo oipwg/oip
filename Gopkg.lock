@@ -174,7 +174,7 @@
     "movinglater/gotools/gomods",
   ]
   pruneopts = "UT"
-  revision = "587570ab2cf750ca0d81b396916a5ed11e74acc0"
+  revision = "e26c8466f14d166c788e19ae99c5f077f9ea160b"
 
 [[projects]]
   branch = "master"
@@ -202,11 +202,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3f5c54558735ca3b102e52fd6ecd1f4e42ecd24992a1046ced671514e0c9dde0"
+  digest = "1:3617620c7cbc54dc84ab1f674ca021c1a9f49eeaa98ff81ceb202a626c7b9c66"
   name = "github.com/gobuffalo/packd"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c49825f8f6f458178e241c985b37f979045e6879"
+  revision = "eca3b8fd66872a76119b189bbe0f58f776a2a39f"
 
 [[projects]]
   branch = "importRelativePath"
@@ -221,7 +221,7 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "1d02ecba9e4eec7f7271eb054e932d7b8e2ad48f"
+  revision = "25478a3756630c9915e99c1042d45587ba4614d8"
   source = "github.com/bitspill/packr"
 
 [[projects]]
@@ -489,14 +489,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:268575c4d9e27391ede5e3559c7f41a15dbf108678672afade864e08d6c34574"
+  digest = "1:206c5fc6c77857fea5eebcf4ceb2db7272f269428456160589910e50d14244db"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
+  revision = "b05ddf57801d2239d6ab0ee35f9d981e0420f4ac"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -515,7 +515,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c0b86bd440a307a1616ec16bf95ab66b6fdd9e7ca2ecd79e58f2d96d60eda1d7"
+  digest = "1:a04cdd871724a339249269e3a0d2e723e755f1c9c0cc851eb2ea47595ae83ff7"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -524,7 +524,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = "UT"
-  revision = "6a3e9aa2ab7749d72d1006ee484271b4a11f96c2"
+  revision = "49db546f375eee2dbfef045773161e6a4ea59c2f"
 
 [[projects]]
   digest = "1:58574d0cb7462f186eb90407e32f4865a109de668da63551af7fec1106d3c403"
