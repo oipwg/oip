@@ -34,7 +34,3 @@
   branch = "forceColors"
   source = "github.com/bitspill/logger"
 
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  branch = "importRelativePath"
-  source = "github.com/bitspill/packr"
