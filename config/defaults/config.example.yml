@@ -5,12 +5,12 @@
 # Elastic search
 elastic:
   # Use client certificates for authentication
-  useCert: true
+  useCert: false
   certFile: certs/oipd.pem
   certKey: certs/oipd.key
   certRoot: certs/root-ca.pem
   # Elastic search address
-  host: https://127.0.0.1:9200
+  host: http://127.0.0.1:9200
 
 # go-flo daemon
 flod:
