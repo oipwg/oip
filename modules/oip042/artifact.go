@@ -7,6 +7,7 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/flo"
+	"github.com/bitspill/oip/modules/oip042/validators"
 	"github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -40,6 +41,16 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		attr["address"] = floAddr
 		attr["sig"] = sig
 		log.Error("invalid signature", attr)
+		return
+	}
+
+	t := artifact.Get("type").ToString()
+	st := artifact.Get("subType").ToString()
+	valid := validators.IsValidArtifact(t, st, &artifact, tx.Transaction.Txid)
+	if !valid {
+		attr["type"] = t
+		attr["subtype"] = st
+		log.Error("artifact validation failed", attr)
 		return
 	}
 

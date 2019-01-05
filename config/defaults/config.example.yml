@@ -29,6 +29,21 @@ oip:
   network: mainnet
   # network: testnet
 
+  # Artifact rules
+  artifact:
+    strict: false
+    active:
+      - research-tomogram
+      - property-party
+      - property-tenure
+      - property-spatialunit
+      - video-*
+      - "*-*"
+
+    # Ignores override active
+    ignore:
+    # - property-party
+
   # http-api
   api:
     listen: 127.0.0.1:1606
