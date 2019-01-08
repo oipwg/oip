@@ -8,12 +8,52 @@
       "properties": {
         "artifact": {
           "properties": {
+            "signature": {
+              "type": "text",
+              "index": false
+            },
             "floAddress": {
               "type": "keyword",
               "ignore_above": 36
             },
             "info": {
               "properties": {
+                "attrs": {
+                  "type": "text",
+                  "index": false
+                },
+                "tags": {
+                  "type": "text",
+                  "index": false
+                },
+                "geometry": {
+                  "type": "object",
+                  "enabled": false
+                },
+                "ns": {
+                  "type": "keyword"
+                },
+                "members": {
+                  "type": "keyword"
+                },
+                "partyRole": {
+                  "type": "keyword"
+                },
+                "party": {
+                  "type": "keyword"
+                },
+                "spatialType": {
+                  "type": "keyword"
+                },
+                "tenureType": {
+                  "type": "keyword"
+                },
+                "spatialUnit": {
+                  "type": "keyword"
+                },
+                "partyType": {
+                  "type": "keyword"
+                },
                 "description": {
                   "type": "text",
                   "fields": {

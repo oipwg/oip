@@ -174,7 +174,14 @@
                       "type": "keyword",
                       "ignore_above": 256
                     },
+                    "fName": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
                     "fsize": {
+                      "type": "long"
+                    },
+                    "fSize": {
                       "type": "long"
                     },
                     "software": {
