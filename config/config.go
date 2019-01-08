@@ -17,6 +17,9 @@ var (
 	configBox = packr.New("defaults", "./defaults")
 )
 
+// ToDo: allow changing of appDir via launch flag
+// ToDo: don't create ~/.oipd/ dir if using nonstandard appDir
+
 func init() {
 	logger.SetOutput(os.Stdout)
 
@@ -49,7 +52,6 @@ func init() {
 
 	viper.SetConfigName("config")
 	viper.AddConfigPath(appDir)
-	viper.AddConfigPath(".")
 	err = viper.ReadInConfig()
 	if err != nil {
 		log.Error("error loading config file, utilizing defaults", logger.Attrs{"err": err})
