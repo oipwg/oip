@@ -9,6 +9,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	json "github.com/json-iterator/go"
+	"github.com/rs/cors"
 	"github.com/spf13/viper"
 )
 
@@ -28,8 +29,8 @@ func init() {
 
 func Serve() {
 	apiStartup = time.Now()
-	listen := viper.GetString("api.listen")
-	err := http.ListenAndServe(listen, rootRouter)
+	listen := viper.GetString("oip.api.listen")
+	err := http.ListenAndServe(listen, cors.Default().Handler(rootRouter))
 	if err != nil {
 		log.Error("Error serving http api", logger.Attrs{"err": err, "listen": listen})
 	}

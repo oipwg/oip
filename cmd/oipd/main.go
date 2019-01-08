@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 
-	apiEnabled := viper.GetBool("api.enabled")
+	apiEnabled := viper.GetBool("oip.api.enabled")
 	if apiEnabled {
 		log.Info("starting http api")
 		go httpapi.Serve()

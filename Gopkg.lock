@@ -126,15 +126,15 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:50aaccc3c09ba8fbc1a3c361ef5100d27d93d48a17d7f04b101b7dead3f35a94"
+  digest = "1:d9877fac264d4452fe652059597b499c8618976d11cd83477fcec89af068d075"
   name = "github.com/gobuffalo/buffalo-plugins"
   packages = [
     "plugins",
     "plugins/plugdeps",
   ]
   pruneopts = "UT"
-  revision = "b216a07481d9ee694e9739c468bc0e9be615dbe6"
-  version = "v1.9.4"
+  revision = "0c1b5e070d0b83aeaeaec564a59b9b1ae060acd9"
+  version = "v1.10.0"
 
 [[projects]]
   digest = "1:bd342004ef1bb83bee8709e2ad630e47a95d069f7fcb60ee1b8bceb4bbbe14ae"
@@ -174,7 +174,7 @@
     "movinglater/gotools/gomods",
   ]
   pruneopts = "UT"
-  revision = "a71664fc38e7512742b3676baf6207e722c8c033"
+  revision = "b6af81ece72430f78cda1cb9d8a187a66cd89950"
 
 [[projects]]
   branch = "master"
@@ -209,7 +209,8 @@
   revision = "eca3b8fd66872a76119b189bbe0f58f776a2a39f"
 
 [[projects]]
-  digest = "1:8822adc88da999b7214a08db6111f128ca772c82555ef0bda076844211d38793"
+  branch = "master"
+  digest = "1:aed2c813ef93e260d36414356b24a6138b493ea2697b354724cea57ee1ac2272"
   name = "github.com/gobuffalo/packr"
   packages = [
     "v2",
@@ -220,8 +221,7 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "679459352e18b4c74274a979d695fe13b68730c1"
-  version = "v1.21.9"
+  revision = "f9dae4b780be8e97f707c43bbfd6b694f8b9653a"
 
 [[projects]]
   branch = "master"
@@ -240,20 +240,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
-  version = "v1.1.1"
-
-[[projects]]
-  digest = "1:e73f5b0152105f18bc131fba127d9949305c8693f8a762588a82a48f61756f5f"
+  branch = "master"
+  digest = "1:65360cb7430895ab71c5c96b6c89f44bcd74c585b8bd623fcfae3c73ab1611b2"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
-  version = "v1.6.2"
+  revision = "f3ff42f93a451d7ffb2ff11cb9485f3f88089c83"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -299,12 +291,12 @@
   version = "v1.1.5"
 
 [[projects]]
-  digest = "1:3a3029532366b517900dc8c3e0ea032bf35d913bfac330876dc3efbf177bd6d3"
+  digest = "1:733d809a22d48576a16f7aec67bb60ea5de3eb220e95fcee8098b296b7c0c9e8"
   name = "github.com/karrick/godirwalk"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cceff240ca8af695e41738831646717e80d2f846"
-  version = "v1.7.7"
+  revision = "dfb93c3b8093779973bb5ace7d7f7666b99d4298"
+  version = "v1.7.8"
 
 [[projects]]
   digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
@@ -395,12 +387,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:efafa5160b1666d27e6e1ad4cd3fba27ce73aaaa1e99c3d02e14e55690a8878d"
@@ -415,12 +407,20 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:69b1cc331fca23d702bd72f860c6a647afd0aa9fcbc1d0659b1365e26546dd70"
+  digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
+  version = "v1.6.0"
+
+[[projects]]
+  digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
-  version = "v1.2.0"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:d707dbc1330c0ed177d4642d6ae102d5e2c847ebd0eb84562d0dc4f024531cfc"
@@ -488,14 +488,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:191cccd950a4aeadb60306062f2bdc2f924d750d0156ec6c691b17211bfd7349"
+  digest = "1:c4f2af053602f247b8625846cd88dfbf9295e3d02e82c58c27ebe3be06bef80c"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "82a175fd1598e8a172e58ebdf5ed262bb29129e5"
+  revision = "20be8e55dc7b4b7a1b1660728164a8509d8c9209"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -530,7 +530,7 @@
     "internal/semver",
   ]
   pruneopts = "UT"
-  revision = "498d95493402f719ce3de5c8cb60d1b50d0a1239"
+  revision = "e063def13b29c433b3c57fc99257c18c1f9399ce"
 
 [[projects]]
   digest = "1:caf33101de64778fd93678070a4db21be9ee904e3dc2f3e7dec111a3896098bc"
@@ -570,6 +570,7 @@
     "github.com/gorilla/mux",
     "github.com/json-iterator/go",
     "github.com/pkg/errors",
+    "github.com/rs/cors",
     "github.com/spf13/viper",
     "gopkg.in/olivere/elastic.v6",
   ]
