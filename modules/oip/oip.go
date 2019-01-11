@@ -9,7 +9,6 @@ import (
 	"github.com/bitspill/oip/config"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/filters"
 	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/golang/protobuf/proto"
@@ -35,11 +34,6 @@ func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
 		return
 	}
 	if tx.Block < 1000000 {
-		return
-	}
-
-	if filters.Contains(tx.Transaction.Txid) {
-		log.Error("Filtered out transaction", logger.Attrs{"txid": tx.Transaction.Txid})
 		return
 	}
 
@@ -103,11 +97,6 @@ func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
 func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
 	if len(floData) < minFloDataLen {
 		// impossible to be a valid item at such a short length
-		return
-	}
-
-	if filters.Contains(tx.Transaction.Txid) {
-		log.Error("Filtered out transaction", logger.Attrs{"txid": tx.Transaction.Txid})
 		return
 	}
 

@@ -9,6 +9,7 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
+	"github.com/bitspill/oip/filters"
 	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oip/httpapi"
 	_ "github.com/bitspill/oip/modules"
@@ -74,6 +75,8 @@ func main() {
 		shutdown(err)
 		return
 	}
+
+	filters.InitViper(rootContext)
 
 	_, err = sync.InitialSync(rootContext, count)
 	if err != nil {

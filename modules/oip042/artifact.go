@@ -6,6 +6,7 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
+	"github.com/bitspill/oip/filters"
 	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oip/modules/oip042/validators"
 	"github.com/json-iterator/go"
@@ -54,11 +55,14 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		return
 	}
 
+	bl, label := filters.ContainsWithLabel(tx.Transaction.Txid)
+
 	var el elasticOip042Artifact
 	el.Artifact = artifact.GetInterface()
 	el.Meta = AMeta{
 		Block:       tx.Block,
 		BlockHash:   tx.BlockHash,
+		Blacklist:   Blacklist{Blacklisted: bl, Filter: label},
 		Deactivated: false,
 		Signature:   sig,
 		Time:        tx.Transaction.Time,

@@ -8,6 +8,7 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/oip/datastore"
 	"github.com/bitspill/oip/events"
+	"github.com/bitspill/oip/filters"
 	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
@@ -142,12 +143,17 @@ type elasticOip041 struct {
 type OMeta struct {
 	Block       int64                      `json:"block"`
 	BlockHash   string                     `json:"block_hash"`
+	Blacklist   Blacklist                  `json:"blacklist"`
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"tx"`
 	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
+}
+type Blacklist struct {
+	Blacklisted bool   `json:"blacklisted"`
+	Filter      string `json:"filter"`
 }
 
 func validateOip041(any jsoniter.Any, tx *datastore.TransactionData) (elasticOip041, error) {
@@ -170,10 +176,13 @@ func validateOip041(any jsoniter.Any, tx *datastore.TransactionData) (elasticOip
 		return el, errors.Wrap(err, "invalid FLO address")
 	}
 
+	bl, label := filters.ContainsWithLabel(tx.Transaction.Txid)
+
 	el.Artifact = art.GetInterface()
 	el.Meta = OMeta{
 		Block:       tx.Block,
 		BlockHash:   tx.BlockHash,
+		Blacklist:   Blacklist{Blacklisted: bl, Filter: label},
 		Deactivated: false,
 		Signature:   sig.ToString(),
 		Time:        tx.Transaction.Time,

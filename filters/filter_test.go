@@ -7,16 +7,8 @@ import (
 	"encoding/hex"
 	"math"
 	"math/rand"
-	"sort"
 	"testing"
 )
-
-func BenchmarkInsert(b *testing.B) {
-	list := sort.IntSlice{}
-	for i := 0; i < b.N; i++ {
-		insert(&list, i)
-	}
-}
 
 func TestFilter(t *testing.T) {
 	caseCount := 100000
@@ -38,11 +30,11 @@ func TestFilter(t *testing.T) {
 
 	for k, v := range testCases {
 		if k%2 == 0 {
-			Add(v)
+			Add(v, "")
 		}
 	}
 
-	if len(filterList) != caseCount/2 {
+	if len(filterMap) != caseCount/2 {
 		t.Error("incorrect filterList length")
 	}
 

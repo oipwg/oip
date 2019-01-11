@@ -360,6 +360,17 @@
             "deactivated": {
               "type": "boolean"
             },
+            "blacklist": {
+              "properties": {
+                "blacklisted": {
+                  "type": "boolean"
+                },
+                "filter": {
+                  "type": "keyword",
+                  "ignore_above": 64
+                }
+              }
+            },
             "signature": {
               "type": "text",
               "index": false
