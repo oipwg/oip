@@ -240,6 +240,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:664d37ea261f0fc73dd17f4a1f5f46d01fbb0b0d75f6375af064824424109b7d"
+  name = "github.com/gorilla/handlers"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
+  version = "v1.4.0"
+
+[[projects]]
   branch = "master"
   digest = "1:65360cb7430895ab71c5c96b6c89f44bcd74c585b8bd623fcfae3c73ab1611b2"
   name = "github.com/gorilla/mux"
@@ -567,6 +575,7 @@
     "github.com/dustin/go-humanize",
     "github.com/gobuffalo/packr/v2",
     "github.com/golang/protobuf/proto",
+    "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/json-iterator/go",
     "github.com/pkg/errors",
