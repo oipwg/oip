@@ -1,7 +1,6 @@
 package historian
 
 import (
-	"context"
 	"errors"
 	"math"
 	"net/http"
@@ -29,53 +28,33 @@ func init() {
 	datastore.RegisterMapping(histDataPointIndexName+"string", "historianDataPoint.json")
 	datastore.RegisterMapping(histDataPointIndexName+"proto", "historianDataPoint.json")
 
-	histRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
+	histRouter.HandleFunc("/get/latest", handleLatest)
 	histRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
 	histRouter.HandleFunc("/24hr", handle24hr)
 }
 
-func handleLatest(w http.ResponseWriter, r *http.Request) {
-	var opts = mux.Vars(r)
-
-	size, _ := strconv.ParseInt(opts["limit"], 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
-
-	//q := elastic.NewBoolQuery().Must(
-	//	elastic.NewTermQuery("meta.deactivated", false),
-	//)
-
-	fsc := elastic.NewFetchSourceContext(true).
+var (
+	hdpFsc = elastic.NewFetchSourceContext(true).
 		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
+	hdpIndices = []string{histDataPointIndexName + "string", histDataPointIndexName + "proto"}
+)
 
-	results, err := datastore.Client().
-		Search(datastore.Index(histDataPointIndexName+"string"), datastore.Index(histDataPointIndexName+"proto")).
-		Type("_doc").
-		// Query(q).
-		Size(int(size)).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
+func handleLatest(w http.ResponseWriter, r *http.Request) {
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewExistsQuery("_id"),
+	)
 
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"count":   len(results.Hits.Hits),
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(
+		r.Context(),
+		hdpIndices,
+		q,
+		[]elastic.SortInfo{
+			{Field: "meta.time", Ascending: false},
+			{Field: "meta.txid", Ascending: false},
+		},
+		hdpFsc,
+	)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -85,32 +64,17 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
 	)
 
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("data_point.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(histDataPointIndexName+"string"), datastore.Index(histDataPointIndexName+"proto")).
-		Type("_doc").
-		Query(q).
-		Size(1).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(
+		r.Context(),
+		hdpIndices,
+		q,
+		[]elastic.SortInfo{
+			{Field: "meta.time", Ascending: false},
+			{Ascending: false, Field: "meta.txid"},
+		},
+		hdpFsc,
+	)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func handle24hr(w http.ResponseWriter, r *http.Request) {

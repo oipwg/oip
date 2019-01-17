@@ -1,7 +1,6 @@
 package oip041
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
@@ -27,18 +26,19 @@ func init() {
 
 	datastore.RegisterMapping(oip41IndexName, "oip041.json")
 
-	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest).Queries("nsfw", "{nsfw}")
-	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
+	artRouter.HandleFunc("/get/latest", handleLatest).Queries("nsfw", "{nsfw}")
+	artRouter.HandleFunc("/get/latest", handleLatest)
 	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
 }
 
+var (
+	o41Fsc = elastic.NewFetchSourceContext(true).
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+	o41Indices = []string{oip41IndexName}
+)
+
 func handleLatest(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
-
-	size, _ := strconv.ParseInt(opts["limit"], 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
 
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.deactivated", false),
@@ -52,36 +52,8 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		log.Info("nsfw: %t", nsfw)
 	}
 
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(oip41IndexName)).
-		Type("_doc").
-		Query(q).
-		Size(int(size)).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"count":   len(results.Hits.Hits),
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), o41Indices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, o41Fsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -93,32 +65,8 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
 	)
 
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(oip41IndexName)).
-		Type("_doc").
-		Query(q).
-		Size(1).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), o41Indices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, o41Fsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func on41(floData string, tx *datastore.TransactionData) {

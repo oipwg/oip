@@ -31,10 +31,14 @@ func init() {
 	events.Bus.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
 	events.Bus.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
 
-	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}/{limit:[0-9]+}", handleGetRef)
 	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
 	mpRouter.HandleFunc("/get/id/{id:[a-f0-9]+}", handleGetId)
 }
+
+var (
+	mpIndices = []string{multipartIndex}
+	mpFsc     = elastic.NewFetchSourceContext(true).Include("*")
+)
 
 func handleGetId(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
@@ -43,80 +47,19 @@ func handleGetId(w http.ResponseWriter, r *http.Request) {
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
 	)
 
-	// fsc := elastic.NewFetchSourceContext(true).
-	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(multipartIndex)).
-		Type("_doc").
-		Query(q).
-		Size(1).
-		Sort("meta.time", false).
-		// FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func handleGetRef(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
 
-	limit, _ := opts["limit"]
-	size, _ := strconv.ParseInt(limit, 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
-
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewPrefixQuery("reference", opts["ref"]),
 	)
 
-	// fsc := elastic.NewFetchSourceContext(true).
-	// 	Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(multipartIndex)).
-		Type("_doc").
-		Query(q).
-		Size(int(size)).
-		Sort("meta.time", false).
-		// FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		// "limit": size,
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func onDatastoreCommit() {
