@@ -41,11 +41,3 @@
 [[constraint]]
   name = "github.com/gorilla/mux"
   branch = "master"
-
-[[constraint]]
-  name = "github.com/rs/cors"
-  version = "1.6.0"
-
-[[constraint]]
-  name = "github.com/gorilla/handlers"
-  version = "1.4.0"
