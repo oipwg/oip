@@ -62,6 +62,35 @@
   revision = "986e42f96cdbe75a773f74a4c98d52dfdaea36a6"
 
 [[projects]]
+  digest = "1:76acf90315ffdf25677556590ee55c9ef520f76f32195e1345b96bcf8692dcbc"
+  name = "github.com/bitspill/oip"
+  packages = [
+    "btc",
+    "config",
+    "datastore",
+    "events",
+    "filters",
+    "flo",
+    "httpapi",
+    "modules",
+    "modules/alexandriaMedia",
+    "modules/aternaLove",
+    "modules/floDataDump",
+    "modules/flotorizer",
+    "modules/historian",
+    "modules/oip",
+    "modules/oip041",
+    "modules/oip042",
+    "modules/oip042/validators",
+    "modules/tZero",
+    "sync",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "83470bea2be869af238d2bffee41a4da878f4a99"
+  version = "20190105-83470be"
+
+[[projects]]
   branch = "master"
   digest = "1:bbf45cb28f51a7bc6952ff8c8bdd53bcc846ec5d6dedfc82e4d88321fe594741"
   name = "github.com/bitspill/oipProto"
@@ -555,6 +584,25 @@
     "github.com/bitspill/flod/wire",
     "github.com/bitspill/flosig",
     "github.com/bitspill/floutil",
+    "github.com/bitspill/oip/btc",
+    "github.com/bitspill/oip/config",
+    "github.com/bitspill/oip/datastore",
+    "github.com/bitspill/oip/events",
+    "github.com/bitspill/oip/filters",
+    "github.com/bitspill/oip/flo",
+    "github.com/bitspill/oip/httpapi",
+    "github.com/bitspill/oip/modules",
+    "github.com/bitspill/oip/modules/alexandriaMedia",
+    "github.com/bitspill/oip/modules/aternaLove",
+    "github.com/bitspill/oip/modules/floDataDump",
+    "github.com/bitspill/oip/modules/flotorizer",
+    "github.com/bitspill/oip/modules/historian",
+    "github.com/bitspill/oip/modules/oip",
+    "github.com/bitspill/oip/modules/oip041",
+    "github.com/bitspill/oip/modules/oip042",
+    "github.com/bitspill/oip/modules/tZero",
+    "github.com/bitspill/oip/sync",
+    "github.com/bitspill/oip/version",
     "github.com/bitspill/oipProto/go/oipProto",
     "github.com/cloudflare/backoff",
     "github.com/davecgh/go-spew/spew",
