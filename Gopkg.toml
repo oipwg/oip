@@ -33,11 +33,3 @@
   name = "github.com/azer/logger"
   branch = "forceColors"
   source = "github.com/bitspill/logger"
-
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/gorilla/mux"
-  branch = "master"
