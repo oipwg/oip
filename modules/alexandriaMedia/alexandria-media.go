@@ -1,9 +1,7 @@
 package alexandriaMedia
 
 import (
-	"context"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/azer/logger"
@@ -23,52 +21,23 @@ func init() {
 	log.Info("init alexandria-media")
 	events.Bus.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
 	datastore.RegisterMapping(amIndexName, "alexandria-media.json")
-	artRouter.HandleFunc("/get/latest/{limit:[0-9]+}", handleLatest)
+	artRouter.HandleFunc("/get/latest", handleLatest)
 	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
 }
 
-func handleLatest(w http.ResponseWriter, r *http.Request) {
-	var opts = mux.Vars(r)
+var (
+	amIndices = []string{amIndexName}
+	amFsc     = elastic.NewFetchSourceContext(true).
+			Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+)
 
-	size, _ := strconv.ParseInt(opts["limit"], 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
+func handleLatest(w http.ResponseWriter, r *http.Request) {
 
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.deactivated", false),
 	)
-
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(amIndexName)).
-		Type("_doc").
-		Query(q).
-		Size(int(size)).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"count":   len(results.Hits.Hits),
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), amIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, amFsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -78,36 +47,8 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		elastic.NewTermQuery("meta.deactivated", false),
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
 	)
-
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
-
-	results, err := datastore.Client().
-		Search(datastore.Index(amIndexName)).
-		Type("_doc").
-		Query(q).
-		Size(1).
-		Sort("meta.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		httpapi.RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := httpapi.BuildCommonSearchService(r.Context(), amIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, amFsc)
+	httpapi.RespondSearch(w, searchService)
 }
 
 func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {

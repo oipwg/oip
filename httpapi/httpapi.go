@@ -1,15 +1,18 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/version"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	json "github.com/json-iterator/go"
+	"github.com/rs/cors"
 	"github.com/spf13/viper"
+	"gopkg.in/olivere/elastic.v6"
 )
 
 var rootRouter = mux.NewRouter()
@@ -21,6 +24,7 @@ var (
 
 func init() {
 	rootRouter.Use(logRequests)
+	rootRouter.Use(commonParameterParser)
 	rootRouter.NotFoundHandler = http.HandlerFunc(handle404)
 
 	daemonRoutes.HandleFunc("/version", handleVersion)
@@ -28,8 +32,8 @@ func init() {
 
 func Serve() {
 	apiStartup = time.Now()
-	listen := viper.GetString("api.listen")
-	err := http.ListenAndServe(listen, rootRouter)
+	listen := viper.GetString("oip.api.listen")
+	err := http.ListenAndServe(listen, handlers.CompressHandler(cors.Default().Handler(rootRouter)))
 	if err != nil {
 		log.Error("Error serving http api", logger.Attrs{"err": err, "listen": listen})
 	}
@@ -53,39 +57,32 @@ func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(b)
 }
 
-func handleVersion(w http.ResponseWriter, _ *http.Request) {
-	RespondJSON(w, http.StatusOK, map[string]string{
-		"BuiltBy":       version.BuiltBy,
-		"BuildDate":     version.BuildDate,
-		"GoVersion":     version.GoVersion,
-		"GitCommitHash": version.GitCommitHash,
-		"Started":       apiStartup.Format(time.RFC1123Z),
-		"Uptime":        time.Since(apiStartup).String(),
+func RespondESError(w http.ResponseWriter, err error) {
+	if elasticErr, ok := err.(*elastic.Error); ok {
+		if elasticErr.Status == 400 {
+			RespondJSON(w, 400, map[string]interface{}{
+				"error": "invalid search request",
+			})
+			return
+		}
+	}
+	RespondJSON(w, 500, map[string]interface{}{
+		"error": "unable to execute search",
 	})
 }
 
-func handle404(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 not found"))
-	log.Info("404", logger.Attrs{
-		"url":           r.URL,
-		"httpMethod":    r.Method,
-		"remoteAddr":    r.RemoteAddr,
-		"contentLength": r.ContentLength,
-		"userAgent":     r.UserAgent(),
-	})
-}
-
-func logRequests(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t := log.Timer()
-		next.ServeHTTP(w, r)
-		t.End("req", logger.Attrs{
-			"url":           r.URL,
-			"httpMethod":    r.Method,
-			"remoteAddr":    r.RemoteAddr,
-			"contentLength": r.ContentLength,
-			"userAgent":     r.UserAgent(),
-		})
+func RespondSearch(w http.ResponseWriter, searchService *elastic.SearchService) {
+	results, err := searchService.Do(context.TODO())
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		RespondESError(w, err)
+		return
+	}
+	sources, nextAfter := ExtractSources(results)
+	RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"count":   len(results.Hits.Hits),
+		"total":   results.Hits.TotalHits,
+		"results": sources,
+		"next":    nextAfter,
 	})
 }

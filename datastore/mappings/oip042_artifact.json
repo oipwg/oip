@@ -174,7 +174,14 @@
                       "type": "keyword",
                       "ignore_above": 256
                     },
+                    "fName": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
                     "fsize": {
+                      "type": "long"
+                    },
+                    "fSize": {
                       "type": "long"
                     },
                     "software": {
@@ -209,6 +216,10 @@
               "type": "keyword",
               "ignore_above": 256
             },
+            "subType": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
             "timestamp": {
               "type": "date",
               "format": "epoch_second"
@@ -230,6 +241,17 @@
             },
             "deactivated": {
               "type": "boolean"
+            },
+            "blacklist": {
+              "properties": {
+                "blacklisted": {
+                  "type": "boolean"
+                },
+                "filter": {
+                  "type": "keyword",
+                  "ignore_above": 64
+                }
+              }
             },
             "signature": {
               "type": "text",

@@ -17,11 +17,17 @@ type AMeta struct {
 	Block       int64                      `json:"block"`
 	BlockHash   string                     `json:"block_hash"`
 	Deactivated bool                       `json:"deactivated"`
+	Blacklist   Blacklist                  `json:"blacklist"`
 	Signature   string                     `json:"signature"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"tx"`
 	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
+}
+
+type Blacklist struct {
+	Blacklisted bool   `json:"blacklisted"`
+	Filter      string `json:"filter"`
 }
 
 type elasticOip042Edit struct {

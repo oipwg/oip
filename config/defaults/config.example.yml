@@ -5,12 +5,12 @@
 # Elastic search
 elastic:
   # Use client certificates for authentication
-  useCert: true
+  useCert: false
   certFile: certs/oipd.pem
   certKey: certs/oipd.key
   certRoot: certs/root-ca.pem
   # Elastic search address
-  host: https://127.0.0.1:9200
+  host: http://127.0.0.1:9200
 
 # go-flo daemon
 flod:
@@ -29,7 +29,44 @@ oip:
   network: mainnet
   # network: testnet
 
+  # Artifact rules
+  artifact:
+    strict: false
+    active:
+      - research-tomogram
+      - property-party
+      - property-tenure
+      - property-spatialunit
+      - video-*
+      - "*-*"
+
+    # Ignores override active
+    ignore:
+    # - property-party
+
   # http-api
   api:
     listen: 127.0.0.1:1606
     enabled: true
+
+  # Txid lists to be disregarded
+  blacklist:
+    # Core lists bundled with the binary build
+    bundled:
+      - dmca
+      - nsfw
+
+    # Url to remote black lists
+    remote:
+      # Interval at which remote lists are updated
+      # Must be valid golang duration, or 'false'
+      # If false updates only once at startup
+      # see: https://golang.org/pkg/time/#ParseDuration
+      refresh: 24h
+      # refresh: false
+
+      # List of remote blacklists to fetch
+      # label: remote url
+      urls:
+        testnet-example: https://gist.githubusercontent.com/bitspill/ca1a48ec608e18d00892c779f72315b6/raw/8336839d4797a0731de3d338173505ba182c32e7/example.spam.filter.txt
+        # second-list: https://example.com/another.list.txt
