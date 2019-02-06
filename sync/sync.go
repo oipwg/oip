@@ -12,6 +12,7 @@ import (
 func init() {
 	log.Info("Subscribing to events")
 	events.Bus.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, true)
+	events.Bus.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
 	events.Bus.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
@@ -27,7 +28,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 		_, err := IndexBlockAtHeight(int64(height), *ilb)
 		if err != nil {
 			attr["err"] = err
-			log.Error("onFilteredBlockConnected unable to index block", attr)
+			log.Error("onFilteredBlockConnected unable to index block, follow", attr)
 		}
 
 		return
@@ -51,7 +52,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			nlb, err := IndexBlockAtHeight(int64(i), *ilb)
 			if err != nil {
 				attr["err"] = err
-				log.Error("onFilteredBlockConnected unable to index block", attr)
+				log.Error("onFilteredBlockConnected unable to index block, gap", attr)
 				return
 			}
 			ilb = &nlb
@@ -69,12 +70,14 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			attr["rewind"] = -i
 			log.Info("re-org detected", attr)
 			for ; i < 0; i++ {
+				attr["pop"] = i
+				log.Info("popping block", attr)
 				recentBlocks.PopFront()
 			}
 			_, err := IndexBlockAtHeight(int64(height), *ilb)
 			if err != nil {
 				attr["err"] = err
-				log.Error("onFilteredBlockConnected unable to index block", attr)
+				log.Error("onFilteredBlockConnected unable to index block, re-org", attr)
 			}
 
 			return
@@ -97,4 +100,12 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 	if len(tx.Transaction.FloData) != 0 {
 		events.Bus.Publish("flo:floData", tx.Transaction.FloData, tx)
 	}
+}
+
+func onFilteredBlockDisconnected(height int32, header *wire.BlockHeader) {
+	attr := logger.Attrs{"oldHeight": height, "oldHash": header.BlockHash().String()}
+
+	log.Info("BlockDisconnected", attr)
+
+	// ToDo mark as disconnected in database along with all associated records
 }

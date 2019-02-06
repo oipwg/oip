@@ -1,24 +1,25 @@
 package httpapi
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
 	"github.com/gorilla/mux"
 	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
-	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}", "limit", "{limit:[0-9]+}")
-	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
 	rootRouter.HandleFunc("/floData/get/{id:[a-f0-9]+}", handleGetFloData)
-	rootRouter.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest).Queries("coinbase", "{coinbase}")
-	rootRouter.HandleFunc("/floData/latest/{limit:[0-9]+}", handleFloDataLatest)
+	rootRouter.HandleFunc("/floData/latest", handleFloDataLatest)
+	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
 }
+
+var (
+	txFsc = elastic.NewFetchSourceContext(true).
+		Include("tx.floData", "tx.txid", "tx.time", "tx.blockhash", "tx.size", "is_coinbase")
+)
 
 func handleGetFloData(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
@@ -28,44 +29,18 @@ func handleGetFloData(w http.ResponseWriter, r *http.Request) {
 		elastic.NewPrefixQuery("tx.txid", opts["id"]),
 	)
 
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("tx.floData", "tx.txid", "block", "tx.time")
-
-	results, err := datastore.Client().
-		Search(datastore.Index("transactions")).
-		Type("_doc").
-		Query(q).
-		Size(1).
-		Sort("tx.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	searchService := BuildCommonSearchService(
+		r.Context(),
+		[]string{"transactions"},
+		q,
+		[]elastic.SortInfo{{Field: "tx.txid", Ascending: false}},
+		txFsc,
+	)
+	RespondSearch(w, searchService)
 }
 
 func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
-
-	lim, _ := opts["limit"]
-	size, _ := strconv.ParseInt(lim, 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
@@ -75,93 +50,48 @@ func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := elastic.NewBoolQuery().Must(
+	query := elastic.NewBoolQuery().Must(
 		elastic.NewQueryStringQuery(searchQuery).
 			DefaultField("tx.floData").
 			AnalyzeWildcard(false),
 	)
 
-	log.Info(searchQuery)
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("tx.floData", "tx.txid", "tx.time", "tx.blockhash", "tx.size")
+	searchService := BuildCommonSearchService(
+		r.Context(),
+		[]string{"transactions"},
+		query,
+		[]elastic.SortInfo{
+			{Ascending: false, Field: "tx.time"},
+			{Field: "tx.txid", Ascending: true},
+		},
+		txFsc,
+	)
 
-	results, err := datastore.Client().
-		Search(datastore.Index("transactions")).
-		Type("_doc").
-		Query(q).
-		Size(int(size)).
-		Sort("tx.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"count":   len(results.Hits.Hits),
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	RespondSearch(w, searchService)
 }
 
 func handleFloDataLatest(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
 
-	lim, _ := opts["limit"]
-	size, _ := strconv.ParseInt(lim, 10, 0)
-	if size <= 0 || size > 1000 {
-		size = -1
-	}
-
-	q := elastic.NewBoolQuery().Must(
+	query := elastic.NewBoolQuery().Must(
 		elastic.NewExistsQuery("tx.floData"),
 	)
 
 	if c, ok := opts["coinbase"]; ok {
 		coinbase, _ := strconv.ParseBool(c)
 		if coinbase == false {
-			q.Must(elastic.NewTermQuery("is_coinbase", coinbase))
+			query.Must(elastic.NewTermQuery("is_coinbase", coinbase))
 		}
 	}
 
-	fsc := elastic.NewFetchSourceContext(true).
-		Include("tx.floData", "tx.txid", "tx.time", "tx.blockhash", "tx.size", "is_coinbase")
+	ctx := r.Context()
+	searchService := BuildCommonSearchService(
+		ctx,
+		[]string{"transactions"},
+		query,
+		[]elastic.SortInfo{{Ascending: false, Field: "tx.time"}, {Ascending: true, Field: "tx.txid"}},
+		txFsc,
+	)
 
-	results, err := datastore.Client().
-		Search(datastore.Index("transactions")).
-		Type("_doc").
-		Query(q).
-		Size(int(size)).
-		Sort("tx.time", false).
-		FetchSourceContext(fsc).
-		Do(context.TODO())
-
-	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
-		RespondJSON(w, 500, map[string]interface{}{
-			"error": "database error",
-		})
-		return
-	}
-
-	sources := make([]interface{}, len(results.Hits.Hits))
-	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
-	}
-
-	RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"count":   len(results.Hits.Hits),
-		"total":   results.Hits.TotalHits,
-		"results": sources,
-	})
+	RespondSearch(w, searchService)
 }

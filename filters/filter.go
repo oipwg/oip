@@ -1,69 +1,217 @@
 package filters
 
 import (
-	"encoding/binary"
-	"encoding/hex"
-	"sort"
+	"context"
+	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/azer/logger"
+	"github.com/bitspill/oip/datastore"
+	"github.com/gobuffalo/packr/v2"
+	"github.com/spf13/viper"
+	"gopkg.in/olivere/elastic.v6"
 )
 
-var filterList sort.IntSlice
+var filterBox = packr.New("bundled", "./bundled")
+var filterMap = make(map[string]int)  // first 8 txid: label id
+var filterMapB = make(map[string]int) // first 8 txid: label id
+var filterLabels = []string{""}
+var filterBundled map[string]int
 
-func init() {
-	// Porn
-	Add("036a792df9df5c5ab22004c2157747d7cd9b7b0137946a29a8a8f11840214edc") // title: Lucy Pinder - Back at the Pool
-	Add("076641ebb019d951b21f9cab5c1f3fd52777e7c11fd3a5b5767e479c3d8e3c42") // title: Hidden Camera in my Sister's Room
-	Add("3f754d3ec1ee906fd32e888b63668b1281d9329ec3302a6dacc5b16434d881bd") // title: Byronnnna Masturbates
-	Add("6ed1eaaef833f8d33e2363c2a98aa01bb97b77c868d85d3cbc28182b9663343c") // title: ebony oatmeal creampie
-	Add("fd8010a13fc7a04713b4693cd7886813cdd55bb5c82a0291ee14735d92cd1fcf") // title: Whore Slave
+func InitViper(ctx context.Context) {
+	bundled := viper.GetStringSlice("oip.blacklist.bundled")
+	err := loadBundledLists(bundled)
+	if err != nil {
+		log.Error("unable to load bundled lists")
+		panic(err)
+	}
 
-	// DMCA
-	Add("465d4d2af3744cecd6aaedc414768bc00be6c6314e6a3f84f52a5a72321c04bd") // title: The Good the Bad and the Ugly
-	Add("cf129a5565caa396a5b932a8054f28da382f9dae61f0e308af2db039ff398d02") // title: Wonder.Woman
-	Add("b9cb9197233180d06ab91b482eed6512c3fe23cffa2972b9a56372711810fe4b") // title: Serenity
-	Add("38bbded1efcfa73a72c1b37dba463c05ff171b6a31e5a6a875e13846e6225e4e") // title: Spider
+	filterBundled = filterMapB
 
+	updateRemoteBlacklists()
+
+	refresh := viper.GetString("oip.blacklist.remote.refresh")
+	if refresh != "false" {
+		d, err := time.ParseDuration(refresh)
+		if err != nil {
+			log.Error("unable to parse refresh duration", logger.Attrs{"refresh": refresh, "err": err})
+		} else {
+			go startRefreshInterval(ctx, d)
+		}
+	}
 }
 
-func Add(txid string) {
-	if len(txid) < 8 {
-		panic("txid too short")
+func startRefreshInterval(ctx context.Context, interval time.Duration) {
+	for {
+		select {
+		case <-time.After(interval):
+			updateRemoteBlacklists()
+		case <-ctx.Done():
+			return
+		}
 	}
-	b, err := hex.DecodeString(txid[0:8])
-	if err != nil {
-		panic("invalid hex")
+}
+
+func updateRemoteBlacklists() {
+	log.Info("updating remote blacklists")
+	remote := viper.GetStringMapString("oip.blacklist.remote.urls")
+	for label, url := range remote {
+		attrs := logger.Attrs{"label": label, "url": url}
+
+		log.Info("fetching remote list", attrs)
+
+		res, err := http.Get(url)
+		if err != nil {
+			attrs["err"] = err
+			log.Error("unable to get remote list", attrs)
+			continue
+		}
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			attrs["err"] = err
+			log.Error("unable to get remote list", attrs)
+			continue
+		}
+		_ = res.Body.Close()
+		processList(string(body), label)
 	}
-	i := binary.BigEndian.Uint32(b)
-	insert(&filterList, int(i))
+
+	swapLists()
+
+	log.Info("current filter list size %d", len(filterMap))
+}
+
+func loadBundledLists(lists []string) error {
+	for _, label := range lists {
+		list, err := filterBox.FindString(label + ".txt")
+		if err != nil {
+			return err
+		}
+		processList(list, label)
+	}
+
+	return nil
+}
+
+func processList(list, label string) {
+	labelId := getLabelId(label)
+	lines := strings.Split(list, "\n")
+	for _, line := range lines {
+		id := strings.SplitN(line, " ", 2)[0]
+		if len(id) == 64 {
+			filterMapB[id] = labelId
+		}
+	}
+}
+
+func getLabelId(label string) int {
+	for id, l := range filterLabels {
+		if label == l {
+			return id
+		}
+	}
+	filterLabels = append(filterLabels, label)
+	return len(filterLabels) - 1
+}
+
+func Add(txid string, label string) {
+	// ToDo requires tweaks as manually added items are lost on next remote update
+	labelId := getLabelId(label)
+	filterMap[txid] = labelId
 }
 
 func Contains(txid string) bool {
-	if len(txid) < 8 {
-		panic("txid too short")
+	_, ok := filterMap[txid]
+	return ok
+}
+
+func ContainsWithLabel(txid string) (bool, string) {
+	lid, ok := filterMap[txid]
+	if ok {
+		if lid < len(filterLabels) {
+			return true, filterLabels[lid]
+		}
+		return true, ""
 	}
-	b, err := hex.DecodeString(txid[0:8])
-	if err != nil {
-		panic("invalid hex")
-	}
-	ui := binary.BigEndian.Uint32(b)
-	s := filterList.Search(int(ui))
-	return s < len(filterList) && ([]int(filterList))[s] == int(ui)
+	return false, ""
 }
 
 func Clear() {
-	filterList = sort.IntSlice{}
+	filterMap = make(map[string]int)
 }
 
-func insert(list *sort.IntSlice, i int) {
-	if len(*list) == 0 {
-		*list = sort.IntSlice{i}
-		return
+func swapLists() {
+	var added []string
+	var removed []string
+
+	if len(filterMap) == 0 {
+		added = make([]string, len(filterMapB))
+		i := 0
+		for key := range filterMapB {
+			added[i] = key
+			i++
+		}
+	} else {
+		for key := range filterMapB {
+			if _, ok := filterMap[key]; !ok {
+				added = append(added, key)
+			}
+		}
+		for key := range filterMap {
+			if _, ok := filterMapB[key]; !ok {
+				removed = append(removed, key)
+			}
+		}
 	}
-	location := list.Search(i)
-	if location >= len(*list) {
-		*list = append(*list, i)
-	} else if []int(*list)[location] != i {
-		*list = append(*list, 0)
-		copy([]int(*list)[location+1:], []int(*list)[location:])
-		([]int(*list))[location] = i
+
+	log.Info("Swapping lists", logger.Attrs{
+		"lenA":    len(filterMap),
+		"lenB":    len(filterMapB),
+		"added":   len(added),
+		"removed": len(removed),
+	})
+
+	filterMap = filterMapB
+	filterMapB = make(map[string]int, len(filterBundled))
+	for key, value := range filterBundled {
+		filterMapB[key] = value
+	}
+
+	for _, value := range added {
+		label := ""
+		lid := filterMap[value]
+		if lid < len(filterLabels) {
+			label = filterLabels[lid]
+		}
+		up := elastic.NewBulkUpdateRequest().
+			Index(datastore.Index("oip042_artifact")).
+			Id(value).
+			Type("_doc").
+			Doc(map[string]interface{}{
+				"meta": map[string]interface{}{
+					"blacklist": map[string]interface{}{
+						"blacklisted": true,
+						"filter":      label,
+					},
+				},
+			})
+		datastore.AutoBulk.Add(up)
+	}
+	for _, value := range removed {
+		up := elastic.NewBulkUpdateRequest().
+			Index(datastore.Index("oip042_artifact")).
+			Id(value).
+			Type("_doc").
+			Doc(map[string]interface{}{
+				"meta": map[string]interface{}{
+					"blacklist": map[string]interface{}{
+						"blacklisted": false,
+						"filter":      "",
+					},
+				},
+			})
+		datastore.AutoBulk.Add(up)
 	}
 }
