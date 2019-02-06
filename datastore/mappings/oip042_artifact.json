@@ -195,6 +195,10 @@
                     "type": {
                       "type": "keyword",
                       "ignore_above": 256
+                    },
+                    "location": {
+                      "type": "keyword",
+                      "ignore_above": 256
                     }
                   }
                 },

@@ -8,3 +8,6 @@ config/config.json
 # output from floDataDump module
 textComments.txt
 .idea
+
+# Build stuff
+oipd
