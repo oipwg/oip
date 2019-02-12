@@ -79,7 +79,7 @@ func handleFloDataLatest(w http.ResponseWriter, r *http.Request) {
 
 	if c, ok := opts["coinbase"]; ok {
 		coinbase, _ := strconv.ParseBool(c)
-		if coinbase == false {
+		if !coinbase {
 			query.Must(elastic.NewTermQuery("is_coinbase", coinbase))
 		}
 	}
