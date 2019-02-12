@@ -629,6 +629,7 @@
     "github.com/json-iterator/go",
     "github.com/pkg/errors",
     "github.com/rs/cors",
+    "github.com/spf13/pflag",
     "github.com/spf13/viper",
     "gopkg.in/olivere/elastic.v6",
   ]
