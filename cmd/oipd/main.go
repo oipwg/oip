@@ -103,7 +103,6 @@ func main() {
 
 	<-rootContext.Done()
 	shutdown(nil)
-	return
 }
 
 func shutdown(err error) {
