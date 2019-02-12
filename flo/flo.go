@@ -89,17 +89,17 @@ func AddFlod(host, user, pass string) error {
 		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
 			log.Info("Block connected: %v (%d) %v",
 				header.BlockHash(), height, header.Timestamp)
-			events.Bus.Publish("flo:notify:onFilteredBlockConnected", height, header, txns)
+			events.Publish("flo:notify:onFilteredBlockConnected", height, header, txns)
 		},
 		OnFilteredBlockDisconnected: func(height int32, header *wire.BlockHeader) {
 			log.Info("Block disconnected: %v (%d) %v",
 				header.BlockHash(), height, header.Timestamp)
-			events.Bus.Publish("flo:notify:onFilteredBlockDisconnected", height, header)
+			events.Publish("flo:notify:onFilteredBlockDisconnected", height, header)
 		},
 		OnTxAcceptedVerbose: func(txDetails *flojson.TxRawResult) {
 			log.Info("New tx", logger.Attrs{"txid": txDetails.Txid,
 				"floData": txDetails.FloData, "blockHash": txDetails.BlockHash})
-			events.Bus.Publish("flo:notify:onTxAcceptedVerbose", txDetails)
+			events.Publish("flo:notify:onTxAcceptedVerbose", txDetails)
 		},
 	}
 

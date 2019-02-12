@@ -22,8 +22,8 @@ var histRouter = httpapi.NewSubRoute("/historian")
 
 func init() {
 	log.Info("init historian")
-	events.Bus.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
-	events.Bus.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
+	events.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
+	events.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
 
 	datastore.RegisterMapping(histDataPointIndexName+"string", "historianDataPoint.json")
 	datastore.RegisterMapping(histDataPointIndexName+"proto", "historianDataPoint.json")

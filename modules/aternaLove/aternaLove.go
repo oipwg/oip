@@ -13,8 +13,8 @@ import (
 func init() {
 	log.Info("init aterna")
 	if !config.IsTestnet() {
-		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-		events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
+		events.SubscribeAsync("flo:floData", onFloData, false)
+		events.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
 		datastore.RegisterMapping("aterna", "aterna.json")
 	}
 }
@@ -24,13 +24,13 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 		return
 	}
 	if tx.Block > 1000000 {
-		events.Bus.Unsubscribe("flo:floData", onFloData)
-		events.Bus.Unsubscribe("modules:aternaLove:alove", onAlove)
+		events.Unsubscribe("flo:floData", onFloData)
+		events.Unsubscribe("modules:aternaLove:alove", onAlove)
 	}
 
 	prefix := "t1:ALOVE>"
 	if strings.HasPrefix(floData, prefix) {
-		events.Bus.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix), tx)
+		events.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix), tx)
 		return
 	}
 }
