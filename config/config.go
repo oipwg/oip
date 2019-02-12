@@ -51,6 +51,10 @@ func init() {
 		_, err = os.Stat(confFile)
 		if os.IsNotExist(err) {
 			log.Info("config.yml not found, writing default config file", logger.Attrs{"confFile": confFile})
+			err = os.MkdirAll(appDir, 0755)
+			if err != nil {
+				panic(err)
+			}
 			err = ioutil.WriteFile(confFile, b, 0600)
 			if err != nil {
 				panic(err)
