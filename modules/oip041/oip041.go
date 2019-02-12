@@ -46,7 +46,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 
 	if n, ok := opts["nsfw"]; ok {
 		nsfw, _ := strconv.ParseBool(n)
-		if nsfw == false {
+		if !nsfw {
 			q.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
 		}
 		log.Info("nsfw: %t", nsfw)
