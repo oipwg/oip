@@ -51,7 +51,7 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 
 		datastore.AutoBulk.StoreTransaction(tx)
 		if len(tx.Transaction.FloData) != 0 {
-			events.Bus.Publish("flo:floData", tx.Transaction.FloData, tx)
+			events.Publish("flo:floData", tx.Transaction.FloData, tx)
 		}
 	}
 	recentBlocks.Push(&bd)
