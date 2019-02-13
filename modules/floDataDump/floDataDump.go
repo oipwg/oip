@@ -49,6 +49,6 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 
 	if strings.HasPrefix(floData, "text:") {
 		textFloData++
-		f.WriteString(fmt.Sprintf("%8d %s - %s\n", tx.Block, tx.Transaction.Txid, floData))
+		_, _ = f.WriteString(fmt.Sprintf("%8d %s - %s\n", tx.Block, tx.Transaction.Txid, floData))
 	}
 }
