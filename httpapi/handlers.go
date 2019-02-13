@@ -21,7 +21,7 @@ func handleVersion(w http.ResponseWriter, _ *http.Request) {
 
 func handle404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 not found"))
+	_, _ = w.Write([]byte("404 not found"))
 	log.Info("404", logger.Attrs{
 		"url":           r.URL,
 		"httpMethod":    r.Method,
