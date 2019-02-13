@@ -48,13 +48,19 @@ func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
 	if err != nil {
 		log.Error("Unable to marshal response payload", logger.Attrs{"err": err, "payload": spew.Sdump(payload)})
 		w.WriteHeader(500)
-		w.Write([]byte("Internal server error"))
+		n, err := w.Write([]byte("Internal server error"))
+		if err != nil {
+			log.Error("Unable to write json response", logger.Attrs{"n": n, "err": err, "payload": payload, "code": code})
+		}
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(b)
+	n, err := w.Write(b)
+	if err != nil {
+		log.Error("Unable to write json response", logger.Attrs{"n": n, "err": err, "payload": payload, "code": code})
+	}
 }
 
 func RespondESError(w http.ResponseWriter, err error) {
