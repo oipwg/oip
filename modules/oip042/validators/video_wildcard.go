@@ -12,7 +12,7 @@ type videoWildcard struct{}
 
 var _ ArtifactValidator = videoWildcard{}
 
-func (v videoWildcard) IsValid(art *jsoniter.Any) Validity {
+func (v videoWildcard) IsValid(art *jsoniter.Any) (Validity, error) {
 
-	return Valid
+	return Valid, nil
 }

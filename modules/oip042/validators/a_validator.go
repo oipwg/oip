@@ -16,7 +16,7 @@ const (
 )
 
 type ArtifactValidator interface {
-	IsValid(art *jsoniter.Any) Validity
+	IsValid(art *jsoniter.Any) (Validity, error)
 }
 
 var validators = make(map[string]ArtifactValidator)
@@ -72,17 +72,26 @@ func IsValidArtifact(artType, artSubType string, art *jsoniter.Any, txid string)
 	}
 
 	if value, ok := validators[getKey(artType, artSubType)]; ok {
-		v := value.IsValid(art)
+		v, err := value.IsValid(art)
+		if err != nil {
+			log.Error(err.Error())
+		}
 		return logReturn(v)
 	}
 
 	if value, ok := validators[getKey(artType, "*")]; ok {
-		v := value.IsValid(art)
+		v, err := value.IsValid(art)
+		if err != nil {
+			log.Error(err.Error())
+		}
 		return logReturn(v)
 	}
 
 	if value, ok := validators[getKey("*", "*")]; ok {
-		v := value.IsValid(art)
+		v, err := value.IsValid(art)
+		if err != nil {
+			log.Error(err.Error())
+		}
 		return logReturn(v)
 	}
 

@@ -2,6 +2,8 @@ package validators
 
 import (
 	"encoding/json"
+	"errors"
+	"time"
 
 	"github.com/json-iterator/go"
 )
@@ -16,18 +18,36 @@ var _ ArtifactValidator = propertySpatialUnit{}
 
 type SpatialUnitDetails struct {
 	Ns           string          `json:"ns,omitempty"`
-	Geometry     json.RawMessage `json:"geometry,omitempty"`
+	ModifiedDate time.Time       `json:"modifiedDate,omitempty"`
 	SpatialType  string          `json:"spatialType,omitempty"`
-	SpatialUnits []string        `json:"spatialUnits,omitempty"`
-	BBox         []float64       `json:"bbox,omitempty"`
+	SpatialData  string          `json:"spatialData,omitempty"`
+	TextualData  string          `json:"textualData,omitempty"`
+	AddressData  string          `json:"addressData,omitempty"`
+	OfficialId   string          `json:"officialID,omitempty"`
+	ParentId     string          `json:"parentID,omitempty"`
 	Attrs        json.RawMessage `json:"attrs,omitempty"`
 }
 
-func (r propertySpatialUnit) IsValid(art *jsoniter.Any) Validity {
-	var sud SpatialUnitDetails
-	(*art).Get("details").ToVal(&sud)
+func (r propertySpatialUnit) IsValid(art *jsoniter.Any) (Validity, error) {
+	var details = (*art).Get("details")
+	if details.Size() == 0 {
+		return Invalid, errors.New("Spatial details missing")
+	}
+	var sd SpatialUnitDetails
+	details.ToVal(&sd)
 
-	// test validation on sud
+	if sd.ModifiedDate.IsZero() {
+		return Invalid, errors.New("Spatial ModifiedDate missing")
+	}
 
-	return Valid
+	if len(sd.Ns) == 0 {
+		return Invalid, errors.New("Spatial Ns missing")
+	}
+
+	if len(sd.SpatialType) == 0 {
+		return Invalid, errors.New("Spatial SpatialType missing")
+	}
+
+	return Valid, nil
+
 }

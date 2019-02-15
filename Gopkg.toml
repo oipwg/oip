@@ -33,19 +33,3 @@
   name = "github.com/azer/logger"
   branch = "forceColors"
   source = "github.com/bitspill/logger"
-
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/gorilla/mux"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/rs/cors"
-  version = "1.6.0"
-
-[[constraint]]
-  name = "github.com/gorilla/handlers"
-  version = "1.4.0"

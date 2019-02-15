@@ -12,7 +12,7 @@ type catchAll struct{}
 
 var _ ArtifactValidator = catchAll{}
 
-func (a catchAll) IsValid(art *jsoniter.Any) Validity {
+func (a catchAll) IsValid(art *jsoniter.Any) (Validity, error) {
 
-	return Valid
+	return Valid, nil
 }

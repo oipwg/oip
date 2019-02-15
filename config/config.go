@@ -9,26 +9,28 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/floutil"
 	"github.com/gobuffalo/packr/v2"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
 var (
-	appDir    = floutil.AppDataDir("oipd", false)
-	configBox = packr.New("defaults", "./defaults")
+	appDir        string
+	defaultAppDir = floutil.AppDataDir("oipd", false)
+	configBox     = packr.New("defaults", "./defaults")
 )
-
-// ToDo: allow changing of appDir via launch flag
-// ToDo: don't create ~/.oipd/ dir if using nonstandard appDir
 
 func init() {
 	logger.SetOutput(os.Stdout)
 
 	loadDefaults()
 
-	err := os.MkdirAll(filepath.Join(appDir, "certs"), os.ModePerm)
+	pflag.String("appdir", defaultAppDir, "Location of oip data directory and config file")
+	pflag.Parse()
+	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {
 		panic(err)
 	}
+	appDir = viper.GetString("appdir")
 
 	b, err := configBox.Find("config.example.yml")
 	if err != nil {
@@ -39,32 +41,40 @@ func init() {
 		panic(err)
 	}
 
-	_, err = os.Stat(filepath.Join(appDir, "config.yml"))
-	if os.IsNotExist(err) {
-		log.Info("config.yml not found, writing default config file")
-		err = ioutil.WriteFile(filepath.Join(appDir, "config.yml"), b, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-	} else if err != nil {
-		panic(err)
-	}
-
 	viper.SetConfigName("config")
 	viper.AddConfigPath(appDir)
 	err = viper.ReadInConfig()
 	if err != nil {
 		log.Error("error loading config file, utilizing defaults", logger.Attrs{"err": err})
+
+		confFile := filepath.Join(appDir, "config.yml")
+		_, err = os.Stat(confFile)
+		if os.IsNotExist(err) {
+			log.Info("config.yml not found, writing default config file", logger.Attrs{"confFile": confFile})
+			err = os.MkdirAll(appDir, 0755)
+			if err != nil {
+				panic(err)
+			}
+			err = ioutil.WriteFile(confFile, b, 0600)
+			if err != nil {
+				panic(err)
+			}
+		} else if err != nil {
+			panic(err)
+		}
 	}
 }
 
 func loadDefaults() {
+	// command line flag to change config directory
+	viper.SetDefault("appdir", defaultAppDir)
+
 	// Elastic defaults
 	viper.SetDefault("elastic.host", "http://127.0.0.1:9200")
 	viper.SetDefault("elastic.useCert", false)
-	viper.SetDefault("elastic.certFile", filepath.Join(appDir, "certs/oipd.pem"))
-	viper.SetDefault("elastic.certKey", filepath.Join(appDir, "certs/oipd.key"))
-	viper.SetDefault("elastic.certRoot", filepath.Join(appDir, "certs/root-ca.pem"))
+	viper.SetDefault("elastic.certFile", "certs/oipd.pem")
+	viper.SetDefault("elastic.certKey", "certs/oipd.key")
+	viper.SetDefault("elastic.certRoot", "certs/root-ca.pem")
 
 	// Flod defaults
 	defaultFlodDir := floutil.AppDataDir("flod", false)

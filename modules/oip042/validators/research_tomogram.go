@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"errors"
 	"github.com/json-iterator/go"
 )
 
@@ -36,17 +37,19 @@ type TomogramDetails struct {
 	Sid            string  `json:"sid,omitempty"`
 }
 
-func (r researchTomogram) IsValid(art *jsoniter.Any) Validity {
+func (r researchTomogram) IsValid(art *jsoniter.Any) (Validity, error) {
 	var td TomogramDetails
 	(*art).Get("details").ToVal(&td)
 
 	if len(td.SpeciesName) == 0 {
-		log.Error("tomogram: missing species name")
-		return Invalid
+		m := "tomogram: missing species name"
+		log.Error(m)
+		return Invalid, errors.New(m)
 	}
 	if td.Date <= 0 {
-		log.Error("tomogram: invalid Date")
-		return Invalid
+		m := "tomogram: invalid Date"
+		log.Error(m)
+		return Invalid, errors.New(m)
 	}
 	// ToDo: add mutator support
 	// if td.NCBItaxID == 0 && td.TypoNBCI != 0 {
@@ -56,9 +59,10 @@ func (r researchTomogram) IsValid(art *jsoniter.Any) Validity {
 	// 	td.TypoNBCI = 0
 	// }
 	if td.NCBItaxID < 0 {
-		log.Error("tomogram: invalid NCBItaxID")
-		return Invalid
+		m := "tomogram: invalid NCBItaxID"
+		log.Error(m)
+		return Invalid, errors.New(m)
 	}
 
-	return Valid
+	return Valid, nil
 }
