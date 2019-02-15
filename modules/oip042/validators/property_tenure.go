@@ -43,9 +43,5 @@ func (r propertyTenure) IsValid(art *jsoniter.Any) (Validity, error) {
 		return Invalid, errors.New("Tenure Ns missing")
 	}
 
-	if len(td.TenureType) == 0 {
-		return Invalid, errors.New("Tenure TenureType missing")
-	}
-
 	return Valid, nil
 }
