@@ -2,8 +2,9 @@ package validators
 
 import (
 	"encoding/json"
-
+	"errors"
 	"github.com/json-iterator/go"
+	"time"
 )
 
 func init() {
@@ -14,21 +15,38 @@ type propertyParty struct{}
 
 var _ ArtifactValidator = propertyParty{}
 
+type PartyRole struct{
+	Party string    `json:"party,omitempty"`
+	Role string     `json:"role,omitempty"`
+}
+
 type PartyDetails struct {
 	Ns        string          `json:"ns,omitempty"`
-	PartyRole string          `json:"partyRole,omitempty"`
+	ModifiedDate time.Time    `json:"modifiedDate,omitempty"`
 	PartyType string          `json:"partyType,omitempty"`
-	Tenures   []string        `json:"tenures,omitempty"`
-	Groups    []string        `json:"groups,omitempty"`
-	Members   []string        `json:"members,omitempty"`
+	Members   []PartyRole     `json:"members"`
 	Attrs     json.RawMessage `json:"attrs,omitempty"`
 }
 
-func (r propertyParty) IsValid(art *jsoniter.Any) Validity {
+func (r propertyParty) IsValid(art *jsoniter.Any) (Validity, error) {
+	var details = (*art).Get("details")
+	if details.Size() == 0 {
+		return Invalid, errors.New("Party details missing")
+	}
 	var pd PartyDetails
-	(*art).Get("details").ToVal(&pd)
+	details.ToVal(&pd)
 
-	// test validation on pd
+	if pd.ModifiedDate.IsZero() {
+		return Invalid, errors.New("Party ModifiedDate missing")
+	}
 
-	return Valid
+	if len(pd.Ns) == 0 {
+		return Invalid, errors.New("Party Ns missing")
+	}
+
+	if len(pd.PartyType) == 0 {
+		return Invalid, errors.New("Party PartyType missing")
+	}
+
+	return Valid, nil
 }
