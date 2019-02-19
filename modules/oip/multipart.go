@@ -70,7 +70,7 @@ func onDatastoreCommit() {
 		elastic.NewTermQuery("meta.complete", false),
 		elastic.NewTermQuery("meta.stale", false),
 	)
-	results, err := datastore.Client().Search(datastore.Index(multipartIndex)).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
+	results, err := datastore.Client().Search(datastore.Index(multipartIndex)).Type("_doc").Query(q).Size(100000).Sort("meta.time", false).Do(context.TODO())
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
 		return
