@@ -66,35 +66,17 @@ func onDatastoreCommit() {
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
 
-	q := elastic.NewBoolQuery().Must(
-		elastic.NewTermQuery("meta.complete", false),
-		elastic.NewTermQuery("meta.stale", false),
-	)
-	results, err := datastore.Client().Search(datastore.Index(multipartIndex)).Type("_doc").Query(q).Size(10000).Sort("meta.time", false).Do(context.TODO())
+	multiparts := make(map[string]Multipart)
+
+	var after []interface{}
+
+moreMultiparts:
+	after, err := queryMultiparts(multiparts, after)
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
-		return
 	}
-
-	log.Info("Collecting multiparts to attempt assembly", logger.Attrs{"pendingParts": len(results.Hits.Hits)})
-
-	multiparts := make(map[string]Multipart)
-	for _, v := range results.Hits.Hits {
-		var mps MultipartSingle
-		err := json.Unmarshal(*v.Source, &mps)
-		if err != nil {
-			log.Info("failed to unmarshal elastic hit", logger.Attrs{"err": err})
-			continue
-		}
-		mp, ok := multiparts[mps.Reference]
-		if !ok {
-			mp.Total = mps.Max + 1
-		}
-		if mps.Part < mp.Total {
-			mp.Count++
-			mp.Parts = append(mp.Parts, mps)
-			multiparts[mps.Reference] = mp
-		}
+	if after != nil {
+		goto moreMultiparts
 	}
 
 	potentialChanges := false
@@ -126,6 +108,58 @@ func onDatastoreCommit() {
 	if !oipSync.IsInitialSync {
 		markStale()
 	}
+}
+
+func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]interface{}, error) {
+	var nextAfter []interface{}
+	searchSize := 10000
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.complete", false),
+		elastic.NewTermQuery("meta.stale", false),
+	)
+	search := datastore.Client().
+		Search(datastore.Index(multipartIndex)).
+		Type("_doc").
+		Query(q).
+		Size(searchSize).
+		Sort("meta.time", false).
+		Sort("reference", false)
+
+	if after != nil {
+		search.SearchAfter(after)
+	}
+
+	results, err := search.Do(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Collecting multiparts to attempt assembly", logger.Attrs{"newParts": len(results.Hits.Hits), "totalParts": len(results.Hits.Hits) + len(multiparts)})
+
+	for i, v := range results.Hits.Hits {
+		var mps MultipartSingle
+		err := json.Unmarshal(*v.Source, &mps)
+		if err != nil {
+			log.Info("failed to unmarshal elastic hit", logger.Attrs{"err": err})
+			continue
+		}
+		mp, ok := multiparts[mps.Reference]
+		if !ok {
+			mp.Total = mps.Max + 1
+		}
+		if mps.Part < mp.Total {
+			mp.Count++
+			mp.Parts = append(mp.Parts, mps)
+			multiparts[mps.Reference] = mp
+		}
+
+		if i == len(results.Hits.Hits)-1 && len(results.Hits.Hits) == searchSize {
+			nextAfter = v.Sort
+		}
+	}
+
+	return nextAfter, nil
 }
 
 func tryCompleteMultipart(mp Multipart) {
