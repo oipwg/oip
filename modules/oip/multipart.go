@@ -127,7 +127,7 @@ func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]in
 		Sort("reference", false)
 
 	if after != nil {
-		search.SearchAfter(after)
+		search.SearchAfter(after...)
 	}
 
 	results, err := search.Do(context.TODO())
