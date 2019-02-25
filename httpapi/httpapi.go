@@ -47,6 +47,7 @@ func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
 	b, err := json.Marshal(payload)
 	if err != nil {
 		log.Error("Unable to marshal response payload", logger.Attrs{"err": err, "payload": spew.Sdump(payload)})
+		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(500)
 		n, err := w.Write([]byte("Internal server error"))
 		if err != nil {
