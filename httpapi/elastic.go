@@ -38,9 +38,7 @@ func BuildCommonSearchService(ctx context.Context, indexNames []string, query *e
 		Query(query)
 
 	size := GetSizeFromContext(ctx)
-	if size != 0 {
-		searchService = searchService.Size(size)
-	}
+	searchService = searchService.Size(size)
 
 	nSorts := GetSortInfoFromContext(ctx)
 	nSorts = append(nSorts, sorts...)

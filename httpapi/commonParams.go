@@ -64,9 +64,9 @@ func commonParameterParser(next http.Handler) http.Handler {
 		}
 
 		limit := r.FormValue("limit")
-		size, _ := strconv.ParseInt(limit, 10, 0)
-		if size <= 0 || size > 1000 {
-			size = -1
+		var size int64 = -1
+		if limit != "" {
+			size, _ = strconv.ParseInt(limit, 10, 32)
 		}
 		ctx = context.WithValue(ctx, oipdSizeKey, int(size))
 
