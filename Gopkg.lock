@@ -43,11 +43,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:13b859e503db4f25612167f10073d61dc3d06a54e300f8c62612a1e0e67bfc93"
+  digest = "1:ed524695233e0f72ed8b120efc28799c5c74f33003b026ee067074f8c07cf80f"
   name = "github.com/bitspill/flosig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4ca53a384d5ff2dd285a0051c756f919b4c45d0d"
+  revision = "c22315ab53aabfc133c842ff96a8609d1d688e37"
 
 [[projects]]
   branch = "master"
@@ -546,7 +546,7 @@
     "internal/semver",
   ]
   pruneopts = "UT"
-  revision = "83362c3779f5f48611068d488a03ea7bbaddc81e"
+  revision = "2dc4ef2775b8122dd5afe2c18fd6f775e87f89e5"
 
 [[projects]]
   digest = "1:8ba4fd53e3fc457baa11583d02e1990a389ff85f7b5061c70c6f95bc382e565c"
