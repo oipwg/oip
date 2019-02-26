@@ -65,6 +65,8 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 func onDatastoreCommit() {
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
+	
+	wasInitialSync := oipSync.IsInitialSync
 
 	multiparts := make(map[string]Multipart)
 
@@ -105,7 +107,7 @@ moreMultiparts:
 		events.Bus.Publish("modules:oip:mpCompleted")
 	}
 
-	if !oipSync.IsInitialSync {
+	if !wasInitialSync {
 		markStale()
 	}
 }
