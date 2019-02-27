@@ -39,7 +39,7 @@
   source = "github.com/bitspill/logger"
 
 [[constraint]]
-  name = "github.com/bitspill/flod/"
+  name = "github.com/bitspill/flod"
   branch = "master"
 
 [[constraint]]
