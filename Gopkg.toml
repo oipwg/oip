@@ -30,6 +30,78 @@
   unused-packages = true
 
 [[constraint]]
+  name = "github.com/asaskevich/EventBus"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/azer/logger"
   branch = "forceColors"
   source = "github.com/bitspill/logger"
+
+[[constraint]]
+  name = "github.com/bitspill/flod/"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitspill/flosig"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitspill/floutil"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitspill/oipProto"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/cloudflare/backoff"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/davecgh/go-spew"
+  version = "1.1.1"
+
+[[constraint]]
+  name = "github.com/dustin/go-humanize"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/gobuffalo/packr"
+  version = "2.0.3"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/gorilla/handlers"
+  version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/gorilla/mux"
+  version = "1.7.0"
+
+[[constraint]]
+  name = "github.com/json-iterator/go"
+  version = "1.1.5"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.1"
+
+[[constraint]]
+  name = "github.com/rs/cors"
+  version = "1.6.0"
+
+[[constraint]]
+  name = "github.com/spf13/pflag"
+  version = "1.0.3"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  version = "1.3.1"
+
+[[constraint]]
+  name = "gopkg.in/olivere/elastic.v6"
+  version = "6.2.16"

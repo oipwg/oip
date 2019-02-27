@@ -216,7 +216,7 @@
   revision = "d04dd98aca5b9aa7ca7c36ee639a21bcc69de32a"
 
 [[projects]]
-  digest = "1:ec86bdda8c842c6c514debdfc8469fb462f10ac1d78493332903ff6b48e395b3"
+  digest = "1:9f45d3f895760dc1dc9c487ad4f3ff8f22fdf4d42f685944d11b740b57f18dee"
   name = "github.com/gobuffalo/packr"
   packages = [
     "v2",
@@ -227,8 +227,8 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "024a2ba64e4439e1454e93624f391329cec6c0b2"
-  version = "v2.0.2"
+  revision = "5aa3f2df6770adb7f8719a43ef25c2522af176ed"
+  version = "v2.0.3"
 
 [[projects]]
   branch = "master"
@@ -239,12 +239,12 @@
   revision = "33c29581e754bd354236e977dfe426e55331c45d"
 
 [[projects]]
-  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
+  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:664d37ea261f0fc73dd17f4a1f5f46d01fbb0b0d75f6375af064824424109b7d"
@@ -306,20 +306,20 @@
   version = "v1.1.5"
 
 [[projects]]
-  digest = "1:733d809a22d48576a16f7aec67bb60ea5de3eb220e95fcee8098b296b7c0c9e8"
+  digest = "1:38d2e838817528fd7d1ccdf7fa6700ee0f1727b3c484d13cab54bfbdaab12b0e"
   name = "github.com/karrick/godirwalk"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dfb93c3b8093779973bb5ace7d7f7666b99d4298"
-  version = "v1.7.8"
+  revision = "6d1c7760ec857d2984abe0a23fa263877f50d3f0"
+  version = "v1.8.0"
 
 [[projects]]
-  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
-  version = "v1.0.1"
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
@@ -499,7 +499,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "7f87c0fbb88b590338857bcb720678c2583d4dea"
+  revision = "215aa809caaf1f5be699aef5e3ccebeb15d67b0b"
 
 [[projects]]
   branch = "master"
@@ -510,7 +510,7 @@
     "windows",
   ]
   pruneopts = "UT"
-  revision = "cc5685c2db1239775905f3911f0067c0fa74762f"
+  revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -529,7 +529,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f57e88c4326d5433c2f4eb28fcd1662be003cb0d11dd13710c8828e687303c76"
+  digest = "1:e46d8e20161401a9cf8765dfa428494a3492a0b56fe114156b7da792bf41ba78"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -546,7 +546,7 @@
     "internal/semver",
   ]
   pruneopts = "UT"
-  revision = "2dc4ef2775b8122dd5afe2c18fd6f775e87f89e5"
+  revision = "8dcc6e70cdefe9a82236b6e195e4f4e2108fcb9f"
 
 [[projects]]
   digest = "1:8ba4fd53e3fc457baa11583d02e1990a389ff85f7b5061c70c6f95bc382e565c"
