@@ -24,7 +24,7 @@ var ignore = make(map[string]struct{})
 var active = make(map[string]struct{})
 
 // ToDo: extract functionality from init()
-//       remove dependency upon github.com/bitspill/oip/config
+//       remove dependency upon github.com/oipwg/oip/config
 func init() {
 	log.Info("initializing active and ignore sets")
 	i := viper.GetStringSlice("oip.artifact.ignore")

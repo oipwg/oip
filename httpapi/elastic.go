@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/bitspill/oip/datastore"
+	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
 )
 

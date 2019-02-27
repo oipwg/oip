@@ -5,13 +5,13 @@ import (
 	"strconv"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/filters"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/filters"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )

@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/config"
 	"github.com/gobuffalo/packr/v2"
+	"github.com/oipwg/oip/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"

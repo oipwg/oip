@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/version"
+	"github.com/oipwg/oip/version"
 )
 
 func handleVersion(w http.ResponseWriter, _ *http.Request) {

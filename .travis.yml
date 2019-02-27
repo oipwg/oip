@@ -29,7 +29,7 @@ before_install:
 
 install:
   - dep ensure -v
-  - cd $GOPATH/src/github.com/bitspill/oip/cmd/oipd && packr2 -v && cd -
+  - cd $GOPATH/src/github.com/oipwg/oip/cmd/oipd && packr2 -v && cd -
 
 cache:
   directories:
@@ -40,29 +40,29 @@ script:
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=darwin GOARCH=amd64 go build -ldflags
-    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-    -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
+    "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/oipwg/oip/version.BuiltBy=TravisCI
+    -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+    -s -w" -o oipd github.com/oipwg/oip/cmd/oipd &&
     tar -czvf oipd.darwin.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=linux GOARCH=amd64 go build -ldflags
-    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-    -s -w" -o oipd github.com/bitspill/oip/cmd/oipd &&
+    "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/oipwg/oip/version.BuiltBy=TravisCI
+    -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+    -s -w" -o oipd github.com/oipwg/oip/cmd/oipd &&
     tar -czvf oipd.linux.amd64.tar.gz oipd ;
     fi
   - if [ "${LATEST}" = "true" ]; then
     env GOOS=windows GOARCH=amd64 go build -ldflags
-    "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-    -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-    -X github.com/bitspill/oip/version.BuiltBy=TravisCI
-    -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-    -s -w" -o oipd.exe github.com/bitspill/oip/cmd/oipd &&
+    "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+    -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+    -X github.com/oipwg/oip/version.BuiltBy=TravisCI
+    -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+    -s -w" -o oipd.exe github.com/oipwg/oip/cmd/oipd &&
     zip oipd.windows.amd64.zip oipd.exe ;
     fi
 

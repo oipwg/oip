@@ -5,14 +5,14 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/btc"
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/flo"
 	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/golang/protobuf/proto"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/btc"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
 )
 
 const minFloDataLen = 35

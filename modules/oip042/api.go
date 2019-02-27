@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/httpapi"
 	"gopkg.in/olivere/elastic.v6"
 )
 

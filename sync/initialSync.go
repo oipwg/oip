@@ -6,9 +6,9 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/chaincfg/chainhash"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/flo"
 	"github.com/dustin/go-humanize"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/flo"
 	"github.com/pkg/errors"
 )
 

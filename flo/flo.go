@@ -14,9 +14,9 @@ import (
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/events"
 	"github.com/cloudflare/backoff"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/events"
 	"github.com/pkg/errors"
 )
 

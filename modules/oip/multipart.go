@@ -9,13 +9,13 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
-	oipSync "github.com/bitspill/oip/sync"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
+	oipSync "github.com/oipwg/oip/sync"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )

@@ -2,9 +2,9 @@ package oip042
 
 import (
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 const oip042ArtifactIndex = `oip042_artifact`

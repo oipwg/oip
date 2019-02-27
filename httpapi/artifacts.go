@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bitspill/oip/datastore"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/datastore"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )

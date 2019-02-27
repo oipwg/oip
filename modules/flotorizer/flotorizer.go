@@ -3,9 +3,9 @@ package flotorizer
 import (
 	"strings"
 
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 )
 

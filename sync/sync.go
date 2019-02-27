@@ -5,8 +5,8 @@ import (
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/floutil"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 func init() {

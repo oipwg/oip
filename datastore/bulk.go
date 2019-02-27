@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/events"
 	"github.com/dustin/go-humanize"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 	"time"
 )

@@ -3,8 +3,8 @@ package url
 import (
 	"strings"
 
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 func init() {

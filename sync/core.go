@@ -1,9 +1,9 @@
 package sync
 
 import (
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/flo"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
 )
 
 var (
