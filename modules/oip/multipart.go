@@ -66,6 +66,7 @@ func onDatastoreCommit() {
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
 
+	wasInitialSync := oipSync.IsInitialSync
 	multiparts := make(map[string]Multipart)
 
 	var after []interface{}
@@ -105,7 +106,7 @@ moreMultiparts:
 		events.Publish("modules:oip:mpCompleted")
 	}
 
-	if !oipSync.IsInitialSync {
+	if !wasInitialSync {
 		markStale()
 	}
 }
