@@ -17,9 +17,9 @@ env:
 
 branches:
   except:
-  # Don't build Travis CI tags
-  # MMDDyyyy-shortCommitHash
-  - /[0-9]{8}-[0-9a-f]{7}/
+    # Don't build Travis CI tags
+    # MMDDyyyy-shortCommitHash
+    - /[0-9]{8}-[0-9a-f]{7}/
 
 before_install:
   - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
@@ -33,7 +33,7 @@ install:
 
 cache:
   directories:
-  - "$GOPATH/pkg/dep"
+    - "$GOPATH/pkg/dep"
 
 script:
   - go test -v -race ./...
@@ -76,7 +76,7 @@ deploy:
   skip_cleanup: true
   target_commitish: $TRAVIS_COMMIT
   api_key:
-    secure: lr3LZU+AYBPbz2uiJQPTpze7XwbG4euLeU+uYs5BN+FqvGkl98w2WzYxCn/E3TcmZSDmTzYHFB99NnZ6nCwXrWB1HNqJe0u9ynM3Ccib81ARGw9Zt8PFRXAIRokrwNHLmHEyqiTbsx9mEbJWBp1VGkag5vXRQeA6rjZtxQYVOGBi4abqZ/eo+oAdOkI6Fe/hd0hBPkDREwkhAQsMo57VtzXr7gwIv+Cx4zBmegnyBbYFp3kPjePSpHmpsT2ojBBxjIpZmff08Z9aNdbPKMPvQUKSdZVJczJozmXs6wklx2kEAGpCuNP0Uv2xPREGhPn8DACOdLTDHHNaKVMyXlWTiFyTPjeK3B6HmmL8o47TpXbIjJnq3LAlpcBZz0wjNjwqF4USBD1VJVswY5x+IuT5DcsAM9PJg1ZaRBy3cfSjKzGG1d1h4eRWyyEITHptuLzBgUPT2waZKkgORezraZxiC3Z75rbjY2HxEI97bFOt80aBQ4igF/unUizs2lgzQUu1wIBG1SnB0tp5OQn4TP/xFW/rgHqNwe95qz14n9ojtb+2r7Gytf55BVjFqzgvLcQzYTt2GwkOQk1Q9xm31MKHw0UfCGidNYDMeMM0Evo7PG6AND6UEtZbReJcF5/KTEX/d9X2HHgxZiRW00sHQ7gCw3g0FDqcJiXUPPUxhJ1nJ1k=
+    secure: Lu295zM6k2P8Nxp0knMY/N3NzN7d7uOeEjna/ut8fArBzwz8lXdGJatZAOPbsU3V/lM6SP+RPCtibo8L+dKfISSrmx/Q0Q5GMxI7Tiuhj3sD73NgYRk0pB0lSVK7mzpLOxtV0yNKZgph92cUkF617yt0I84xm5AwAQNVqUHRdFJzECi3a2RTc5/heh7710QRYKzpNNS8YAF093n9zdctdwNBJaQoVpiJi9qaoflq4BN8fu1QwkxQh2Ba+QXIMynM3f3ywOD/zlgdM3QzOCYV93yCMDJWEWgrrCVTas8LC0BdYChf850FxRZ2Xe8n+VAJ4hUIl7KBrX6K0MKX6idd5j3xRndPF5jkMMhlZbowwshdFtemtNXr7YiWwuiD5+JG34tMOKWmFWCi2V3VAFnCxBFcC0EKNwVFNRVm2SOpAEZPW7QhqWw1M1iz+d0UG713jJAHexW1dnJkhr1S5emm3WvlOcB0cRl1dnjxs+9d4fgOWBbHUZcgYljiyiqVV0pOJg7/Obn60PP7loKwQN8H2VsOxJifX8K1NfL72e48YHUubxD0m4kf/ZQsYcdn+YfQ1GMS6RkirW/R1f32StugNW0QLoLqoJq4IymtccQHpAI7vmQ6K84ZQJaLY3Q/yHZ6gpl+nH/qXyzvilNJj6A8fKmBzG9B/vBjKzjZAkBbh3k=
   file:
     - oipd.darwin.amd64.tar.gz
     - oipd.linux.amd64.tar.gz
