@@ -108,7 +108,8 @@ moreMultiparts:
 	}
 
 	if !wasInitialSync {
-		markStale()
+	    // Disable marking as stale (suggested by Bitspill 2/27/2019)
+		//markStale()
 	}
 }
 
