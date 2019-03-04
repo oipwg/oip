@@ -107,7 +107,8 @@ moreMultiparts:
 	}
 
 	if !wasInitialSync {
-		markStale()
+		// ToDo: Consider re-enabling after further tests under high volume
+		// markStale()
 	}
 }
 
