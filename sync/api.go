@@ -22,11 +22,19 @@ func HandleStatus(w http.ResponseWriter, _ *http.Request) {
 		log.Error("/sync/status GetBlockCount failed", logger.Attrs{"err": err})
 	}
 
+	height := int64(0)
+	time := int64(0)
+
+	if lb != nil && lb.Block != nil {
+		height = lb.Block.Height
+		time = lb.Block.Time
+	}
+
 	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
 		"IsInitialSync": IsInitialSync,
-		"Height":        lb.Block.Height,
-		"Timestamp":     lb.Block.Time,
+		"Height":        height,
+		"Timestamp":     time,
 		"LatestHeight":  count,
-		"Progress":      float64(lb.Block.Height) / float64(count),
+		"Progress":      float64(height) / float64(count),
 	})
 }
