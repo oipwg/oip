@@ -84,5 +84,5 @@ deploy:
   prerelease: true
   on:
     branch: build
-    repo: bitspill/oip
+    repo: oipwg/oip
     condition: $LATEST = true
