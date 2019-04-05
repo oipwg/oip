@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/bitspill/oip/datastore"
+	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -27,7 +27,7 @@ func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) 
 }
 
 func BuildCommonSearchService(ctx context.Context, indexNames []string, query *elastic.BoolQuery, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
-	var indices []string
+	var indices = make([]string, 0, len(indexNames))
 	for _, index := range indexNames {
 		indices = append(indices, datastore.Index(index))
 	}
@@ -38,9 +38,7 @@ func BuildCommonSearchService(ctx context.Context, indexNames []string, query *e
 		Query(query)
 
 	size := GetSizeFromContext(ctx)
-	if size != 0 {
-		searchService = searchService.Size(size)
-	}
+	searchService = searchService.Size(size)
 
 	nSorts := GetSortInfoFromContext(ctx)
 	nSorts = append(nSorts, sorts...)

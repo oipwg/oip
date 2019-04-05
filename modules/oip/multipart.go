@@ -9,13 +9,13 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
-	oipSync "github.com/bitspill/oip/sync"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
+	oipSync "github.com/oipwg/oip/sync"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -28,8 +28,8 @@ var mpRouter = httpapi.NewSubRoute("/multipart")
 func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, "multipart.json")
-	events.Bus.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
-	events.Bus.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
+	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
+	events.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
 
 	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
 	mpRouter.HandleFunc("/get/id/{id:[a-f0-9]+}", handleGetId)
@@ -104,12 +104,12 @@ moreMultiparts:
 			log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
 		}
 
-		events.Bus.Publish("modules:oip:mpCompleted")
+		events.Publish("modules:oip:mpCompleted")
 	}
 
 	if !wasInitialSync {
-	    // Disable marking as stale (suggested by Bitspill 2/27/2019)
-		//markStale()
+		// ToDo: Consider re-enabling after further tests under high volume
+		// markStale()
 	}
 }
 
@@ -208,7 +208,7 @@ func tryCompleteMultipart(mp Multipart) {
 		return
 	}
 
-	events.Bus.Publish("flo:floData", dataString, part0.Meta.Tx)
+	events.Publish("flo:floData", dataString, part0.Meta.Tx)
 
 	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
 }

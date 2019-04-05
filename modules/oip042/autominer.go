@@ -2,8 +2,8 @@ package oip042
 
 import (
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
 )
 

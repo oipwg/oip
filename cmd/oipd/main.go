@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/filters"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
-	_ "github.com/bitspill/oip/modules"
-	"github.com/bitspill/oip/sync"
-	"github.com/bitspill/oip/version"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/filters"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
+	_ "github.com/oipwg/oip/modules"
+	"github.com/oipwg/oip/sync"
+	"github.com/oipwg/oip/version"
 	"github.com/spf13/viper"
 )
 
@@ -103,7 +103,6 @@ func main() {
 
 	<-rootContext.Done()
 	shutdown(nil)
-	return
 }
 
 func shutdown(err error) {

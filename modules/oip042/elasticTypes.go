@@ -1,6 +1,6 @@
 package oip042
 
-import "github.com/bitspill/oip/datastore"
+import "github.com/oipwg/oip/datastore"
 
 type OMeta struct {
 	Block     int64                      `json:"block"`

@@ -5,15 +5,15 @@ import (
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/floutil"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 func init() {
 	log.Info("Subscribing to events")
-	events.Bus.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, true)
-	events.Bus.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
-	events.Bus.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
+	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, true)
+	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
+	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
 func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
@@ -98,7 +98,7 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 
 	datastore.AutoBulk.StoreTransaction(tx)
 	if len(tx.Transaction.FloData) != 0 {
-		events.Bus.Publish("flo:floData", tx.Transaction.FloData, tx)
+		events.Publish("flo:floData", tx.Transaction.FloData, tx)
 	}
 }
 

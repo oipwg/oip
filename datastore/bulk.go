@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/events"
 	"github.com/dustin/go-humanize"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 	"time"
 )
@@ -72,7 +72,7 @@ func (bi *BulkIndexer) EndTimedCommit() {
 func (bi *BulkIndexer) Do(ctx context.Context) (*elastic.BulkResponse, error) {
 	br, err := bi.bulk.Do(ctx)
 	if err == nil {
-		events.Bus.Publish("datastore:commit")
+		events.Publish("datastore:commit")
 	}
 	return br, err
 }

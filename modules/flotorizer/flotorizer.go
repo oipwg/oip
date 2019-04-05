@@ -3,17 +3,17 @@ package flotorizer
 import (
 	"strings"
 
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
 	log.Info("init flotorizer")
 	if !config.IsTestnet() {
-		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-		events.Bus.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
+		events.SubscribeAsync("flo:floData", onFloData, false)
+		events.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
 		datastore.RegisterMapping("flotorizer", "flotorizer.json")
 	}
 }
@@ -24,7 +24,7 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 	}
 	prefix := "This document has been flotorized: "
 	if strings.HasPrefix(floData, prefix) {
-		events.Bus.Publish("modules:flotorizer:flotorized", strings.TrimPrefix(floData, prefix))
+		events.Publish("modules:flotorizer:flotorized", strings.TrimPrefix(floData, prefix))
 		return
 	}
 }

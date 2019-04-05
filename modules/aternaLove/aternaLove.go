@@ -4,17 +4,17 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
 	log.Info("init aterna")
 	if !config.IsTestnet() {
-		events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-		events.Bus.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
+		events.SubscribeAsync("flo:floData", onFloData, false)
+		events.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
 		datastore.RegisterMapping("aterna", "aterna.json")
 	}
 }
@@ -24,13 +24,13 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 		return
 	}
 	if tx.Block > 1000000 {
-		events.Bus.Unsubscribe("flo:floData", onFloData)
-		events.Bus.Unsubscribe("modules:aternaLove:alove", onAlove)
+		events.Unsubscribe("flo:floData", onFloData)
+		events.Unsubscribe("modules:aternaLove:alove", onAlove)
 	}
 
 	prefix := "t1:ALOVE>"
 	if strings.HasPrefix(floData, prefix) {
-		events.Bus.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix), tx)
+		events.Publish("modules:aternaLove:alove", strings.TrimPrefix(floData, prefix), tx)
 		return
 	}
 }

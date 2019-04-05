@@ -8,35 +8,35 @@ Build:
   script:
     - apt-get update
     - apt-get install zip -y
-    - mkdir -p $GOPATH/src/github.com/bitspill/
-    - cp -r $CI_PROJECT_DIR $GOPATH/src/github.com/bitspill/oip
+    - mkdir -p $GOPATH/src/github.com/oipwg/
+    - cp -r $CI_PROJECT_DIR $GOPATH/src/github.com/oipwg/oip
     - curl -L -s https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 -o $GOPATH/bin/dep
     - chmod +x $GOPATH/bin/dep
     - go get -u github.com/gobuffalo/packr/v2/packr2
-    - cd $GOPATH/src/github.com/bitspill/oip
+    - cd $GOPATH/src/github.com/oipwg/oip
     - dep ensure -v
-    - cd $GOPATH/src/github.com/bitspill/oip/cmd/oipd && packr2 -v && cd -
+    - cd $GOPATH/src/github.com/oipwg/oip/cmd/oipd && packr2 -v && cd -
     - go test -v -race ./...
     - env GOOS=linux GOARCH=amd64 go build -ldflags
-      "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/bitspill/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd github.com/bitspill/oip/cmd/oipd 
+      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
+      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+      -s -w" -o oipd github.com/oipwg/oip/cmd/oipd
     - tar -czvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz oipd
     - env GOOS=darwin GOARCH=amd64 go build -ldflags
-      "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/bitspill/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd github.com/bitspill/oip/cmd/oipd 
+      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
+      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+      -s -w" -o oipd github.com/oipwg/oip/cmd/oipd
     - tar -czvf $CI_PROJECT_DIR/oipd.darwin.amd64.tar.gz oipd
     - env GOOS=windows GOARCH=amd64 go build -ldflags
-      "-X github.com/bitspill/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/bitspill/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/bitspill/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/bitspill/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd.exe github.com/bitspill/oip/cmd/oipd 
+      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
+      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
+      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
+      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
+      -s -w" -o oipd.exe github.com/oipwg/oip/cmd/oipd
     - zip $CI_PROJECT_DIR/oipd.windows.amd64.zip oipd.exe
   artifacts:
     paths:

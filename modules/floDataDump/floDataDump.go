@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 var f *os.File
@@ -19,8 +19,8 @@ var (
 
 func init() {
 	log.Info("init floDataDump")
-	events.Bus.SubscribeAsync("flo:floData", onFloData, false)
-	events.Bus.SubscribeAsync("datastore:commit", onCommit, false)
+	events.SubscribeAsync("flo:floData", onFloData, false)
+	events.SubscribeAsync("datastore:commit", onCommit, false)
 
 	var err error
 	f, err = os.OpenFile("textComments.txt", os.O_CREATE|os.O_APPEND, 0644)
@@ -49,6 +49,6 @@ func onFloData(floData string, tx *datastore.TransactionData) {
 
 	if strings.HasPrefix(floData, "text:") {
 		textFloData++
-		f.WriteString(fmt.Sprintf("%8d %s - %s\n", tx.Block, tx.Transaction.Txid, floData))
+		_, _ = f.WriteString(fmt.Sprintf("%8d %s - %s\n", tx.Block, tx.Transaction.Txid, floData))
 	}
 }
