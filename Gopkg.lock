@@ -216,7 +216,7 @@
   revision = "d04dd98aca5b9aa7ca7c36ee639a21bcc69de32a"
 
 [[projects]]
-  digest = "1:9f45d3f895760dc1dc9c487ad4f3ff8f22fdf4d42f685944d11b740b57f18dee"
+  digest = "1:84d1d205888c2f666c0a4d489e2a6e66c39fe8fd8bfd118c51b81f80230be51b"
   name = "github.com/gobuffalo/packr"
   packages = [
     "v2",
@@ -227,8 +227,8 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "5aa3f2df6770adb7f8719a43ef25c2522af176ed"
-  version = "v2.0.3"
+  revision = "cef464b1513d9b6cf3d4ad6d6983a716e048e89d"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
@@ -381,6 +381,35 @@
   pruneopts = "UT"
   revision = "4b7aa43c6742a2c18fdef89dd197aaae7dac7ccd"
   version = "1.0.1"
+
+[[projects]]
+  digest = "1:48429f79481359004502ec0cec84a3c1b961b3c0cb136c1ccd36d96d31b65957"
+  name = "github.com/oipwg/oip"
+  packages = [
+    "btc",
+    "config",
+    "datastore",
+    "events",
+    "filters",
+    "flo",
+    "httpapi",
+    "modules",
+    "modules/alexandriaMedia",
+    "modules/aternaLove",
+    "modules/floDataDump",
+    "modules/flotorizer",
+    "modules/historian",
+    "modules/oip",
+    "modules/oip041",
+    "modules/oip042",
+    "modules/oip042/validators",
+    "modules/tZero",
+    "sync",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "8a78fb9de9dc201d3443f909f40e293c56dbe807"
+  version = "20190404-8a78fb9"
 
 [[projects]]
   digest = "1:51f610491a1d9df09b62887d409e0f79825f33e57a571d258ec908f679c8a2c3"
@@ -586,6 +615,26 @@
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/json-iterator/go",
+    "github.com/oipwg/oip/btc",
+    "github.com/oipwg/oip/config",
+    "github.com/oipwg/oip/datastore",
+    "github.com/oipwg/oip/events",
+    "github.com/oipwg/oip/filters",
+    "github.com/oipwg/oip/flo",
+    "github.com/oipwg/oip/httpapi",
+    "github.com/oipwg/oip/modules",
+    "github.com/oipwg/oip/modules/alexandriaMedia",
+    "github.com/oipwg/oip/modules/aternaLove",
+    "github.com/oipwg/oip/modules/floDataDump",
+    "github.com/oipwg/oip/modules/flotorizer",
+    "github.com/oipwg/oip/modules/historian",
+    "github.com/oipwg/oip/modules/oip",
+    "github.com/oipwg/oip/modules/oip041",
+    "github.com/oipwg/oip/modules/oip042",
+    "github.com/oipwg/oip/modules/oip042/validators",
+    "github.com/oipwg/oip/modules/tZero",
+    "github.com/oipwg/oip/sync",
+    "github.com/oipwg/oip/version",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/spf13/pflag",
