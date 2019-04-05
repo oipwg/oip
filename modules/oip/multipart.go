@@ -10,11 +10,13 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
+	"github.com/oipwg/oip/oipProto"
 	oipSync "github.com/oipwg/oip/sync"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
@@ -29,6 +31,7 @@ func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, "multipart.json")
 	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
+	events.SubscribeAsync("modules:oip:multipartProto", onMultipartProto, false)
 	events.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
 
 	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
@@ -171,6 +174,11 @@ func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]in
 }
 
 func tryCompleteMultipart(mp Multipart) {
+	if mp.Total > 1000 {
+		log.Info("multipart has too many parts", logger.Attrs{"txid": mp.Parts[0].Meta.Txid, "part": mp.Total})
+		return
+	}
+
 	rebuild := make([]string, mp.Total)
 	var part0 MultipartSingle
 	for i := range mp.Parts {
@@ -325,8 +333,8 @@ func multipartSingleFromString(s string) (MultipartSingle, error) {
 	}
 
 	ret = MultipartSingle{
-		Part:      part,
-		Max:       max,
+		Part:      uint32(part),
+		Max:       uint32(max),
 		Reference: reference,
 		Address:   address,
 		Signature: signature,
@@ -355,14 +363,56 @@ func markStale() {
 	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
 
+func onMultipartProto(msg *oipProto.SignedMessage, tx *datastore.TransactionData) {
+	ms := MultipartSingle{}
+
+	mpp := &oipProto.MultiPart{}
+	err := proto.Unmarshal(msg.SerializedMessage, mpp)
+	if err != nil {
+		log.Error("unable to unmarshal multipart", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
+		return
+	}
+
+	if mpp.CountParts == 0 {
+		log.Error("multipart count == 0", logger.Attrs{"txid": tx.Transaction.Txid})
+		return
+	}
+
+	ms.Part = mpp.CurrentPart
+	ms.Max = mpp.CountParts - 1
+
+	ms.Data = string(mpp.RawData)
+	ms.Reference = oipProto.TxidPrefixToString(mpp.Reference)
+
+	if ms.Part == 0 {
+		if len(tx.Transaction.Txid) > 16 {
+			ms.Reference = tx.Transaction.Txid[0:16]
+		} else {
+			ms.Reference = tx.Transaction.Txid
+		}
+	}
+
+	ms.Meta = MSMeta{
+		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
+		Complete:  false,
+		Time:      tx.Transaction.Time,
+		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
+	}
+
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
+	datastore.AutoBulk.Add(bir)
+}
+
 type MultipartSingle struct {
-	Part      int    `json:"part"`
-	Max       int    `json:"max"`
-	Reference string `json:"reference"`
-	Address   string `json:"address"`
-	Signature string `json:"signature"`
-	Data      string `json:"data"`
-	Meta      MSMeta `json:"meta"`
+	Part      uint32 `json:"part,omitempty"`
+	Max       uint32 `json:"max,omitempty"`
+	Reference string `json:"reference,omitempty"`
+	Address   string `json:"address,omitempty"`
+	Signature string `json:"signature,omitempty"`
+	Data      string `json:"data,omitempty"`
+	Meta      MSMeta `json:"meta,omitempty"`
 }
 
 type MSMeta struct {
@@ -377,6 +427,6 @@ type MSMeta struct {
 
 type Multipart struct {
 	Parts []MultipartSingle
-	Count int
-	Total int
+	Count uint32
+	Total uint32
 }

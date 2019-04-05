@@ -12,6 +12,8 @@ var (
 )
 
 func Setup() {
+	// ToDo: refresh_interval
+	//  https://www.elastic.co/guide/en/elasticsearch/reference/current/tune-for-indexing-speed.html#_increase_the_refresh_interval
 }
 
 func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockData, error) {

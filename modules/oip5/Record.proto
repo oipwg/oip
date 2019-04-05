@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package oip5.record;
+
+option go_package = "oip5";
+
+import "google/protobuf/any.proto";
+
+message RecordProto {
+    // Searchable user-tags
+    repeated string tags = 4;
+
+    // Payment terms
+    Payment payment = 6;
+
+    // Record specific additional information
+    OipDetails details = 7;
+
+    Permissions permissions = 8;
+}
+
+message tmpl_BA51C00000000000 {
+    // Record title
+    string title = 1;
+
+    // Record description
+    string description = 2;
+
+    // Original publication year
+    int64 year = 3;
+}
+
+message tmpl_000000000000F113 {
+    // Human readable file name
+    string displayName = 1;
+
+    // Where to find file from storage.location
+    string filePath = 2;
+
+    // Byte size of file
+    uint64 size = 3;
+
+    // MIME Type
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+    string contentType = 4;
+
+    // Storage distribution network providing files
+    Network network = 5;
+
+    // Network specific identifier to locate files
+    string location = 6;
+}
+
+message Txid {
+    bytes raw = 1;
+}
+
+
+message Permissions {
+
+}
+
+message Payment {
+
+}
+
+enum Network {
+    UNKNOWN_NETWORK = 0;
+    // https://ipfs.io
+    IPFS = 1;
+    // https://webtorrent.io
+    WEB_TORRENT = 2;
+    // http(s)://
+    HTTP = 3;
+}
+
+message OipDetails {
+    repeated google.protobuf.Any details = 1;
+}

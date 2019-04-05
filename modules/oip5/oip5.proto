@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package oip5;
+
+option go_package = "oip5";
+
+import "Record.proto";
+import "RecordTemplateProto.proto";
+
+message OipFive {
+    record.RecordTemplateProto recordTemplate = 1;
+    record.RecordProto record = 2;
+
+    Transfer transfer = 7;
+    Deactivate deactivate = 8;
+    Edit edit = 9;
+}
+
+message Transfer {
+
+}
+
+message Deactivate {
+
+}
+
+message Edit {
+
+}

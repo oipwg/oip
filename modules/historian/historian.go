@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/gorilla/mux"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
+	"github.com/oipwg/oip/oipProto"
 	"gopkg.in/olivere/elastic.v6"
 )
 

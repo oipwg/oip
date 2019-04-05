@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package oip5.record.templates;
+
+option go_package = "oip5";
+
+// Research Protocol
+message tmpl_00000000deadbeef {
+    // Internal Protocol ID
+    // Example: NS-001
+    string pid = 1;
+
+    // Protocol's name
+    // Example: negative stain
+    string name = 2;
+
+    // Brief description of the method
+    // Example:
+    // 2 micro liters of sample, wait for 60 seconds, blot with paper 3 times,
+    // 2 micro liters of uranyl acetate, wait for 60 seconds, blot with paper 3 times.
+    string description = 3;
+
+    // List of labs associated with the sample collection
+    // Example: [ Dexter Labs ]
+    repeated string lab = 4;
+
+    // List of name of the institution from the labs involved in sample collection
+    // Example: [ Cartoon Network ]
+    repeated string institution = 5;
+
+    // List of people who developed the protocol
+    // Example: [ Charlie, Doug ]
+    repeated string developedBy = 6;
+}

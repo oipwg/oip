@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/golang/protobuf/proto"
 	"github.com/json-iterator/go"
 	"github.com/oipwg/oip/btc"
@@ -13,6 +12,7 @@ import (
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/oipProto"
 )
 
 const minFloDataLen = 35
@@ -230,8 +230,10 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 		}
 		events.Publish("modules:historian:protoDataPoint", hdp, tx)
 	case oipProto.MessageTypes_OIP05:
-		// ToDo
-		log.Info("unexpected OIP 0.5 message", attr)
+		log.Info("sending oip5 message", attr)
+		events.Publish("modules:oip5:msg", msg, tx)
+	case oipProto.MessageTypes_Multipart:
+		events.Publish("modules:oip:multipartProto", msg, tx)
 	default:
 		attr["err"] = err
 		attr["msgType"] = msg.MessageType

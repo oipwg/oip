@@ -26,7 +26,7 @@ func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) 
 	return sources, nextAfter
 }
 
-func BuildCommonSearchService(ctx context.Context, indexNames []string, query *elastic.BoolQuery, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
+func BuildCommonSearchService(ctx context.Context, indexNames []string, query elastic.Query, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
 	var indices = make([]string, 0, len(indexNames))
 	for _, index := range indexNames {
 		indices = append(indices, datastore.Index(index))
