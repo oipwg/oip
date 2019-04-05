@@ -1,7 +1,7 @@
 package validators
 
 import (
-	_ "gitlab.com/mediciland/blockchain/oip/config"
+	_ "github.com/oipwg/oip/config"
 	"github.com/json-iterator/go"
 	"testing"
 )

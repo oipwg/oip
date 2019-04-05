@@ -383,35 +383,6 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:48429f79481359004502ec0cec84a3c1b961b3c0cb136c1ccd36d96d31b65957"
-  name = "github.com/oipwg/oip"
-  packages = [
-    "btc",
-    "config",
-    "datastore",
-    "events",
-    "filters",
-    "flo",
-    "httpapi",
-    "modules",
-    "modules/alexandriaMedia",
-    "modules/aternaLove",
-    "modules/floDataDump",
-    "modules/flotorizer",
-    "modules/historian",
-    "modules/oip",
-    "modules/oip041",
-    "modules/oip042",
-    "modules/oip042/validators",
-    "modules/tZero",
-    "sync",
-    "version",
-  ]
-  pruneopts = "UT"
-  revision = "8a78fb9de9dc201d3443f909f40e293c56dbe807"
-  version = "20190404-8a78fb9"
-
-[[projects]]
   digest = "1:51f610491a1d9df09b62887d409e0f79825f33e57a571d258ec908f679c8a2c3"
   name = "github.com/olivere/elastic"
   packages = [
@@ -615,26 +586,6 @@
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/json-iterator/go",
-    "github.com/oipwg/oip/btc",
-    "github.com/oipwg/oip/config",
-    "github.com/oipwg/oip/datastore",
-    "github.com/oipwg/oip/events",
-    "github.com/oipwg/oip/filters",
-    "github.com/oipwg/oip/flo",
-    "github.com/oipwg/oip/httpapi",
-    "github.com/oipwg/oip/modules",
-    "github.com/oipwg/oip/modules/alexandriaMedia",
-    "github.com/oipwg/oip/modules/aternaLove",
-    "github.com/oipwg/oip/modules/floDataDump",
-    "github.com/oipwg/oip/modules/flotorizer",
-    "github.com/oipwg/oip/modules/historian",
-    "github.com/oipwg/oip/modules/oip",
-    "github.com/oipwg/oip/modules/oip041",
-    "github.com/oipwg/oip/modules/oip042",
-    "github.com/oipwg/oip/modules/oip042/validators",
-    "github.com/oipwg/oip/modules/tZero",
-    "github.com/oipwg/oip/sync",
-    "github.com/oipwg/oip/version",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/spf13/pflag",
