@@ -1,7 +1,7 @@
 package sync
 
 import (
-	"github.com/bitspill/oip/datastore"
+	"github.com/oipwg/oip/datastore"
 )
 
 const bbExp = 8 // 2e8 = 256 buckets, contain 255 recent blocks

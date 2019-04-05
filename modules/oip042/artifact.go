@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/filters"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/modules/oip042/validators"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/filters"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/modules/oip042/validators"
 	"gopkg.in/olivere/elastic.v6"
 )
 

@@ -1,10 +1,13 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/datastore"
+	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -13,7 +16,7 @@ func init() {
 	rootRouter.HandleFunc("/artifact/get/latest", handleLatest)
 	rootRouter.HandleFunc("/artifact/get/{id:[a-f0-9]+}", handleGet)
 	rootRouter.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}")
-	rootRouter.HandleFunc("/artifact/search", handleArtifactSearch).Queries("q", "{query}")
+	rootRouter.HandleFunc("/artifact/cardinality", handleCardinality).Queries("f", "{field:[a-zA-Z\\.]+}")
 }
 
 var (
@@ -100,4 +103,39 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	)
 
 	RespondSearch(w, searchService)
+}
+
+func handleCardinality(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.deactivated", false),
+	)
+
+	s, err := datastore.Client().
+		Search(datastore.Index("oip042_artifact")).
+		Size(0).
+		Query(query).
+		Aggregation(
+			"cardinality",
+			elastic.NewCardinalityAggregation().
+				Field(opts["field"]),
+		).
+		Do(context.TODO())
+
+	if err != nil {
+		RespondESError(w, err)
+		return
+	}
+
+	agg, ok := s.Aggregations.Cardinality("cardinality")
+	if !ok {
+		RespondESError(w, errors.New("cardinality not found"))
+		return
+	}
+
+	RespondJSON(w, http.StatusOK, map[string]interface{}{
+		"c": agg.Value,
+		"f": opts["field"],
+	})
 }

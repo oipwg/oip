@@ -4,7 +4,7 @@ import (
 	"github.com/bitspill/flod/chaincfg"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
-	"github.com/bitspill/oip/config"
+	"github.com/oipwg/oip/config"
 	"github.com/pkg/errors"
 )
 

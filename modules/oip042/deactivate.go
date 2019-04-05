@@ -6,15 +6,15 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 )
 
 var deactivationCommitMutex sync.Mutex
 
 func init() {
-	events.Bus.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
+	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
 }
 
 func onMpCompleted() {

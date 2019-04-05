@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/httpapi"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -19,7 +19,7 @@ var artRouter = httpapi.NewSubRoute("/alexandria/artifact")
 
 func init() {
 	log.Info("init alexandria-media")
-	events.Bus.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
+	events.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
 	datastore.RegisterMapping(amIndexName, "alexandria-media.json")
 	artRouter.HandleFunc("/get/latest", handleLatest)
 	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)

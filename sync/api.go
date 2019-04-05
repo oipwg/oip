@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
 )
 
 var syncRouter = httpapi.NewSubRoute("/sync")

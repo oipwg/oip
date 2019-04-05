@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/httpapi"
 	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/httpapi"
 	"gopkg.in/olivere/elastic.v6"
 )
 
@@ -22,8 +22,8 @@ var histRouter = httpapi.NewSubRoute("/historian")
 
 func init() {
 	log.Info("init historian")
-	events.Bus.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
-	events.Bus.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
+	events.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
+	events.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
 
 	datastore.RegisterMapping(histDataPointIndexName+"string", "historianDataPoint.json")
 	datastore.RegisterMapping(histDataPointIndexName+"proto", "historianDataPoint.json")

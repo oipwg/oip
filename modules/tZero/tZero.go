@@ -4,20 +4,20 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bitspill/oip/config"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
 	log.Info("init tZero")
 	if !config.IsTestnet() {
-		events.Bus.SubscribeAsync("flo:floData", floDataProcessor, false)
-		events.Bus.SubscribeAsync("modules:tZero:cancel", onCancel, false)
-		events.Bus.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
-		events.Bus.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
-		events.Bus.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
+		events.SubscribeAsync("flo:floData", floDataProcessor, false)
+		events.SubscribeAsync("modules:tZero:cancel", onCancel, false)
+		events.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
+		events.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
+		events.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
 		datastore.RegisterMapping("tzero", "tZero.json")
 	}
 }
@@ -28,19 +28,19 @@ func floDataProcessor(floData string, tx *datastore.TransactionData) {
 	}
 
 	if strings.HasPrefix(floData, "Cancel: ") {
-		events.Bus.Publish("modules:tZero:cancel", floData, tx)
+		events.Publish("modules:tZero:cancel", floData, tx)
 		return
 	}
 	if strings.HasPrefix(floData, "Inventory Posted: ") {
-		events.Bus.Publish("modules:tZero:inventoryPosted", floData, tx)
+		events.Publish("modules:tZero:inventoryPosted", floData, tx)
 		return
 	}
 	if strings.HasPrefix(floData, "Execution Report: ") {
-		events.Bus.Publish("modules:tZero:executionReport", floData, tx)
+		events.Publish("modules:tZero:executionReport", floData, tx)
 		return
 	}
 	if strings.HasPrefix(floData, "Client Interest: ") {
-		events.Bus.Publish("modules:tZero:clientInterest", floData, tx)
+		events.Publish("modules:tZero:clientInterest", floData, tx)
 		return
 	}
 }

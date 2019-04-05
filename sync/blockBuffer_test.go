@@ -3,7 +3,7 @@ package sync
 import (
 	"testing"
 
-	"github.com/bitspill/oip/datastore"
+	"github.com/oipwg/oip/datastore"
 )
 
 func TestBlockBuffer(t *testing.T) {

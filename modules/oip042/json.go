@@ -2,9 +2,9 @@ package oip042
 
 import (
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
 )
 
 const oip042ArtifactIndex = `oip042_artifact`
@@ -19,7 +19,7 @@ const oip042DeactivateIndex = `oip042_deactivate`
 
 func init() {
 	log.Info("init oip042 json")
-	events.Bus.SubscribeAsync("modules:oip042:json", on42Json, false)
+	events.SubscribeAsync("modules:oip042:json", on42Json, false)
 
 	datastore.RegisterMapping(oip042ArtifactIndex, "oip042_artifact.json")
 	datastore.RegisterMapping(oip042PublisherIndex, "oip042_publisher.json")

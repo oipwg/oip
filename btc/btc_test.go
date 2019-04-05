@@ -3,7 +3,7 @@ package btc
 import (
 	"testing"
 
-	"github.com/bitspill/oip/config"
+	"github.com/oipwg/oip/config"
 )
 
 func TestCheckSignature(t *testing.T) {

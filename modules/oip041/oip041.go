@@ -5,13 +5,13 @@ import (
 	"strconv"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oip/datastore"
-	"github.com/bitspill/oip/events"
-	"github.com/bitspill/oip/filters"
-	"github.com/bitspill/oip/flo"
-	"github.com/bitspill/oip/httpapi"
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/filters"
+	"github.com/oipwg/oip/flo"
+	"github.com/oipwg/oip/httpapi"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -22,7 +22,7 @@ var artRouter = httpapi.NewSubRoute("/oip041/artifact")
 
 func init() {
 	log.Info("init oip41")
-	events.Bus.SubscribeAsync("modules:oip:oip041", on41, false)
+	events.SubscribeAsync("modules:oip:oip041", on41, false)
 
 	datastore.RegisterMapping(oip41IndexName, "oip041.json")
 
@@ -46,7 +46,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 
 	if n, ok := opts["nsfw"]; ok {
 		nsfw, _ := strconv.ParseBool(n)
-		if nsfw == false {
+		if !nsfw {
 			q.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
 		}
 		log.Info("nsfw: %t", nsfw)
