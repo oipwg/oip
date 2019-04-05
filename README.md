@@ -10,9 +10,11 @@ OIP records (aka artifacts).
 developers external to OIPWG.
 2. Install `dep` from https://github.com/golang/dep
 3. run `dep ensure -v`
-4. run `go build ./cmd/oipd`
-5. The executable is `oipd` built in the root directory of the project
-6. run tests with `go test -v -race`
+4. `go get -u github.com/gobuffalo/packr/v2/packr2`
+5. `cd $GOPATH/src/github.com/oipwg/oip/cmd/oipd && packr2 -v && cd -`
+6. run `go build ./cmd/oipd`
+7. The executable is `oipd` built in the root directory of the project
+8. run tests with `go test -v -race`
 
 
 ## Contacts
