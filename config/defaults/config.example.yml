@@ -19,6 +19,8 @@ flod:
   # Flod RPC authentication
   user: user
   pass: pass
+
+  tls: true
   # Flod RPC authorization certificate
   # By default reads certificate directly from Flod data directory
   # certFile: certs/rpc.cert

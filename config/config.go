@@ -80,6 +80,7 @@ func loadDefaults() {
 	defaultFlodDir := floutil.AppDataDir("flod", false)
 	defaultFlodCert := filepath.Join(defaultFlodDir, "rpc.cert")
 	viper.SetDefault("flod.certFile", defaultFlodCert)
+	viper.SetDefault("flod.tls", true)
 	viper.SetDefault("flod.host", "127.0.0.1:8334")
 	viper.SetDefault("flod.user", "user")
 	viper.SetDefault("flod.pass", "pass")
