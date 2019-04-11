@@ -46,8 +46,9 @@ func main() {
 	host := viper.GetString("flod.host")
 	user := viper.GetString("flod.user")
 	pass := viper.GetString("flod.pass")
+	tls := viper.GetBool("flod.tls")
 
-	err := flo.WaitForFlod(tenMinuteCtx, host, user, pass)
+	err := flo.WaitForFlod(tenMinuteCtx, host, user, pass, tls)
 	if err != nil {
 		log.Error("Unable to connect to Flod", logger.Attrs{"host": host, "err": err})
 		shutdown(err)
