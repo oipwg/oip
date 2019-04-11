@@ -111,6 +111,7 @@ func AddFlod(host, user, pass string, tls bool) error {
 		Endpoint:     "ws",
 		User:         user,
 		Pass:         pass,
+		DisableTLS:   !tls,
 		Certificates: certs,
 	}
 	c, err := rpcclient.New(cfg, &ntfnHandlers)
