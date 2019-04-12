@@ -15,11 +15,11 @@ message RecordTemplateProto {
     bytes DescriptorSetProto = 4;
 
     // Populated by oipd with the unique identifier for this type
-    fixed64 identifier = 10;
+    sfixed64 identifier = 10;
 
     // List of unique template identifiers recommended for use with this template
-    repeated fixed64 recommended = 11;
+    repeated sfixed64 recommended = 11;
 
     // List of unique template identifiers required for use with this template
-    repeated fixed64 required = 12;
+    repeated sfixed64 required = 12;
 }
