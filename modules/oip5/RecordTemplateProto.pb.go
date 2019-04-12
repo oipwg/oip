@@ -20,7 +20,7 @@ type RecordTemplateProto struct {
 	// Compiled descriptor including dependencies
 	DescriptorSetProto []byte `protobuf:"bytes,4,opt,name=DescriptorSetProto,proto3" json:"DescriptorSetProto,omitempty"`
 	// Populated by oipd with the unique identifier for this type
-	Identifier uint64 `protobuf:"fixed64,10,opt,name=identifier" json:"identifier,omitempty"`
+	Identifier int64 `protobuf:"fixed64,10,opt,name=identifier" json:"identifier,omitempty"`
 	// List of unique template identifiers recommended for use with this template
 	Recommended []uint64 `protobuf:"fixed64,11,rep,packed,name=recommended" json:"recommended,omitempty"`
 	// List of unique template identifiers required for use with this template
@@ -53,7 +53,7 @@ func (m *RecordTemplateProto) GetDescriptorSetProto() []byte {
 	return nil
 }
 
-func (m *RecordTemplateProto) GetIdentifier() uint64 {
+func (m *RecordTemplateProto) GetIdentifier() int64 {
 	if m != nil {
 		return m.Identifier
 	}

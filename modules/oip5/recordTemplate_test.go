@@ -3,10 +3,16 @@ package oip5
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/bitspill/flod/flojson"
+	"github.com/golang/protobuf/proto"
 	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/oipProto"
+
+	_ "github.com/oipwg/oip/modules/oip"
 )
 
 func TestIntakeRecordTemplate(t *testing.T) {
@@ -122,4 +128,84 @@ func TestDescriptorFromProtobufJs(t *testing.T) {
 	}
 
 	_ = bir
+}
+
+func TestEncodeRecordTemplate(t *testing.T) {
+	fd := []byte{10, 79, 10, 27, 111, 105, 112, 53, 95, 114, 101, 99, 111, 114, 100, 95, 116, 101, 109, 112, 108, 97, 116, 101, 115, 46, 112, 114, 111, 116, 111, 18, 21, 111, 105, 112, 53, 46, 114, 101, 99, 111, 114, 100, 46, 116, 101, 109, 112, 108, 97, 116, 101, 115, 34, 17, 10, 1, 80, 18, 12, 10, 4, 116, 101, 115, 116, 24, 1, 32, 1, 40, 9, 98, 6, 112, 114, 111, 116, 111, 51}
+
+	rt := &RecordTemplateProto{
+		Description:        "description for test template",
+		DescriptorSetProto: fd,
+		FriendlyName:       "Test Template",
+	}
+
+	o5 := &OipFive{
+		RecordTemplate: rt,
+	}
+
+	b, err := proto.Marshal(o5)
+	if err != nil {
+		panic(err)
+	}
+
+	o5b64 := base64.StdEncoding.EncodeToString(b)
+	pubKey := "ofbB67gqjgaYi45u8Qk2U3hGoCmyZcgbN4"
+	wif := "cRVa9rNx5N1YKBw8PhavegJPFCiYCfC4n8cYmdc3X1Y6TyFZGG4B"
+	_ = wif
+	fmt.Println(o5b64)
+	// copy/paste ^^ to flo-qt to sign, copy/pasted result back here
+	signatureB64 := "HwNyg/TsW2nDhkYfZlicrXrD29J2kgNpyKZMGP6b8GDaA9uTpSYyWK80ULVoxyDHhMSN9ogQj3jTnTQV0r9NYnw="
+
+	sigBytes, err := base64.StdEncoding.DecodeString(signatureB64)
+	if err != nil {
+		panic(err)
+	}
+
+	sm := &oipProto.SignedMessage{
+		SerializedMessage: b,
+		MessageType:       oipProto.MessageTypes_OIP05,
+		PubKey:            []byte(pubKey),
+		Signature:         sigBytes,
+		SignatureType:     oipProto.SignatureTypes_Flo,
+	}
+
+	smBytes, err := proto.Marshal(sm)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(base64.StdEncoding.EncodeToString(smBytes))
+}
+
+func TestP64(t *testing.T) {
+	t.SkipNow()
+	// 	p64 := "Cl0KBHJ5YW4SAm9rIlEKTwobb2lwNV9yZWNvcmRfdGVtcGxhdGVzLnByb3RvEhVvaXA1LnJlY29yZC50ZW1wbGF0ZXMiEQoBUBIMCgR3aGF0GAEgASgJYgZwcm90bzMQARgBIiJvZmJCNjdncWpnYVlpNDV1OFFrMlUzaEdvQ215WmNnYk40KkEgR2nZ8Qz3anwls8iQeIOTqIDlJdIQ91Zif6UaQN3lsccZoXo0jDvWQPgblgMSBME4FQJJm3dxgto0lXP1Im3HGQ=="
+	p64 := "CoQBCoEBCg1UZXN0IFRlbXBsYXRlEh1kZXNjcmlwdGlvbiBmb3IgdGVzdCB0ZW1wbGF0ZSJRCk8KG29pcDVfcmVjb3JkX3RlbXBsYXRlcy5wcm90bxIVb2lwNS5yZWNvcmQudGVtcGxhdGVzIhEKAVASDAoEdGVzdBgBIAEoCWIGcHJvdG8zEAEYASIib2ZiQjY3Z3FqZ2FZaTQ1dThRazJVM2hHb0NteVpjZ2JONCpBHwNyg/TsW2nDhkYfZlicrXrD29J2kgNpyKZMGP6b8GDaA9uTpSYyWK80ULVoxyDHhMSN9ogQj3jTnTQV0r9NYnw="
+
+	tx := &datastore.TransactionData{
+		Transaction: &flojson.TxRawResult{
+			Txid: "00000000deadbeef",
+		},
+	}
+
+	events.Publish("sync:floData:p64", p64, tx)
+
+	ch := make(chan struct{})
+	<-ch
+}
+
+func TestUnmarshalSignedMessage(t *testing.T) {
+	p64 := "Cg1UZXN0IFRlbXBsYXRlEh1kZXNjcmlwdGlvbiBmb3IgdGVzdCB0ZW1wbGF0ZSJRCk8KG29pcDVfcmVjb3JkX3RlbXBsYXRlcy5wcm90bxIVb2lwNS5yZWNvcmQudGVtcGxhdGVzIhEKAVASDAoEdGVzdBgBIAEoCWIGcHJvdG8z"
+
+	b, err := base64.StdEncoding.DecodeString(p64)
+	if err != nil {
+		panic(err)
+	}
+	rtp := &RecordTemplateProto{}
+	err = proto.Unmarshal(b, rtp)
+	if err != nil {
+		panic(err)
+	}
+
+	_ = rtp
 }

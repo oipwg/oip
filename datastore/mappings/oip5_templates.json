@@ -6,43 +6,59 @@
     "_doc": {
       "dynamic": "strict",
       "properties": {
-        "description": {
-          "type": "text"
-        },
         "file_descriptor_set": {
-          "type": "binary",
-          "index": false
+          "type": "binary"
         },
-        "friendly_name": {
-          "type": "text",
-          "fields": {
-            "keyword": {
+        "template": {
+          "properties": {
+            "description": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "friendly_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "identifier": {
+              "type": "long"
+            },
+            "name": {
               "type": "keyword",
-              "ignore_above": 256
+              "ignore_above": 21
             }
           }
         },
-        "name": {
-          "type": "text",
-          "fields": {
-            "keyword": {
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
               "type": "keyword",
-              "ignore_above": 256
+              "ignore_above": 64
+            },
+            "time": {
+              "type": "long"
+            },
+            "tx": {
+              "type": "object",
+              "enabled": false
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 64
             }
           }
-        },
-        "identifier": {
-          "type": "long"
-        },
-        "recommended": {
-          "type": "long"
-        },
-        "required": {
-          "type": "long"
-        },
-        "tx": {
-          "type": "object",
-          "enabled": false
         }
       }
     }

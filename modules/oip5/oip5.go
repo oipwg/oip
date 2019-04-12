@@ -19,7 +19,7 @@ func init() {
 	log.Info("init oip5")
 	events.SubscribeAsync("modules:oip5:msg", on5msg, false)
 
-	// _ = datastore.RegisterMapping("oip5_templates" ,"oip5_templates.json")
+	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
 
 }
 
@@ -44,6 +44,8 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 			attr["err"] = err
 			log.Error("unable to process RecordTemplate", attr)
 		} else {
+			attr["templateName"] = o5.RecordTemplate.FriendlyName
+			log.Info("adding RecordTemplate", attr)
 			datastore.AutoBulk.Add(bir)
 		}
 	}

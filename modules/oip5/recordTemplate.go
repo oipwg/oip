@@ -21,7 +21,7 @@ import (
 )
 
 func init() {
-	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
+	// _ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
 }
 
 func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
@@ -39,7 +39,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 		log.Error("unable to decode txid", attr)
 		return nil, errors.New("unable to decode txid")
 	}
-	rt.Identifier = ident
+	rt.Identifier = int64(ident)
 
 	tmpl := &RecordTemplate{
 		FriendlyName: rt.FriendlyName,
@@ -57,7 +57,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	}
 
 	elRt := elRecordTemplate{
-		Template:          templateCache[ident],
+		Template:          templateCache[int64(ident)],
 		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
 		Meta: TMeta{
 			Tx:        tx,
@@ -163,7 +163,7 @@ func addProtoType(fileMsgType *desc.MessageDescriptor, txid string) {
 	ktr.AddKnownType(dynamic.NewMessageWithMessageFactory(fileMsgType, TemplateMessageFactory))
 }
 
-var templateCache = make(map[uint64]*RecordTemplate)
+var templateCache = make(map[int64]*RecordTemplate)
 var TemplateMessageFactory = dynamic.NewMessageFactoryWithDefaults()
 var TemplateAnyResolver = anyResolver{upstreamAny: dynamic.AnyResolver(TemplateMessageFactory)}
 
@@ -181,7 +181,7 @@ type RecordTemplate struct {
 	// Message type
 	MessageType reflect.Type `json:"-"`
 	// Populated by oipd with the unique identifier for this type
-	Identifier uint64 `json:"identifier"`
+	Identifier int64 `json:"identifier"`
 	// List of unique template identifiers recommended for use with this template
 	Recommended []uint64 `json:"recommended,omitempty"`
 	// List of unique template identifiers required for use with this template
@@ -195,13 +195,11 @@ type elRecordTemplate struct {
 }
 
 type TMeta struct {
-	Block       int64                      `json:"block"`
-	BlockHash   string                     `json:"block_hash"`
-	Deactivated bool                       `json:"deactivated"`
-	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"tx"`
-	Txid        string                     `json:"txid"`
-	Type        string                     `json:"type"`
+	Block     int64                      `json:"block"`
+	BlockHash string                     `json:"block_hash"`
+	Time      int64                      `json:"time"`
+	Tx        *datastore.TransactionData `json:"tx"`
+	Txid      string                     `json:"txid"`
 }
 
 func (rt *RecordTemplate) CreateNewMessage() proto.Message {
@@ -230,7 +228,7 @@ func CreateNewMessage(id string) (proto.Message, error) {
 	if len(hexId) == 16 {
 		ident, err := strconv.ParseUint(hexId, 16, 64)
 		if err == nil {
-			if t, ok := templateCache[ident]; ok {
+			if t, ok := templateCache[int64(ident)]; ok {
 				return t.CreateNewMessage(), nil
 			}
 		}
@@ -245,6 +243,8 @@ func CreateNewMessage(id string) (proto.Message, error) {
 }
 
 func LoadTemplatesFromES(ctx context.Context) error {
+	return nil
+
 	searchService := datastore.Client().Search(datastore.Index("oip5_templates")).Type("_doc")
 
 	res, err := searchService.Do(ctx)
