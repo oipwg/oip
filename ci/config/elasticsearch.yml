@@ -1,0 +1,12 @@
+cluster.name: "oipd-cluster"
+node.name: "oipd-node"
+node.master: true
+node.data: true
+
+#network.host: 0.0.0.0
+http.port: 9201
+
+path.data: /data/elasticsearch/data
+path.logs: /data/elasticsearch/logs
+
+indices.recovery.max_bytes_per_sec: 100mb

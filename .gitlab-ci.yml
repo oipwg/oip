@@ -1,45 +1,85 @@
-image: golang:latest
+image: docker:stable
 
 stages:
   - build
+  - containerize
+  - publish
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_HUB_NAME: mediciland/oip
+
+before_script:
+  - apk update && apk add curl zip unzip tar
+  - docker login -u $dockerhub_user -p $dockerhub_pass
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
 Build:
   stage: build
   script:
-    - apt-get update
-    - apt-get install zip -y
-    - mkdir -p $GOPATH/src/github.com/oipwg/
-    - cp -r $CI_PROJECT_DIR $GOPATH/src/github.com/oipwg/oip
-    - curl -L -s https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 -o $GOPATH/bin/dep
-    - chmod +x $GOPATH/bin/dep
-    - go get -u github.com/gobuffalo/packr/v2/packr2
-    - cd $GOPATH/src/github.com/oipwg/oip
-    - dep ensure -v
-    - cd $GOPATH/src/github.com/oipwg/oip/cmd/oipd && packr2 -v && cd -
-    - go test -v -race ./...
-    - env GOOS=linux GOARCH=amd64 go build -ldflags
-      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd github.com/oipwg/oip/cmd/oipd
-    - tar -czvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz oipd
-    - env GOOS=darwin GOARCH=amd64 go build -ldflags
-      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd github.com/oipwg/oip/cmd/oipd
-    - tar -czvf $CI_PROJECT_DIR/oipd.darwin.amd64.tar.gz oipd
-    - env GOOS=windows GOARCH=amd64 go build -ldflags
-      "-X github.com/oipwg/oip/version.GitCommitHash=$(git rev-parse --short HEAD)
-      -X github.com/oipwg/oip/version.BuildDate=$(date +'%Y.%m.%d.%H%M%S')
-      -X github.com/oipwg/oip/version.BuiltBy=GitLabCI
-      -X 'github.com/oipwg/oip/version.GoVersion=$(go version)'
-      -s -w" -o oipd.exe github.com/oipwg/oip/cmd/oipd
-    - zip $CI_PROJECT_DIR/oipd.windows.amd64.zip oipd.exe
+    - mkdir $CI_PROJECT_DIR/linux
+    - mkdir $CI_PROJECT_DIR/darwin
+    - mkdir $CI_PROJECT_DIR/windows
+    - docker build -t oip-build:$CI_COMMIT_REF_SLUG -f ci/Dockerfile.build .
+    - container_id=$(docker create oip-build:$CI_COMMIT_REF_SLUG)
+    - docker cp $container_id:/go/oipd.linux $CI_PROJECT_DIR/linux/oipd
+    - docker cp $container_id:/go/oipd.darwin $CI_PROJECT_DIR/darwin/oipd
+    - docker cp $container_id:/go/oipd.exe $CI_PROJECT_DIR/windows/oipd.exe
+    - docker rm -v $container_id
+    - tar -czvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz -C $CI_PROJECT_DIR/linux .
+    - tar -czvf $CI_PROJECT_DIR/oipd.darwin.amd64.tar.gz -C $CI_PROJECT_DIR/darwin .
+    - zip $CI_PROJECT_DIR/oipd.windows.amd64.zip $CI_PROJECT_DIR/windows/oipd.exe
   artifacts:
     paths:
       - oipd.linux.amd64.tar.gz
       - oipd.darwin.amd64.tar.gz
       - oipd.windows.amd64.zip
+
+Containerize (master):
+  stage: containerize
+  script:
+    - curl --header "Private-Token:$gitlab_readonly_pass" -L "https://gitlab.com/api/v4/projects/mediciland%2Fblockchain%2Fflod-go/jobs/artifacts/master/download?job=Build" > artifacts.zip
+    - unzip artifacts.zip
+    - curl --header "Private-Token:$gitlab_readonly_pass" -L "https://gitlab.com/api/v4/projects/mediciland%2Fblockchain%2Foip/jobs/artifacts/master/raw/oipd.linux.amd64.tar.gz?job=Build" > oipd.linux.amd64.tar.gz
+    - tar xzvf oipd.linux.amd64.tar.gz
+    - mv oipd bin/oipd
+    - ls bin
+    - docker build -t "$CI_REGISTRY_IMAGE":next . 
+    - docker push "$CI_REGISTRY_IMAGE":next
+    - docker tag "$CI_REGISTRY_IMAGE":next "$DOCKER_HUB_NAME":next
+  only:
+    - master
+
+
+Containerize (branch):
+  stage: containerize
+  script:
+    - curl --header "Private-Token:$gitlab_readonly_pass" -L "https://gitlab.com/api/v4/projects/mediciland%2Fblockchain%2Fflod-go/jobs/artifacts/master/download?job=Build" > artifacts.zip
+    - unzip artifacts.zip
+    - ls -al $CI_PROJECT_DIR
+    - tar xzvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz
+    - mv oipd bin/oipd
+    - ls bin
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f ci/Dockerfile.publish .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+  only:
+    - branches
+  except:
+    - master
+
+Push to Docker Hub:
+  stage: publish
+  script:
+    - docker pull "$CI_REGISTRY_IMAGE":next
+    - docker tag "$CI_REGISTRY_IMAGE":next "$CI_REGISTRY_IMAGE":latest
+    - docker push "$CI_REGISTRY_IMAGE":latest
+    - docker tag "$CI_REGISTRY_IMAGE":latest "$DOCKER_HUB_NAME":latest
+    - docker push "$DOCKER_HUB_NAME":latest
+  only:
+    - tags
+  except:
+    - branches
