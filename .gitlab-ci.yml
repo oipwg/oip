@@ -48,7 +48,7 @@ Containerize (master):
     - tar xzvf oipd.linux.amd64.tar.gz
     - mv oipd bin/oipd
     - ls bin
-    - docker build -t "$CI_REGISTRY_IMAGE":next . 
+    - docker build -t "$CI_REGISTRY_IMAGE":next -f ci/Dockerfile.publish . 
     - docker push "$CI_REGISTRY_IMAGE":next
     - docker tag "$CI_REGISTRY_IMAGE":next "$DOCKER_HUB_NAME":next
   only:
