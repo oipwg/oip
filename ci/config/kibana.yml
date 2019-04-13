@@ -1,0 +1,4 @@
+server.port: 5602
+server.name: "oipd-kibana"
+
+elasticsearch.url: "http://localhost:9201"
