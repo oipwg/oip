@@ -44,8 +44,8 @@ Containerize (master):
   script:
     - curl --header "Private-Token:$gitlab_readonly_pass" -L "https://gitlab.com/api/v4/projects/mediciland%2Fblockchain%2Fflod-go/jobs/artifacts/master/download?job=Build" > artifacts.zip
     - unzip artifacts.zip
-    - curl --header "Private-Token:$gitlab_readonly_pass" -L "https://gitlab.com/api/v4/projects/mediciland%2Fblockchain%2Foip/jobs/artifacts/master/raw/oipd.linux.amd64.tar.gz?job=Build" > oipd.linux.amd64.tar.gz
-    - tar xzvf oipd.linux.amd64.tar.gz
+    - ls -al $CI_PROJECT_DIR
+    - tar xzvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz
     - mv oipd bin/oipd
     - ls bin
     - docker build -t "$CI_REGISTRY_IMAGE":next -f ci/Dockerfile.publish . 
