@@ -1,7 +1,7 @@
 ## Instructions
 #
 # To build `oipd`:
-# docker build -f ci/Dockerfile.build-t oip-buildenv:latest .
+# docker build -f ci/Dockerfile.build -t oip-build:latest .
 #
 # To copy the `oipd` target from the container, from the docker host run:
 # id=$(docker create oip-build); docker cp $id:/go/oipd.linux ./oipd.linux.amd64; docker rm -v $id
