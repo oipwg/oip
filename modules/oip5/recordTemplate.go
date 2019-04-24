@@ -77,16 +77,16 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	return bir, nil
 }
 
-func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid string) error {
+func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid string) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-
+			err = fmt.Errorf("panic within decodeDescriptorSet %s", r)
 		}
 	}()
 
 	attr := logger.Attrs{"txid": txid}
 	var dsp = &descriptor.FileDescriptorSet{}
-	err := proto.Unmarshal(descriptorSetProto, dsp)
+	err = proto.Unmarshal(descriptorSetProto, dsp)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to unmarshal template descriptor", attr)
