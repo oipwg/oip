@@ -203,6 +203,11 @@ type TMeta struct {
 }
 
 func (rt *RecordTemplate) CreateNewMessage() proto.Message {
+	if rt.MessageType == nil {
+		log.Error("nil message type", logger.Attrs{"rt.ident": rt.Identifier})
+		return nil
+	}
+
 	if rt.MessageType.Kind() == reflect.Ptr {
 		return reflect.New(rt.MessageType.Elem()).Interface().(proto.Message)
 	} else {
