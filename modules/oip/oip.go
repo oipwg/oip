@@ -1,7 +1,10 @@
 package oip
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/base64"
+	"io/ioutil"
 	"strings"
 
 	"github.com/azer/logger"
@@ -26,6 +29,7 @@ func init() {
 	}
 	events.SubscribeAsync("sync:floData:json", onJson, false)
 	events.SubscribeAsync("sync:floData:p64", onP64, false)
+	events.SubscribeAsync("sync:floData:gp64", onGp64, false)
 }
 
 func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
@@ -85,13 +89,15 @@ func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
 	if processPrefix("json:", "sync:floData:json", floData, tx) {
 		return
 	}
-	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	// 	return
-	// }
+	if processPrefix("gp64:", "sync:floData:gp64", floData, tx) {
+		return
+	}
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
 	}
-
+	if processPrefix("text:", "flo:floData", floData, tx) {
+		return
+	}
 }
 
 func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
@@ -127,13 +133,15 @@ func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
 	if processPrefix("json:", "sync:floData:json", floData, tx) {
 		return
 	}
-	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	// 	return
-	// }
+	if processPrefix("gp64:", "sync:floData:gp64", floData, tx) {
+		return
+	}
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
 	}
-
+	if processPrefix("text:", "flo:floData", floData, tx) {
+		return
+	}
 }
 
 func processPrefix(prefix, namespace, floData string, tx *datastore.TransactionData) bool {
@@ -177,8 +185,40 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 		return
 	}
 
+	processProto(b, tx, attr)
+}
+
+func onGp64(gp64 string, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
+
+	b, err := base64.StdEncoding.DecodeString(gp64)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to decode base 64 message", attr)
+		return
+	}
+
+	br := bytes.NewReader(b)
+	gr, err := gzip.NewReader(br)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to initialize decompressor", attr)
+		return
+	}
+
+	pb, err := ioutil.ReadAll(gr)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to decompress data", attr)
+		return
+	}
+
+	processProto(pb, tx, attr)
+}
+
+func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	var msg oipProto.SignedMessage
-	err = proto.Unmarshal(b, &msg)
+	err := proto.Unmarshal(b, &msg)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to unmarshal protobuf message",

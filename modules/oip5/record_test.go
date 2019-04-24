@@ -2,8 +2,9 @@ package oip5
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
-	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"testing"
@@ -14,43 +15,51 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/oipProto"
 )
 
 func TestCreateRecord(t *testing.T) {
-	researchProtocol := &Tmpl_00000000Deadbeef{
-		Pid:         "NS-001",
-		Name:        "negative stain",
-		Lab:         []string{"Dexter Labs"},
-		Institution: []string{"Cartoon Network"},
-		DevelopedBy: []string{"Charlie", "Doug"},
-		Description: "2 micro liters of sample, wait for 60 seconds, blot with paper 3 times,\n2 micro liters of uranyl acetate, wait for 60 seconds, blot with paper 3 times.",
+	hero := &Tmpl_8D66C6AFF9BDD8EE{
+		Powers: []string{"flight", "invisibility"},
+	}
+	basic := &Tmpl_00000000000BA51C{
+		Title:       "Sintel",
+		Description: "Sintel, a free, Creative Commons movie",
+		Year:        2010,
 	}
 
-	rpAny, err := ptypes.MarshalAny(researchProtocol)
+	heroAny, err := ptypes.MarshalAny(hero)
+	if err != nil {
+		t.Fatal(err)
+	}
+	basicAny, err := ptypes.MarshalAny(basic)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	file := &Tmpl_000000000000F113{
+		Location:    "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent",
+		Network:     Network_WEB_TORRENT,
+		ContentType: "video/mp4",
+		DisplayName: "Sintel.mp4",
+		FilePath:    "Sintel/Sintel.mp4",
+		Size:        129241752,
+	}
+	fileAny, err := ptypes.MarshalAny(file)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	o5 := &OipFive{
 		Record: &RecordProto{
-			Title:       "title",
-			Description: "description",
-			Tags:        []string{"test", "record"},
-			Year:        2015,
 			Payment:     nil,
-			Storage: &Storage{
-				Network:  Network_IPFS,
-				Location: "Qm...",
-				Files: []*File{
-					{
-						DisplayName: "file one",
-						FilePath:    "file1.txt",
-					},
-				},
-			},
+			Permissions: nil,
+			Tags:        nil,
 			Details: &OipDetails{
 				Details: []*any.Any{
-					rpAny,
+					heroAny,
+					basicAny,
+					fileAny,
 				},
 			},
 		},
@@ -60,6 +69,42 @@ func TestCreateRecord(t *testing.T) {
 
 	marsh := jsonpb.Marshaler{Indent: "  "}
 	fmt.Println(marsh.MarshalToString(o5))
+
+	b, err := proto.Marshal(o5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	o5P64 := base64.StdEncoding.EncodeToString(b)
+	fmt.Println(o5P64)
+
+	sig := "II5q/gIgTi1w6MJYrbn3fIQsQ6SjCUsRvOBNo2bbzI8qFMSX98bAiRyvE69eY1PgGwLRMNMNeIeOFRAe4nR3qwk="
+	sigBytes, err := base64.StdEncoding.DecodeString(sig)
+	sm := &oipProto.SignedMessage{
+		SerializedMessage: b,
+		MessageType:       oipProto.MessageTypes_OIP05,
+		SignatureType:     oipProto.SignatureTypes_Flo,
+		PubKey:            []byte("ofbB67gqjgaYi45u8Qk2U3hGoCmyZcgbN4"),
+		Signature:         sigBytes,
+	}
+
+	smBytes, err := proto.Marshal(sm)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p64 := base64.StdEncoding.EncodeToString(smBytes)
+	fmt.Println(len(p64)+4, "p64:", p64)
+
+	var wcBuf = new(bytes.Buffer)
+	var gzw = gzip.NewWriter(wcBuf)
+	_, err = gzw.Write(smBytes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = gzw.Close()
+	gp64 := base64.StdEncoding.EncodeToString(wcBuf.Bytes())
+	fmt.Println(len(gp64)+5, "gp64:", gp64)
 }
 
 func TestUnmarshalOipDetails(t *testing.T) {
@@ -75,51 +120,38 @@ func TestUnmarshalOipDetails(t *testing.T) {
 }
 
 func TestIntakeRecord(t *testing.T) {
-	researchProtocol := &Tmpl_00000000Deadbeef{
-		Pid:         "NS-001",
-		Name:        "negative stain",
-		Lab:         []string{"Dexter Labs"},
-		Institution: []string{"Cartoon Network"},
-		DevelopedBy: []string{"Charlie", "Doug"},
-		Description: "2 micro liters of sample, wait for 60 seconds, blot with paper 3 times,\n2 micro liters of uranyl acetate, wait for 60 seconds, blot with paper 3 times.",
+	hero := &Tmpl_8D66C6AFF9BDD8EE{
+		Powers: []string{"flight", "invisibility"},
+	}
+	basic := &Tmpl_00000000000BA51C{
+		Title:       "The first hero",
+		Description: "They have both flight and invisibility",
+		Year:        2019,
 	}
 
-	rpAny, err := ptypes.MarshalAny(researchProtocol)
+	heroAny, err := ptypes.MarshalAny(hero)
+	if err != nil {
+		t.Fatal(err)
+	}
+	basicAny, err := ptypes.MarshalAny(basic)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	o5 := &OipFive{
 		Record: &RecordProto{
-			Title:       "title",
-			Description: "description",
-			Tags:        []string{"test", "record"},
-			Year:        2015,
 			Payment:     nil,
-			Storage: &Storage{
-				Network:  Network_IPFS,
-				Location: "Qm...",
-				Files: []*File{
-					{
-						DisplayName: "file one",
-						FilePath:    "file1.txt",
-					},
-				},
-			},
+			Permissions: nil,
+			Tags:        nil,
 			Details: &OipDetails{
 				Details: []*any.Any{
-					rpAny,
+					heroAny,
+					basicAny,
 				},
 			},
 		},
 	}
 
-	// tx.Block,
-	// 		BlockHash:   tx.BlockHash,
-	// 		Deactivated: false,
-	// 		Time:        tx.Transaction.Time,
-	// 		Tx:          tx,
-	// 		Txid:        tx.Transaction.Txid,
 	tx := &datastore.TransactionData{
 		BlockHash: "hashDatBlock",
 		Transaction: &flojson.TxRawResult{
@@ -140,83 +172,6 @@ func TestIntakeRecord(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
-}
-
-func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
-	var detMap = make(map[string]*json.RawMessage)
-
-	// "@type": "type.googleapis.com/oip5.record.templates.tmpl_00000000deadbeef",
-	// oip5.record.templates.tmpl_00000000deadbeef
-	for _, detAny := range m.Details {
-		name, err := ptypes.AnyMessageName(detAny)
-		if err != nil {
-			return nil, err
-		}
-
-		tmplName := strings.TrimPrefix(name, "oip5.record.templates.")
-		msg, err := CreateNewMessage(name)
-		if err != nil {
-			return nil, err
-		}
-		err = ptypes.UnmarshalAny(detAny, msg)
-		if err != nil {
-			return nil, err
-		}
-		var buf bytes.Buffer
-		if err := marsh.Marshal(&buf, msg); err != nil {
-			return nil, err
-		}
-		jr := json.RawMessage(buf.Bytes())
-
-		tmplName = strings.Replace(tmplName, "deadbeef", "cafebabe", -1)
-		detMap[tmplName] = &jr
-	}
-
-	if marsh.Indent != "" {
-		return json.MarshalIndent(detMap, strings.Repeat(marsh.Indent, 2), marsh.Indent)
-	}
-
-	return json.Marshal(detMap)
-}
-
-func (m *OipDetails) UnmarshalJSONPB(u *jsonpb.Unmarshaler, b []byte) error {
-	var detMap map[string]*json.RawMessage
-
-	if err := json.Unmarshal(b, &detMap); err != nil {
-		return err
-	}
-
-	for k, v := range detMap {
-		if len(k) == 21 && strings.HasPrefix(k, "tmpl_") {
-			k = "type.googleapis.com/oip5.record.templates." + k
-		}
-
-		var jsonFields map[string]*json.RawMessage
-		if err := json.Unmarshal([]byte(*v), &jsonFields); err != nil {
-			return err
-		}
-
-		b, err := json.Marshal(k)
-		if err != nil {
-			return err
-		}
-		jr := json.RawMessage(b)
-		jsonFields["@type"] = &jr
-
-		b, err = json.Marshal(jsonFields)
-		if err != nil {
-			return err
-		}
-		a := &any.Any{}
-		br := bytes.NewReader(b)
-		err = u.Unmarshal(br, a)
-		if err != nil {
-			return err
-		}
-		m.Details = append(m.Details, a)
-	}
-
-	return nil
 }
 
 const oipDetailsTestJSON = `{

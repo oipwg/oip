@@ -121,7 +121,7 @@ type HMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
 	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
+	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`
 }
 type DataPoint struct {

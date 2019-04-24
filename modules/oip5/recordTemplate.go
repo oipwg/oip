@@ -183,9 +183,9 @@ type RecordTemplate struct {
 	// Populated by oipd with the unique identifier for this type
 	Identifier int64 `json:"identifier"`
 	// List of unique template identifiers recommended for use with this template
-	Recommended []uint64 `json:"recommended,omitempty"`
+	Recommended []int64 `json:"recommended,omitempty"`
 	// List of unique template identifiers required for use with this template
-	Required []uint64 `json:"required,omitempty"`
+	Required []int64 `json:"required,omitempty"`
 }
 
 type elRecordTemplate struct {
@@ -198,7 +198,7 @@ type TMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
 	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
+	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`
 }
 

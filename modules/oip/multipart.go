@@ -250,8 +250,11 @@ func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 		BlockHash: tx.BlockHash,
 		Complete:  false,
 		Time:      tx.Transaction.Time,
-		Tx:        tx,
 		Txid:      tx.Transaction.Txid,
+	}
+
+	if ms.Part == 0 {
+		ms.Meta.Tx = tx
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)

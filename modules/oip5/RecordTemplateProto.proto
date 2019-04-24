@@ -11,15 +11,12 @@ message RecordTemplateProto {
     // Description of the purpose behind this new type
     string description = 2;
 
-    // Compiled descriptor including dependencies
+    // Compiled descriptor including dependencies; Defines fields
     bytes DescriptorSetProto = 4;
+
+    // List of unique template identifiers required for use with this template
+    repeated sfixed64 extends = 12;
 
     // Populated by oipd with the unique identifier for this type
     sfixed64 identifier = 10;
-
-    // List of unique template identifiers recommended for use with this template
-    repeated sfixed64 recommended = 11;
-
-    // List of unique template identifiers required for use with this template
-    repeated sfixed64 required = 12;
 }

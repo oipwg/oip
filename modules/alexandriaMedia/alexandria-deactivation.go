@@ -131,6 +131,6 @@ type AdMeta struct {
 	Complete  bool                       `json:"complete"`
 	Stale     bool                       `json:"stale"`
 	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
+	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`
 }

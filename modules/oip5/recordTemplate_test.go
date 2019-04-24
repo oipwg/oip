@@ -16,7 +16,7 @@ import (
 )
 
 func TestIntakeRecordTemplate(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 
 	b, err := base64.StdEncoding.DecodeString("CvMBCh5nb29nbGUvcHJvdG9idWYvZHVyYXRpb24ucHJvdG8SD2dvb2dsZS5wcm90b2J1ZiI6CghEdXJhdGlvbhIYCgdzZWNvbmRzGAEgASgDUgdzZWNvbmRzEhQKBW5hbm9zGAIgASgFUgVuYW5vc0J8ChNjb20uZ29vZ2xlLnByb3RvYnVmQg1EdXJhdGlvblByb3RvUAFaKmdpdGh1Yi5jb20vZ29sYW5nL3Byb3RvYnVmL3B0eXBlcy9kdXJhdGlvbvgBAaICA0dQQqoCHkdvb2dsZS5Qcm90b2J1Zi5XZWxsS25vd25UeXBlc2IGcHJvdG8zCvIKCgdwLnByb3RvEhVvaXA1LnJlY29yZC50ZW1wbGF0ZXMaHmdvb2dsZS9wcm90b2J1Zi9kdXJhdGlvbi5wcm90byLYAQoBUBIQCgNwaWQYASABKAlSA3BpZBISCgRuYW1lGAIgASgJUgRuYW1lEiAKC2Rlc2NyaXB0aW9uGAMgASgJUgtkZXNjcmlwdGlvbhIQCgNsYWIYBCADKAlSA2xhYhIgCgtpbnN0aXR1dGlvbhgFIAMoCVILaW5zdGl0dXRpb24SIAoLZGV2ZWxvcGVkQnkYBiADKAlSC2RldmVsb3BlZEJ5EjUKCGR1cmF0aW9uGAcgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uUghkdXJhdGlvbkILWgl0ZW1wbGF0ZXNKvwgKCAoBDBIDAAASCggKAQISAwIAHgoJCgIDABIDBgAoCgkKAggLEgMEACAKCgoCBAASBAgAJQEKCgoDBAABEgMICAkKNQoEBAACABIDCwQTGiggSW50ZXJuYWwgUHJvdG9jb2wgSUQNCiBFeGFtcGxlOiBOUy0wMDENCgwKBQQAAgABEgMLCw4KDAoFBAACAAUSAwsECgoMCgUEAAIAAxIDCxESCjgKBAQAAgESAw8EFBorIFByb3RvY29sJ3MgbmFtZQ0KIEV4YW1wbGU6IG5lZ2F0aXZlIHN0YWluDQoMCgUEAAIBARIDDwsPCgwKBQQAAgEFEgMPBAoKDAoFBAACAQMSAw8SEwrWAQoEBAACAhIDFQQbGsgBIEJyaWVmIGRlc2NyaXB0aW9uIG9mIHRoZSBtZXRob2QNCiBFeGFtcGxlOg0KIDIgbWljcm8gbGl0ZXJzIG9mIHNhbXBsZSwgd2FpdCBmb3IgNjAgc2Vjb25kcywgYmxvdCB3aXRoIHBhcGVyIDMgdGltZXMsDQogMiBtaWNybyBsaXRlcnMgb2YgdXJhbnlsIGFjZXRhdGUsIHdhaXQgZm9yIDYwIHNlY29uZHMsIGJsb3Qgd2l0aCBwYXBlciAzIHRpbWVzLg0KDAoFBAACAgESAxULFgoMCgUEAAICBRIDFQQKCgwKBQQAAgIDEgMVGRoKXAoEBAACAxIDGQQcGk8gTGlzdCBvZiBsYWJzIGFzc29jaWF0ZWQgd2l0aCB0aGUgc2FtcGxlIGNvbGxlY3Rpb24NCiBFeGFtcGxlOiBbIERleHRlciBMYWJzIF0NCgwKBQQAAgMBEgMZFBcKDAoFBAACAwUSAxkNEwoMCgUEAAIDBBIDGQQMCgwKBQQAAgMDEgMZGhsKeQoEBAACBBIDHQQkGmwgTGlzdCBvZiBuYW1lIG9mIHRoZSBpbnN0aXR1dGlvbiBmcm9tIHRoZSBsYWJzIGludm9sdmVkIGluIHNhbXBsZSBjb2xsZWN0aW9uDQogRXhhbXBsZTogWyBDYXJ0b29uIE5ldHdvcmsgXQ0KDAoFBAACBAESAx0UHwoMCgUEAAIEBRIDHQ0TCgwKBQQAAgQEEgMdBAwKDAoFBAACBAMSAx0iIwpVCgQEAAIFEgMhBCQaSCBMaXN0IG9mIHBlb3BsZSB3aG8gZGV2ZWxvcGVkIHRoZSBwcm90b2NvbA0KIEV4YW1wbGU6IFsgQ2hhcmxpZSwgRG91ZyBdDQoMCgUEAAIFARIDIRQfCgwKBQQAAgUFEgMhDRMKDAoFBAACBQQSAyEEDAoMCgUEAAIFAxIDISIjCjEKBAQAAgYSAyQEKhokIEV4YW1wbGUgb2YgdXNpbmcgYSBzdGFuZGFyZCBpbXBvcnQNCgwKBQQAAgYBEgMkHSUKDAoFBAACBgUSAyQEHAoMCgUEAAIGAxIDJCgpYgZwcm90bzM=")
 	if err != nil {
@@ -26,8 +26,8 @@ func TestIntakeRecordTemplate(t *testing.T) {
 		Description:        "a description",
 		FriendlyName:       "Research Protocol BC",
 		DescriptorSetProto: b,
-		Required:           []uint64{},
-		Recommended:        []uint64{0xcafebabe, 0xdeadbeef},
+		Required:           []int64{},
+		Recommended:        []int64{0xcafebabe, 0xdeadbeef},
 	}
 
 	bctx := &datastore.TransactionData{
@@ -39,8 +39,8 @@ func TestIntakeRecordTemplate(t *testing.T) {
 		Description:        "a description",
 		FriendlyName:       "Research Protocol CB",
 		DescriptorSetProto: b,
-		Required:           []uint64{},
-		Recommended:        []uint64{0xdeadbeef},
+		Required:           []int64{},
+		Recommended:        []int64{0xdeadbeef},
 	}
 
 	cbtx := &datastore.TransactionData{

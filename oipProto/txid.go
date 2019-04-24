@@ -13,6 +13,13 @@ func TxidFromString(txid string) *Txid {
 	return &Txid{Raw: b}
 }
 
+func TxidToString(txid *Txid) string {
+	if txid == nil || len(txid.Raw) != 32 {
+		return ""
+	}
+	return hex.EncodeToString(txid.Raw)
+}
+
 func TxidPrefixToUint64(txid *Txid) uint64 {
 	if len(txid.Raw) == 32 {
 		return uint64(txid.Raw[0])<<56 |

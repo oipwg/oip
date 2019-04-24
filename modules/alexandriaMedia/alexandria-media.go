@@ -100,7 +100,7 @@ type AmMeta struct {
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
 	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"tx"`
+	Tx          *datastore.TransactionData `json:"-"`
 	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }

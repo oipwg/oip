@@ -6,22 +6,28 @@ Package oip5 is a generated protocol buffer package.
 
 It is generated from these files:
 	oip5.proto
-	RecordTemplateProto.proto
 	Record.proto
+	RecordTemplateProto.proto
+	tmpl_8d66c6aff9bdd8ee.proto
 	tmpl_0000000deadbeef.proto
+	tmpl_000000000000f113.proto
+	tmpl_00000000000ba51c.proto
 
 It has these top-level messages:
 	OipFive
 	Transfer
 	Deactivate
 	Edit
-	RecordTemplateProto
 	RecordProto
+	Txid
+	Permissions
 	Payment
-	Storage
-	File
 	OipDetails
-	Tmpl_00000000Deadbeef
+	RecordTemplateProto
+	Tmpl_8D66C6AFF9BDD8EE
+	Tmpl_00000000DEADBEEF
+	Tmpl_000000000000F113
+	Tmpl_00000000000BA51C
 */
 package oip5
 

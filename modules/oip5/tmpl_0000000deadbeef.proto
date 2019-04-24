@@ -5,7 +5,7 @@ package oip5.record.templates;
 option go_package = "oip5";
 
 // Research Protocol
-message tmpl_00000000deadbeef {
+message tmpl_00000000DEADBEEF {
     // Internal Protocol ID
     // Example: NS-001
     string pid = 1;
