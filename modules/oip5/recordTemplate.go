@@ -104,7 +104,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		log.Error("unable to create builder", attr)
 		return errors.New("unable to create builder")
 	}
-	newName := "tmpl_" + txid[:16]
+	newName := "tmpl_" + strings.ToUpper(txid[:16])
 	err = fileBuilder.TrySetName(newName + ".proto")
 	if err != nil {
 		attr["err"] = err
@@ -146,7 +146,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 	rt.FileDescriptor = file
 	rt.Name = newName
 
-	rt.MessageType = TemplateMessageFactory.GetKnownTypeRegistry().GetKnownType(newName)
+	rt.MessageType = TemplateMessageFactory.GetKnownTypeRegistry().GetKnownType(message.GetFullyQualifiedName())
 
 	templateCache[rt.Identifier] = rt
 	return nil
@@ -204,7 +204,7 @@ type TMeta struct {
 
 func (rt *RecordTemplate) CreateNewMessage() proto.Message {
 	if rt.MessageType == nil {
-		log.Error("nil message type", logger.Attrs{"rt.ident": rt.Identifier})
+		log.Error("nil message type", logger.Attrs{"rt.ident": uint64(rt.Identifier), "rt.sIdent": rt.Identifier})
 		return nil
 	}
 
