@@ -234,7 +234,9 @@ func CreateNewMessage(id string) (proto.Message, error) {
 		ident, err := strconv.ParseUint(hexId, 16, 64)
 		if err == nil {
 			if t, ok := templateCache[int64(ident)]; ok {
-				return t.CreateNewMessage(), nil
+				if msg := t.CreateNewMessage(); msg != nil {
+					return msg, nil
+				}
 			}
 		}
 	}
