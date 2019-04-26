@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package oip5.record.templates;
+
+option go_package = "oip5";
+
+// Super Hero Profile
+message tmpl_8D66C6AFF9BDD8EE {
+    repeated string powers = 1;
+}
