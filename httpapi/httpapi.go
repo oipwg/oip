@@ -15,7 +15,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-var rootRouter = mux.NewRouter()
+var rootRouter = mux.NewRouter().PathPrefix("/oip").Subrouter()
 var daemonRoutes = NewSubRoute("/daemon")
 
 var (

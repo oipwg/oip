@@ -37,7 +37,7 @@ func AddCore(host, user, pass string) error {
 	return err
 }
 
-func WaitForFlod(ctx context.Context, host, user, pass string) error {
+func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
 	attempts := 0
 	a := logger.Attrs{"host": host, "attempts": attempts}
 	b := backoff.NewWithoutJitter(10*time.Minute, 1*time.Second)
@@ -47,7 +47,7 @@ func WaitForFlod(ctx context.Context, host, user, pass string) error {
 		attempts++
 		a["attempts"] = attempts
 		log.Info("attempting connection to flod", a)
-		err := AddFlod(host, user, pass)
+		err := AddFlod(host, user, pass, tls)
 		if err != nil {
 			a["err"] = err
 			log.Error("unable to connect to flod", a)
@@ -77,12 +77,15 @@ func WaitForFlod(ctx context.Context, host, user, pass string) error {
 	return nil
 }
 
-func AddFlod(host, user, pass string) error {
-	// Connect to flod RPC server using websockets.
-	certFile := config.GetFilePath("flod.certFile")
-	certs, err := ioutil.ReadFile(certFile)
-	if err != nil {
-		return errors.Wrap(err, "unable to read rpc.cert")
+func AddFlod(host, user, pass string, tls bool) error {
+	var certs []byte
+	var err error
+	if tls {
+		certFile := config.GetFilePath("flod.certFile")
+		certs, err = ioutil.ReadFile(certFile)
+		if err != nil {
+			return errors.Wrap(err, "unable to read rpc.cert")
+		}
 	}
 
 	ntfnHandlers := rpcclient.NotificationHandlers{
@@ -108,6 +111,7 @@ func AddFlod(host, user, pass string) error {
 		Endpoint:     "ws",
 		User:         user,
 		Pass:         pass,
+		DisableTLS:   !tls,
 		Certificates: certs,
 	}
 	c, err := rpcclient.New(cfg, &ntfnHandlers)
