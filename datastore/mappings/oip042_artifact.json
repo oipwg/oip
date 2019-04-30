@@ -88,10 +88,10 @@
                 "tiltStep": {
                   "type": "long"
                 },
-		"spatialData": {
-	          "enabled": false,
-		  "type": "object"
-		}
+                "spatialData": {
+                  "enabled": false,
+                  "type": "object",
+                }
               }
             },
             "floAddress": {
