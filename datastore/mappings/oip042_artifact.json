@@ -257,6 +257,17 @@
                 }
               }
             },
+            "latest": {
+              "type": "boolean"
+            },
+            "originalTXID": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "previousEdits": {
+              "type": "object",
+              "index": false
+            },
             "signature": {
               "type": "text",
               "index": false
