@@ -258,15 +258,17 @@
               }
             },
             "latest": {
-              "type": "boolean"
+              "type": "boolean",
+              "index": true
             },
             "originalTXID": {
               "type": "keyword",
-              "ignore_above": 64
+              "ignore_above": 64,
+              "index": true
             },
             "previousEdits": {
               "type": "object",
-              "index": false
+              "index": true
             },
             "signature": {
               "type": "text",
