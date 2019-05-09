@@ -3,6 +3,7 @@ package oip5
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -12,22 +13,86 @@ import (
 )
 
 const o5RecordIndexName = "oip5_record"
+const o5TemplateIndexName = "oip5_templates"
 
 var o5Router = httpapi.NewSubRoute("/o5")
 
 func init() {
+	o5Router.HandleFunc("/record/search", handleRecordSearch).Queries("q", "{query}")
+	o5Router.HandleFunc("/template/search", handleTemplateSearch).Queries("q", "{query}")
 	o5Router.HandleFunc("/record/get/latest", handleLatestRecord)
 	o5Router.HandleFunc("/record/get/{id:[a-f0-9]+}", handleGetRecord)
-	o5Router.HandleFunc("/record/mapping/{tmpl:tmpl_[a-f0-9]{16}(?:,tmpl_[a-f0-9]{16})*}", handleGetMapping)
+	o5Router.HandleFunc("/record/mapping/{tmpl:tmpl_[a-fA-F0-9]{16}(?:,tmpl_[a-fA-F0-9]{16})*}", handleGetMapping)
 	o5Router.HandleFunc("/template/get/latest", handleLatestTemplate)
-	o5Router.HandleFunc("/record/get/{id:[a-f0-9]+}", handleGetTemplate)
+	o5Router.HandleFunc("/template/get/{id:[a-f0-9]+}", handleGetTemplate)
 }
 
 var (
 	o5Indices = []string{o5RecordIndexName}
 	o5Fsc     = elastic.NewFetchSourceContext(true).
-			Include("record.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+			Include("record.*", "template.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 )
+
+func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+	//log.Info("handleSearchRecord", logger.Attrs{"opts": opts})
+	searchQuery, err := url.PathUnescape(opts["query"])
+	if err != nil {
+		httpapi.RespondJSON(w, 400, map[string]interface{}{
+			"error": "unable to decode query",
+		})
+		return
+	}
+
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewQueryStringQuery(searchQuery).
+			AnalyzeWildcard(false),
+		elastic.NewTermQuery("meta.deactivated", false),
+	)
+
+	searchService := httpapi.BuildCommonSearchService(
+		r.Context(),
+		o5Indices,
+		query,
+		[]elastic.SortInfo{
+			{Field: "meta.time", Ascending: false},
+			{Field: "meta.txid.keyword", Ascending: true},
+		},
+		o5Fsc,
+	)
+
+	httpapi.RespondSearch(w, searchService)
+}
+
+func handleTemplateSearch(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	searchQuery, err := url.PathUnescape(opts["query"])
+	if err != nil {
+		httpapi.RespondJSON(w, 400, map[string]interface{}{
+			"error": "unable to decode query",
+		})
+		return
+	}
+
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewQueryStringQuery(searchQuery).
+			AnalyzeWildcard(false),
+	)
+
+	searchService := httpapi.BuildCommonSearchService(
+		r.Context(),
+		[]string{o5TemplateIndexName},
+		query,
+		[]elastic.SortInfo{
+			{Field: "meta.time", Ascending: false},
+			{Field: "meta.txid", Ascending: true},
+		},
+		o5Fsc,
+	)
+
+	httpapi.RespondSearch(w, searchService)
+}
 
 func handleLatestRecord(w http.ResponseWriter, r *http.Request) {
 
