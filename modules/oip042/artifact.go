@@ -57,18 +57,24 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 
 	bl, label := filters.ContainsWithLabel(tx.Transaction.Txid)
 
+	//todo: this will need to change as part of edit implementation
+	testString := map[bool]string{true: tx.Transaction.Txid, false: ""}[&tx.Transaction.Txid != nil]
+
 	var el elasticOip042Artifact
 	el.Artifact = artifact.GetInterface()
 	el.Meta = AMeta{
-		Block:       tx.Block,
-		BlockHash:   tx.BlockHash,
-		Blacklist:   Blacklist{Blacklisted: bl, Filter: label},
-		Deactivated: false,
-		Signature:   sig,
-		Time:        tx.Transaction.Time,
-		Tx:          tx,
-		Txid:        tx.Transaction.Txid,
-		Type:        "oip042",
+		Block:         tx.Block,
+		BlockHash:     tx.BlockHash,
+		Blacklist:     Blacklist{Blacklisted: bl, Filter: label},
+		Deactivated:   false,
+		Latest:        true,
+		OriginalTXID:  tx.Transaction.Txid, //todo: this will need to change as part of edit implementation
+		PreviousEdits: PreviousEdits{Data: []string{testString}},
+		Signature:     sig,
+		Time:          tx.Transaction.Time,
+		Tx:            tx,
+		Txid:          tx.Transaction.Txid,
+		Type:          "oip042",
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)

@@ -4,7 +4,7 @@
   },
   "mappings": {
     "_doc": {
-      "dynamic": "strict",
+      "dynamic": "true",
       "properties": {
         "artifact": {
           "properties": {
@@ -246,29 +246,15 @@
             "deactivated": {
               "type": "boolean"
             },
-            "blacklist": {
-              "properties": {
-                "blacklisted": {
-                  "type": "boolean"
-                },
-                "filter": {
-                  "type": "keyword",
-                  "ignore_above": 64
-                }
-              }
+            "latest":{
+              "type":"boolean"
             },
-            "latest": {
-              "type": "boolean",
-              "index": true
+            "originalTXID":{
+              "type":"keyword",
+              "ignore_above":64
             },
-            "originalTXID": {
-              "type": "keyword",
-              "ignore_above": 64,
-              "index": true
-            },
-            "previousEdits": {
-              "type": "object",
-              "index": true
+            "previousEdits":{
+              "type":"object"
             },
             "signature": {
               "type": "text",
