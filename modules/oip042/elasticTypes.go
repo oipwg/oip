@@ -11,6 +11,8 @@ type OMeta struct {
 	Tx        *datastore.TransactionData `json:"tx"`
 	Txid      string                     `json:"txid"`
 	Type      string                     `json:"type"`
+	OTxid     string                     `json:"originalTxid"`
+	PTxid     string                     `json:"priorTxid"`
 }
 
 type AMeta struct {
@@ -31,8 +33,9 @@ type Blacklist struct {
 }
 
 type elasticOip042Edit struct {
-	Edit interface{} `json:"edit"`
-	Meta OMeta       `json:"meta"`
+	Edit  interface{} `json:"edit"`
+	Meta  OMeta       `json:"meta"`
+	Patch string      `json:"patch"`
 }
 
 type elasticOip042Transfer struct {

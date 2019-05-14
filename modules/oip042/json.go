@@ -23,6 +23,7 @@ func init() {
 
 	datastore.RegisterMapping(oip042ArtifactIndex, "oip042_artifact.json")
 	datastore.RegisterMapping(oip042PublisherIndex, "oip042_publisher.json")
+	datastore.RegisterMapping(oip042EditIndex, "oip042_edit.json")
 }
 
 func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {

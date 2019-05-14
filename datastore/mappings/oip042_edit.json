@@ -1,0 +1,288 @@
+{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "edit": {
+          "properties": {
+            "timestamp": {
+              "type": "long"
+            },
+            "txid": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "completed": {
+              "type": "boolean"
+            },
+            "originalTxid": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "priorTxid": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "signature": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "time": {
+              "type": "long"
+            },
+            "tx": {
+              "properties": {
+                "block": {
+                  "type": "long"
+                },
+                "block_hash": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "confirmed": {
+                  "type": "boolean"
+                },
+                "is_coinbase": {
+                  "type": "boolean"
+                },
+                "tx": {
+                  "properties": {
+                    "blockhash": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "blocktime": {
+                      "type": "long"
+                    },
+                    "confirmations": {
+                      "type": "long"
+                    },
+                    "floData": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "hash": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "hex": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "locktime": {
+                      "type": "long"
+                    },
+                    "size": {
+                      "type": "long"
+                    },
+                    "time": {
+                      "type": "long"
+                    },
+                    "txid": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "version": {
+                      "type": "long"
+                    },
+                    "vin": {
+                      "properties": {
+                        "scriptSig": {
+                          "properties": {
+                            "asm": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            },
+                            "hex": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "sequence": {
+                          "type": "long"
+                        },
+                        "txid": {
+                          "type": "text",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "vout": {
+                          "type": "long"
+                        }
+                      }
+                    },
+                    "vout": {
+                      "properties": {
+                        "n": {
+                          "type": "long"
+                        },
+                        "scriptPubKey": {
+                          "properties": {
+                            "addresses": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            },
+                            "asm": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            },
+                            "hex": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            },
+                            "reqSigs": {
+                              "type": "long"
+                            },
+                            "type": {
+                              "type": "text",
+                              "fields": {
+                                "keyword": {
+                                  "type": "keyword",
+                                  "ignore_above": 256
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "value": {
+                          "type": "float"
+                        }
+                      }
+                    },
+                    "vsize": {
+                      "type": "long"
+                    }
+                  }
+                }
+              }
+            },
+            "txid": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "type": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}
