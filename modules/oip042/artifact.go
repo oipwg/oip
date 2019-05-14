@@ -91,9 +91,12 @@ func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 		Time:      tx.Transaction.Time,
 		Tx:        tx,
 		Txid:      tx.Transaction.Txid,
+		OTxid:     any.Get("txid").ToString(),
+		PTxid:     "",
 		Type:      "artifact",
 	}
 
+	el.Patch = any.Get("patch").ToString()
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }
