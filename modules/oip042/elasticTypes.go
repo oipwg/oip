@@ -19,7 +19,7 @@ type AMeta struct {
 	Deactivated   bool                       `json:"deactivated"`
 	Blacklist     Blacklist                  `json:"blacklist"`
 	Latest        bool                       `json:"latest"`
-	OriginalTXID  string                     `json:"originalTXID"`
+	OriginalTxid  string                     `json:"originalTxid"`
 	PreviousEdits PreviousEdits              `json:"previousEdits"`
 	Signature     string                     `json:"signature"`
 	Time          int64                      `json:"time"`
