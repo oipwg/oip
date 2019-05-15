@@ -4,7 +4,7 @@
   },
   "mappings": {
     "_doc": {
-      "dynamic": "strict",
+      "dynamic": "true",
       "properties": {
         "artifact": {
           "properties": {
@@ -256,6 +256,16 @@
                   "ignore_above": 64
                 }
               }
+            },
+            "latest":{
+              "type":"boolean"
+            },
+            "originalTxid":{
+              "type":"keyword",
+              "ignore_above":64
+            },
+            "previousEdits":{
+              "type":"object"
             },
             "signature": {
               "type": "text",
