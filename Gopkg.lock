@@ -582,6 +582,7 @@
     "github.com/davecgh/go-spew/spew",
     "github.com/dustin/go-humanize",
     "github.com/gobuffalo/packr/v2",
+    "github.com/gobuffalo/packr/v2/file/resolver",
     "github.com/golang/protobuf/proto",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
