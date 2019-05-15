@@ -260,7 +260,7 @@
             "latest":{
               "type":"boolean"
             },
-            "originalTXID":{
+            "originalTxid":{
               "type":"keyword",
               "ignore_above":64
             },
