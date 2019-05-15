@@ -54,7 +54,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
-This method will return the version of the record requested with all edits applied. So, the most recent version of the record.
+This method will return the transaction record requested.
 */
 func handleGet(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
@@ -88,7 +88,7 @@ func handleGet(response http.ResponseWriter, request *http.Request) {
 }
 
 /**
-This method will return the version of the record requested with all edits applied. So, the most recent version of the record.
+This method will return the record requested with all edits applied. So, the most recent version of the record.
 */
 func handleGetLatestEdit(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
