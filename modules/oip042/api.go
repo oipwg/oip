@@ -55,40 +55,6 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
-This method will return the transaction record requested.
-*/
-func handleGet(response http.ResponseWriter, request *http.Request) {
-	vars := mux.Vars(request)
-	editRecordTxid := vars["editRecordTxid"]
-	var opts = mux.Vars(request)
-
-	query := elastic.NewBoolQuery().Must(
-		elastic.NewTermQuery("meta.deactivated", false),
-		elastic.NewTermQuery("meta.txid", editRecordTxid),
-	)
-
-	if n, ok := opts["nsfw"]; ok {
-		nsfw, _ := strconv.ParseBool(n)
-		if !nsfw {
-			query.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
-		}
-		log.Info("nsfw: %t", nsfw)
-	}
-
-	searchService := httpapi.BuildCommonSearchService(
-		request.Context(),
-		[]string{oip042ArtifactIndex},
-		query,
-		[]elastic.SortInfo{
-			{Field: "meta.time", Ascending: false},
-			{Field: "meta.txid", Ascending: true},
-		},
-		o42ArtifactFsc,
-	)
-	httpapi.RespondSearch(response, searchService)
-}
-
-/**
 This method will return the record requested with all edits applied. So, the most recent version of the record.
 */
 func handleGetLatestEdit(response http.ResponseWriter, request *http.Request) {
@@ -174,24 +140,15 @@ This method will return the transaction record requested.
 func handleGetEditRecord(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	editRecordTxid := vars["editRecordTxid"]
-	var opts = mux.Vars(request)
 
 	query := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.deactivated", false),
 		elastic.NewTermQuery("meta.txid", editRecordTxid),
 	)
 
-	if n, ok := opts["nsfw"]; ok {
-		nsfw, _ := strconv.ParseBool(n)
-		if !nsfw {
-			query.MustNot(elastic.NewTermQuery("artifact.info.nsfw", true))
-		}
-		log.Info("nsfw: %t", nsfw)
-	}
-
 	searchService := httpapi.BuildCommonSearchService(
 		request.Context(),
-		[]string{oip042ArtifactIndex},
+		[]string{oip042EditIndex},
 		query,
 		[]elastic.SortInfo{
 			{Field: "meta.time", Ascending: false},
