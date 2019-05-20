@@ -69,7 +69,7 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		Deactivated:   false,
 		Latest:        true,
 		OriginalTxid:  tx.Transaction.Txid, //todo: this will need to change as part of edit implementation
-		PreviousEdits: PreviousEdits{Data: []string{testString}},
+		PreviousEdits: []string{testString},
 		Signature:     sig,
 		Time:          tx.Transaction.Time,
 		Tx:            tx,

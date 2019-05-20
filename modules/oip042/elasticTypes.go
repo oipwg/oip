@@ -22,7 +22,7 @@ type AMeta struct {
 	Blacklist     Blacklist                  `json:"blacklist"`
 	Latest        bool                       `json:"latest"`
 	OriginalTxid  string                     `json:"originalTxid"`
-	PreviousEdits PreviousEdits              `json:"previousEdits"`
+	PreviousEdits []string                   `json:"previousEdits"`
 	Signature     string                     `json:"signature"`
 	Time          int64                      `json:"time"`
 	Tx            *datastore.TransactionData `json:"tx"`
@@ -33,10 +33,6 @@ type AMeta struct {
 type Blacklist struct {
 	Blacklisted bool   `json:"blacklisted"`
 	Filter      string `json:"filter"`
-}
-
-type PreviousEdits struct {
-	Data []string `json:"data"`
 }
 
 type elasticOip042Edit struct {

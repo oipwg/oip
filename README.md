@@ -26,7 +26,7 @@ developers external to OIPWG.
 7. Modify your ~/.oipd/config.yml to make sure you're running off testnet, and set tls to false 
 8. The executable is `oipd` built in the root directory of the project
 9. run tests with `go test -v -race`
-
+10. To run OIPd with a profiler, use the cpuprofile and memprofile flags (e.g. -- cpuprofile=oipd_cpu.prof memprofile=oipd_mem.prof) 
 
 ## Contacts
 Chris Chrysostom, cchrysostom@mediciland.com

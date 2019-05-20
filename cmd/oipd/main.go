@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"syscall"
 	"time"
 
@@ -19,6 +21,21 @@ import (
 )
 
 func main() {
+	oipdCpuProfileFile := flag.String("cpuprofile", "", "Designates the file to use for the cpu profiler")
+	oipdMemProfileFile := flag.String("memprofile", "", "Designates the file to use for the memory profiler")
+
+	flag.Parse()
+
+	f, profErr := os.Create(*oipdCpuProfileFile)
+	if profErr != nil {
+		log.Error("could not create CPU profile: ", profErr)
+	}
+	defer f.Close()
+	if profErr := pprof.StartCPUProfile(f); profErr != nil {
+		log.Error("could not start CPU profile: ", profErr)
+	}
+	defer pprof.StopCPUProfile()
+
 	log.Info("\n\n\n\n\n\n")
 	log.Info(" OIP Daemon ", logger.Attrs{
 		"commitHash": version.GitCommitHash,
@@ -104,6 +121,15 @@ func main() {
 
 	<-rootContext.Done()
 	shutdown(nil)
+
+	f, memErr := os.Create(*oipdMemProfileFile)
+	if memErr != nil {
+		log.Error("could not create memory profile: ", memErr)
+	}
+	defer f.Close()
+	if memErr := pprof.WriteHeapProfile(f); memErr != nil {
+		log.Error("could not start memory profile: ", memErr)
+	}
 }
 
 func shutdown(err error) {
