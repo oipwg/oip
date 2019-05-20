@@ -65,7 +65,7 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 func onDatastoreCommit() {
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
-	
+
 	wasInitialSync := oipSync.IsInitialSync
 
 	multiparts := make(map[string]Multipart)
@@ -76,9 +76,6 @@ moreMultiparts:
 	after, err := queryMultiparts(multiparts, after)
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
-	}
-	if after != nil {
-		goto moreMultiparts
 	}
 
 	potentialChanges := false
@@ -110,6 +107,10 @@ moreMultiparts:
 	if !wasInitialSync {
 		// ToDo: Consider re-enabling after further tests under high volume
 		// markStale()
+	}
+
+	if after != nil {
+		goto moreMultiparts
 	}
 }
 
