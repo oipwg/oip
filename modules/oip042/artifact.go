@@ -57,9 +57,6 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 
 	bl, label := filters.ContainsWithLabel(tx.Transaction.Txid)
 
-	//todo: this will need to change as part of edit implementation
-	testString := map[bool]string{true: tx.Transaction.Txid, false: ""}[&tx.Transaction.Txid != nil]
-
 	var el elasticOip042Artifact
 	el.Artifact = artifact.GetInterface()
 	el.Meta = AMeta{
@@ -69,7 +66,7 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		Deactivated:   false,
 		Latest:        true,
 		OriginalTxid:  tx.Transaction.Txid, //todo: this will need to change as part of edit implementation
-		PreviousEdits: []string{testString},
+		PreviousEdits: []string{""},
 		Signature:     sig,
 		Time:          tx.Transaction.Time,
 		Tx:            tx,
@@ -97,8 +94,8 @@ func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
 		Time:      tx.Transaction.Time,
 		Tx:        tx,
 		Txid:      tx.Transaction.Txid,
-		OTxid:     any.Get("txid").ToString(),
-		PTxid:     "",
+		OriginalTxid:     any.Get("txid").ToString(),
+		PriorTxid:     "",
 		Type:      "artifact",
 	}
 

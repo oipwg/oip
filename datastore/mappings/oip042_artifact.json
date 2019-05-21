@@ -264,8 +264,13 @@
               "type":"keyword",
               "ignore_above":64
             },
-            "previousEdits":{
-              "type":"object"
+            "previousEdits": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword"
+                }
+              }
             },
             "signature": {
               "type": "text",
