@@ -11,8 +11,8 @@ type OMeta struct {
 	Tx        *datastore.TransactionData `json:"tx"`
 	Txid      string                     `json:"txid"`
 	Type      string                     `json:"type"`
-	OTxid     string                     `json:"originalTxid"`
-	PTxid     string                     `json:"priorTxid"`
+	OriginalTxid     string              `json:"originalTxid"`
+	PriorTxid     string              `json:"priorTxid"`
 }
 
 type AMeta struct {
@@ -22,7 +22,7 @@ type AMeta struct {
 	Blacklist     Blacklist                  `json:"blacklist"`
 	Latest        bool                       `json:"latest"`
 	OriginalTxid  string                     `json:"originalTxid"`
-	PreviousEdits []string                   `json:"previousEdits"`
+	PreviousEdits []string		             `json:"previousEdits"`
 	Signature     string                     `json:"signature"`
 	Time          int64                      `json:"time"`
 	Tx            *datastore.TransactionData `json:"tx"`
