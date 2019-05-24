@@ -45,8 +45,8 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 		FriendlyName: rt.FriendlyName,
 		Description:  rt.Description,
 		Identifier:   rt.Identifier,
-		Recommended:  rt.Recommended,
-		Required:     rt.Required,
+		// Recommended:  rt.Recommended,
+		// Required:     rt.Required,
 	}
 
 	err = decodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
@@ -115,8 +115,8 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 	}
 	messageBuilder := fileBuilder.GetMessage("P")
 	if messageBuilder == nil {
-		log.Error("unable to find message oip5.record.templates.P", attr)
-		return errors.New("unable to find message oip5.record.templates.P")
+		log.Error("unable to find message oipProto.templates.P", attr)
+		return errors.New("unable to find message oipProto.templates.P")
 	}
 	err = messageBuilder.TrySetName(newName)
 	if err != nil {
@@ -165,7 +165,8 @@ func addProtoType(fileMsgType *desc.MessageDescriptor, txid string) {
 
 var templateCache = make(map[int64]*RecordTemplate)
 var TemplateMessageFactory = dynamic.NewMessageFactoryWithDefaults()
-var TemplateAnyResolver = anyResolver{upstreamAny: dynamic.AnyResolver(TemplateMessageFactory)}
+
+// var TemplateAnyResolver = anyResolver{upstreamAny: dynamic.AnyResolver(TemplateMessageFactory)}
 
 type RecordTemplate struct {
 	// Human readable name to quickly identify type (non-unique)
@@ -229,14 +230,13 @@ func (r anyResolver) Resolve(typeUrl string) (proto.Message, error) {
 }
 
 func CreateNewMessage(id string) (proto.Message, error) {
-	hexId := strings.TrimPrefix(id, "oip5.record.templates.tmpl_")
+	hexId := strings.TrimPrefix(id, "oipProto.templates.tmpl_")
 	if len(hexId) == 16 {
 		ident, err := strconv.ParseUint(hexId, 16, 64)
 		if err == nil {
 			if t, ok := templateCache[int64(ident)]; ok {
-				if msg := t.CreateNewMessage(); msg != nil {
-					return msg, nil
-				}
+				msg := dynamic.NewMessageWithMessageFactory(t.MessageDescriptor, TemplateMessageFactory)
+				return msg, nil
 			}
 		}
 	}
@@ -250,9 +250,7 @@ func CreateNewMessage(id string) (proto.Message, error) {
 }
 
 func LoadTemplatesFromES(ctx context.Context) error {
-	return nil
-
-	searchService := datastore.Client().Search(datastore.Index("oip5_templates")).Type("_doc")
+	searchService := datastore.Client().Search(datastore.Index("oip5_templates")).Type("_doc").Size(10000)
 
 	res, err := searchService.Do(ctx)
 	if err != nil {

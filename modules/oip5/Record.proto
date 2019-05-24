@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package oip5.record;
+package oipProto;
 
 option go_package = "oip5";
 
@@ -17,10 +17,6 @@ message RecordProto {
     OipDetails details = 7;
 
     Permissions permissions = 8;
-}
-
-message Txid {
-    bytes raw = 1;
 }
 
 message Permissions {

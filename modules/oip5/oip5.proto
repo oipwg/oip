@@ -1,15 +1,17 @@
 syntax = "proto3";
 
-package oip5;
+package oipProto;
 
 option go_package = "oip5";
 
 import "Record.proto";
 import "RecordTemplateProto.proto";
+import "NormalizeRecord.proto";
 
 message OipFive {
-    record.RecordTemplateProto recordTemplate = 1;
-    record.RecordProto record = 2;
+    RecordTemplateProto recordTemplate = 1;
+    RecordProto record = 2;
+    NormalizeRecordProto normalize = 3;
 
     Transfer transfer = 7;
     Deactivate deactivate = 8;

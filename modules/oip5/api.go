@@ -35,7 +35,7 @@ var (
 
 func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
-	//log.Info("handleSearchRecord", logger.Attrs{"opts": opts})
+	// log.Info("handleSearchRecord", logger.Attrs{"opts": opts})
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
 		httpapi.RespondJSON(w, 400, map[string]interface{}{

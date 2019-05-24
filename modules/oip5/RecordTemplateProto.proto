@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package oip5.record;
+package oipProto;
 
 option go_package = "oip5";
 
