@@ -68,11 +68,10 @@ func onDatastoreCommit() {
 
 	wasInitialSync := oipSync.IsInitialSync
 
+moreMultiparts:
 	multiparts := make(map[string]Multipart)
-
 	var after []interface{}
 
-moreMultiparts:
 	after, err := queryMultiparts(multiparts, after)
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
