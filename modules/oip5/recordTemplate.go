@@ -42,10 +42,11 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	rt.Identifier = uint32(ident)
 
 	tmpl := &RecordTemplate{
-		FriendlyName: rt.FriendlyName,
-		Description:  rt.Description,
-		Identifier:   rt.Identifier,
-		Extends:      rt.Extends,
+		FriendlyName:      rt.FriendlyName,
+		Description:       rt.Description,
+		Identifier:        rt.Identifier,
+		Extends:           rt.Extends,
+		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
 	}
 
 	err = decodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
@@ -56,8 +57,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	}
 
 	elRt := elRecordTemplate{
-		Template:          templateCache[uint32(ident)],
-		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
+		Template: templateCache[uint32(ident)],
 		Meta: TMeta{
 			Tx:        tx,
 			Time:      tx.Transaction.Time,
@@ -142,10 +142,10 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 	}
 
 	rt.MessageDescriptor = message
-	rt.FileDescriptor = file
+	// rt.FileDescriptor = file
 	rt.Name = newName
 
-	rt.MessageType = TemplateMessageFactory.GetKnownTypeRegistry().GetKnownType(message.GetFullyQualifiedName())
+	// rt.MessageType = TemplateMessageFactory.GetKnownTypeRegistry().GetKnownType(message.GetFullyQualifiedName())
 
 	templateCache[rt.Identifier] = rt
 	return nil
@@ -177,9 +177,10 @@ type RecordTemplate struct {
 	// Message
 	MessageDescriptor *desc.MessageDescriptor `json:"-"`
 	// File
-	FileDescriptor *desc.FileDescriptor `json:"-"`
+	// FileDescriptor *desc.FileDescriptor `json:"-"`
+	FileDescriptorSet string `json:"file_descriptor_set"`
 	// Message type
-	MessageType reflect.Type `json:"-"`
+	// MessageType reflect.Type `json:"-"`
 	// Populated by oipd with the unique identifier for this type
 	Identifier uint32 `json:"identifier"`
 	// List of unique template identifiers recommended for use with this template
@@ -187,9 +188,8 @@ type RecordTemplate struct {
 }
 
 type elRecordTemplate struct {
-	Template          *RecordTemplate `json:"template"`
-	FileDescriptorSet string          `json:"file_descriptor_set"`
-	Meta              TMeta           `json:"meta"`
+	Template *RecordTemplate `json:"template"`
+	Meta     TMeta           `json:"meta"`
 }
 
 type TMeta struct {
@@ -200,18 +200,18 @@ type TMeta struct {
 	Txid      string                     `json:"txid"`
 }
 
-func (rt *RecordTemplate) CreateNewMessage() proto.Message {
-	if rt.MessageType == nil {
-		log.Error("nil message type", logger.Attrs{"rt.ident": uint64(rt.Identifier), "rt.sIdent": rt.Identifier})
-		return nil
-	}
-
-	if rt.MessageType.Kind() == reflect.Ptr {
-		return reflect.New(rt.MessageType.Elem()).Interface().(proto.Message)
-	} else {
-		return reflect.New(rt.MessageType).Elem().Interface().(proto.Message)
-	}
-}
+// func (rt *RecordTemplate) CreateNewMessage() proto.Message {
+// // 	if rt.MessageType == nil {
+// // 		log.Error("nil message type", logger.Attrs{"rt.ident": uint64(rt.Identifier), "rt.sIdent": rt.Identifier})
+// // 		return nil
+// // 	}
+// //
+// // 	if rt.MessageType.Kind() == reflect.Ptr {
+// // 		return reflect.New(rt.MessageType.Elem()).Interface().(proto.Message)
+// // 	} else {
+// // 		return reflect.New(rt.MessageType).Elem().Interface().(proto.Message)
+// // 	}
+// // }
 
 type anyResolver struct {
 	upstreamAny jsonpb.AnyResolver
@@ -265,7 +265,7 @@ func LoadTemplatesFromES(ctx context.Context) error {
 	for _, value := range templates {
 		tmpl := value.(elRecordTemplate)
 
-		b, err := base64.StdEncoding.DecodeString(tmpl.FileDescriptorSet)
+		b, err := base64.StdEncoding.DecodeString(tmpl.Template.FileDescriptorSet)
 		err = decodeDescriptorSet(tmpl.Template, b, tmpl.Meta.Txid)
 		if err != nil {
 			return err

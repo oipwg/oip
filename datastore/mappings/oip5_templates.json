@@ -6,9 +6,6 @@
     "_doc": {
       "dynamic": "strict",
       "properties": {
-        "file_descriptor_set": {
-          "type": "binary"
-        },
         "template": {
           "properties": {
             "description": {
@@ -19,6 +16,9 @@
                   "ignore_above": 256
                 }
               }
+            },
+            "file_descriptor_set": {
+              "type": "binary"
             },
             "friendly_name": {
               "type": "text",
@@ -34,7 +34,7 @@
             },
             "name": {
               "type": "keyword",
-              "ignore_above": 21
+              "ignore_above": 13
             },
             "extends": {
               "type": "long"
