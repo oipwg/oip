@@ -6,9 +6,9 @@ option go_package = "oip5";
 
 message NormalizeRecordProto {
     // standard template ID which triggers this meta-type
-    uint64 mainTemplate = 1;
+    fixed32 mainTemplate = 3;
     // fields comprising this new meta-type
-    repeated NormalField fields = 2;
+    repeated NormalField fields = 4;
 }
 
 message NormalField {
@@ -65,5 +65,5 @@ message Field {
 
     // Enter specified details template
     // Set either tag/type OR template
-    uint64 template = 3;
+    fixed32 template = 3;
 }

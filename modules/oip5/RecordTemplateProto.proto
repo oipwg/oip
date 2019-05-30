@@ -5,6 +5,8 @@ package oipProto;
 option go_package = "oip5";
 
 message RecordTemplateProto {
+    reserved 12;
+
     // Human readable name to quickly identify type (non-unique)
     string friendlyName = 1;
 
@@ -15,8 +17,8 @@ message RecordTemplateProto {
     bytes DescriptorSetProto = 4;
 
     // List of unique template identifiers required for use with this template
-    repeated sfixed64 extends = 12;
+    repeated fixed32 extends = 13;
 
     // Populated by oipd with the unique identifier for this type
-    sfixed64 identifier = 10;
+    fixed32 identifier = 10;
 }

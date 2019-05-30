@@ -28,25 +28,24 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
-	if len(tx.Transaction.Txid) < 16 {
+	if len(tx.Transaction.Txid) < 8 {
 		log.Error("invalid txid", attr)
 		return nil, errors.New("invalid txid")
 	}
-	strIdent := tx.Transaction.Txid[:16]
-	ident, err := strconv.ParseUint(strIdent, 16, 64)
+	strIdent := tx.Transaction.Txid[:8]
+	ident, err := strconv.ParseUint(strIdent, 16, 32)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to decode txid", attr)
 		return nil, errors.New("unable to decode txid")
 	}
-	rt.Identifier = int64(ident)
+	rt.Identifier = uint32(ident)
 
 	tmpl := &RecordTemplate{
 		FriendlyName: rt.FriendlyName,
 		Description:  rt.Description,
 		Identifier:   rt.Identifier,
-		// Recommended:  rt.Recommended,
-		// Required:     rt.Required,
+		Extends:      rt.Extends,
 	}
 
 	err = decodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
@@ -57,7 +56,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	}
 
 	elRt := elRecordTemplate{
-		Template:          templateCache[int64(ident)],
+		Template:          templateCache[uint32(ident)],
 		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
 		Meta: TMeta{
 			Tx:        tx,
@@ -104,7 +103,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		log.Error("unable to create builder", attr)
 		return errors.New("unable to create builder")
 	}
-	newName := "tmpl_" + strings.ToUpper(txid[:16])
+	newName := "tmpl_" + strings.ToUpper(txid[:8])
 	err = fileBuilder.TrySetName(newName + ".proto")
 	if err != nil {
 		attr["err"] = err
@@ -163,7 +162,7 @@ func addProtoType(fileMsgType *desc.MessageDescriptor, txid string) {
 	ktr.AddKnownType(dynamic.NewMessageWithMessageFactory(fileMsgType, TemplateMessageFactory))
 }
 
-var templateCache = make(map[int64]*RecordTemplate)
+var templateCache = make(map[uint32]*RecordTemplate)
 var TemplateMessageFactory = dynamic.NewMessageFactoryWithDefaults()
 
 // var TemplateAnyResolver = anyResolver{upstreamAny: dynamic.AnyResolver(TemplateMessageFactory)}
@@ -182,11 +181,9 @@ type RecordTemplate struct {
 	// Message type
 	MessageType reflect.Type `json:"-"`
 	// Populated by oipd with the unique identifier for this type
-	Identifier int64 `json:"identifier"`
+	Identifier uint32 `json:"identifier"`
 	// List of unique template identifiers recommended for use with this template
-	Recommended []int64 `json:"recommended,omitempty"`
-	// List of unique template identifiers required for use with this template
-	Required []int64 `json:"required,omitempty"`
+	Extends []uint32 `json:"extends,omitempty"`
 }
 
 type elRecordTemplate struct {
@@ -231,10 +228,10 @@ func (r anyResolver) Resolve(typeUrl string) (proto.Message, error) {
 
 func CreateNewMessage(id string) (proto.Message, error) {
 	hexId := strings.TrimPrefix(id, "oipProto.templates.tmpl_")
-	if len(hexId) == 16 {
-		ident, err := strconv.ParseUint(hexId, 16, 64)
+	if len(hexId) == 8 {
+		ident, err := strconv.ParseUint(hexId, 16, 32)
 		if err == nil {
-			if t, ok := templateCache[int64(ident)]; ok {
+			if t, ok := templateCache[uint32(ident)]; ok {
 				msg := dynamic.NewMessageWithMessageFactory(t.MessageDescriptor, TemplateMessageFactory)
 				return msg, nil
 			}
@@ -244,6 +241,12 @@ func CreateNewMessage(id string) (proto.Message, error) {
 	m := TemplateMessageFactory.GetKnownTypeRegistry().CreateIfKnown(id)
 	if m == nil {
 		return nil, fmt.Errorf("unknown message type %q", id)
+	}
+
+	if dm, ok := m.(*dynamic.Message); ok {
+		if dm.GetMessageDescriptor() == nil {
+			return nil, fmt.Errorf("unable to create dynamic type %s", id)
+		}
 	}
 
 	return m, nil

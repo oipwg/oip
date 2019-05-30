@@ -564,7 +564,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 							Template: 0x370840eecb3c27ca,
 						},
 						{
-							Tag:  1,
+							Tag:  2,
 							Type: Field_TYPE_STRING,
 						},
 					},
@@ -600,7 +600,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	fmt.Println("planet normalize to sign")
 	fmt.Println(base64.StdEncoding.EncodeToString(planetNormalizeBytes))
 
-	planetNormalizeSignatureBytes, err := base64.StdEncoding.DecodeString("H9TtBwUfzLJycKvAL78gqdLlDB7ZE8Vo1iJyWg6yVmjMGurWEkTk6JkCoPom9GjcNwxUAv1qUbbE2mWhb464VLk=")
+	planetNormalizeSignatureBytes, err := base64.StdEncoding.DecodeString("Hx/sNuprdJXddYKrh5ei/zm3mRsvQiCp7CDONS5bj3uLc6xjXaw7lTKglNO5p2aOiUv57RnrluPg2OCGR/Z1oLw=")
 	if err != nil {
 		t.Fatal(err)
 	}

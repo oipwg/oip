@@ -22,7 +22,7 @@ func init() {
 	o5Router.HandleFunc("/template/search", handleTemplateSearch).Queries("q", "{query}")
 	o5Router.HandleFunc("/record/get/latest", handleLatestRecord)
 	o5Router.HandleFunc("/record/get/{id:[a-f0-9]+}", handleGetRecord)
-	o5Router.HandleFunc("/record/mapping/{tmpl:tmpl_[a-fA-F0-9]{16}(?:,tmpl_[a-fA-F0-9]{16})*}", handleGetMapping)
+	o5Router.HandleFunc("/record/mapping/{tmpl:tmpl_[a-fA-F0-9]{8}(?:,tmpl_[a-fA-F0-9]{8})*}", handleGetMapping)
 	o5Router.HandleFunc("/template/get/latest", handleLatestTemplate)
 	o5Router.HandleFunc("/template/get/{id:[a-f0-9]+}", handleGetTemplate)
 }

@@ -24,9 +24,9 @@ import (
 
 var recordCache *lru.Cache
 
-const recordCacheDepth = 1
+const recordCacheDepth = 10000
 
-var normalizers = make(map[uint64][]*NormalizeRecordProto)
+var normalizers = make(map[uint32][]*NormalizeRecordProto)
 
 func init() {
 	log.Info("init oip5")
@@ -201,8 +201,8 @@ type RMeta struct {
 func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 	var detMap = make(map[string]*json.RawMessage)
 
-	// "@type": "type.googleapis.com/oipProto.templates.tmpl_00000000deadbeef",
-	// oipProto.templates.tmpl_00000000deadbeef
+	// "@type": "type.googleapis.com/oipProto.templates.tmpl_deadbeef",
+	// oipProto.templates.tmpl_deadbeef
 	for _, detAny := range m.Details {
 		name, err := ptypes.AnyMessageName(detAny)
 		if err != nil {
@@ -242,7 +242,7 @@ func (m *OipDetails) UnmarshalJSONPB(u *jsonpb.Unmarshaler, b []byte) error {
 	}
 
 	for k, v := range detMap {
-		if len(k) == 21 && strings.HasPrefix(k, "tmpl_") {
+		if len(k) == 13 && strings.HasPrefix(k, "tmpl_") {
 			k = "type.googleapis.com/oipProto.templates." + k
 		}
 

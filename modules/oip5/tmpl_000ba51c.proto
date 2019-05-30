@@ -4,7 +4,7 @@ package oipProto.record.templates;
 
 option go_package = "oip5";
 
-message tmpl_00000000000BA51C {
+message tmpl_000BA51C {
     // Record title
     string title = 1;
 

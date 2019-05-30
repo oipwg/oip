@@ -4,7 +4,7 @@ package oipProto.record.templates;
 
 option go_package = "oip5";
 
-message tmpl_000000000000F113 {
+message tmpl_0000F113 {
     // Human readable file name
     string displayName = 1;
 

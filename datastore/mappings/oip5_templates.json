@@ -35,6 +35,9 @@
             "name": {
               "type": "keyword",
               "ignore_above": 21
+            },
+            "extends": {
+              "type": "long"
             }
           }
         },
