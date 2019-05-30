@@ -12,7 +12,7 @@ trap '{ \
 # Set Env Variables to Defaults if unset
 if [ -z "$NETWORK" ]
 then
-	NETWORK="livenet"
+	NETWORK="mainnet"
 fi
 
 if [ -z "$RPC_USER" ]

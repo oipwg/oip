@@ -47,5 +47,5 @@ WORKDIR /root
 
 EXPOSE 1606 5601 9200
 
-HEALTHCHECK CMD curl --fail http://localhost:1606/daemon/version || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:1606/oip/daemon/version || exit 1
 CMD ["/oip/start.sh"]
