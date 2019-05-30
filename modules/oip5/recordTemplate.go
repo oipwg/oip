@@ -21,7 +21,7 @@ import (
 )
 
 func init() {
-	// _ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
+	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
 }
 
 func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
