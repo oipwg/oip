@@ -215,7 +215,7 @@ func TestUnmarshalSignedMessage(t *testing.T) {
 }
 
 func TestDecodeRecordTemplate(t *testing.T) {
-	b, err := base64.StdEncoding.DecodeString("CskDCsYDChJTdGFyX1dhcnNfUHJvZmlsZXMSNVBlcnNvbmFsIHByb2ZpbGVzIG9mIHBlb3BsZSBpbiB0aGUgU3RhciBXYXJzIHVuaXZlcnNlIvgCCvUCChhvaXBQcm90b190ZW1wbGF0ZXMucHJvdG8SEm9pcFByb3RvLnRlbXBsYXRlcyK8AgoBUBIMCgRuYW1lGAEgASgJEhkKC2JpcnRoUGxhbmV0GAQgASgLMgRUeGlkEhEKCWJpcnRoZGF0ZRgFIAEoBBoTCgRUeGlkEgsKA3JhdxgBIAIoDCJZCgdGYWN0aW9uEg0KCVVOREVGSU5FRBAAEhsKF0ZhY3Rpb25fR0FMQUNUSUNfRU1QSVJFEAESEAoMRmFjdGlvbl9KRURJEAISEAoMRmFjdGlvbl9TSVRIEAMiigEKD0xpZ2h0c2FiZXJDb2xvchINCglVTkRFRklORUQQABIYChRMaWdodHNhYmVyQ29sb3JfQkxVRRABEhkKFUxpZ2h0c2FiZXJDb2xvcl9HUkVFThACEhcKE0xpZ2h0c2FiZXJDb2xvcl9SRUQQAxIaChZMaWdodHNhYmVyQ29sb3JfUFVSUExFEARiBnByb3RvMxABGAEiIkZUZFFKSkN0RVA3Wkp5cFhuMlJHeWRlYnpjRkxWZ0RLWFIqQSAaPYpQOROOWLRfV8ZfcHSGrnxFTx8MuIqJxPxJP6KQFxB4ZDfNiEB9DedmYNQtCeLU476geKZuUWeFg2zSrOFS")
+	b, err := base64.StdEncoding.DecodeString("CpgBCpUBChVSZWdpc3RlcmVkIFB1Ymxpc2hlcnMSIEFsbCByZWdpc3RlcmVkIHB1Ymxpc2hlcnMgaW4gT0lQIloKWAoHcC5wcm90byJFCgFQEgwKBG5hbWUYASABKAkSFAoMZmxvQmlwNDRYcHViGAIgASgJEhwKFGZsb0JpcDQ0U2lnbmluZ0luZGV4GAMgASgNYgZwcm90bzMQARgBIiJGVGRRSkpDdEVQN1pKeXBYbjJSR3lkZWJ6Y0ZMVmdES1hSKkEgMdJatd2HdlGrwgNQiaD52fVay7HPcRGVFxbbzfrhoBYUL1uhCOfFraLeEdXeNHLfU9pizy1U1mNOsUSfEc7KIQ==")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,4 +241,14 @@ func TestDecodeRecordTemplate(t *testing.T) {
 	}
 
 	spew.Dump(*rt)
+}
+
+func TestNotStringProtobufJs(t *testing.T) {
+	descriptor := []byte{10, 42, 10, 7, 112, 46, 112, 114, 111, 116, 111, 34, 23, 10, 1, 80, 18, 18, 10, 10, 100, 101, 99, 111, 100, 101, 84, 104, 105, 115, 24, 1, 32, 1, 40, 13, 98, 6, 112, 114, 111, 116, 111, 51}
+
+	rt := &RecordTemplate{}
+	err := decodeDescriptorSet(rt, descriptor, "deadbeef")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

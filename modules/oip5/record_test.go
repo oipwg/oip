@@ -1,5 +1,17 @@
 package oip5
 
+import (
+	"context"
+	"encoding/base64"
+	"fmt"
+	"testing"
+
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/oipProto"
+)
+
 // import (
 // 	"bytes"
 // 	"compress/gzip"
@@ -212,3 +224,31 @@ package oip5
 //     }
 //   }
 // }`
+
+func TestDecodeRecord(t *testing.T) {
+	t.SkipNow()
+
+	b, err := base64.StdEncoding.DecodeString("CpcBEpQBOpEBCkMKNHR5cGUuZ29vZ2xlYXBpcy5jb20vb2lwUHJvdG8udGVtcGxhdGVzLnRtcGxfMkYyOUQ4QzASCwoDZmx5EgRlbW1hCkoKNHR5cGUuZ29vZ2xlYXBpcy5jb20vb2lwUHJvdG8udGVtcGxhdGVzLnRtcGxfNUQ4REI4NUISEgoEcnlsbxIFZWFydGgaA3JlZBABGAEiIm9ScG1lWXZqZ2Zoa1NwUFdHTDhlUDVlUHVweW9wM2h6OWoqQR8cQQI9PEBYKuv15qK4aJ1BDg+pdLnuFSRMlNKtUg1zSRv3QTPefPerz8MVTqd5o77mIh4klLFuMzeEt5j/uUiz")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sm := &oipProto.SignedMessage{}
+
+	err = proto.Unmarshal(b, sm)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	o5 := &OipFive{}
+
+	err = proto.Unmarshal(sm.SerializedMessage, o5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	datastore.Setup(context.Background())
+	LoadTemplatesFromES(context.Background())
+
+	fmt.Println((&jsonpb.Marshaler{}).MarshalToString(o5))
+}

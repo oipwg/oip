@@ -141,6 +141,12 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		addProtoType(fileMsgType, txid)
 	}
 
+	if !strings.HasPrefix(message.GetFullyQualifiedName(), "oipProto.templates.") {
+		attr["fqn"] = message.GetFullyQualifiedName()
+		log.Error("missing required package", attr)
+		return errors.New("missing required package")
+	}
+
 	rt.MessageDescriptor = message
 	// rt.FileDescriptor = file
 	rt.Name = newName

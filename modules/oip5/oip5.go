@@ -208,7 +208,7 @@ func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 			return nil, err
 		}
 
-		tmplName := strings.TrimPrefix(name, "oipProto.templates.")
+		tmplName := strings.TrimPrefix(name, "oipProto.templates.tmpl_")
 		msg, err := CreateNewMessage(name)
 		if err != nil {
 			return nil, err
