@@ -208,7 +208,6 @@ func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 			return nil, err
 		}
 
-		tmplName := strings.TrimPrefix(name, "oipProto.templates.tmpl_")
 		msg, err := CreateNewMessage(name)
 		if err != nil {
 			return nil, err
@@ -223,6 +222,7 @@ func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 		}
 		jr := json.RawMessage(buf.Bytes())
 
+		tmplName := strings.TrimPrefix(name, "oipProto.templates.")
 		detMap[tmplName] = &jr
 	}
 
