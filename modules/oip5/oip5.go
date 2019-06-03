@@ -51,7 +51,7 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 	nonNilAction := false
 	if o5.RecordTemplate != nil {
 		nonNilAction = true
-		bir, err := intakeRecordTemplate(o5.RecordTemplate, tx)
+		bir, err := intakeRecordTemplate(o5.RecordTemplate, msg.PubKey, tx)
 		if err != nil {
 			attr["err"] = err
 			log.Error("unable to process RecordTemplate", attr)
@@ -64,7 +64,7 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 
 	if o5.Record != nil {
 		nonNilAction = true
-		bir, err := intakeRecord(o5.Record, tx)
+		bir, err := intakeRecord(o5.Record, msg.PubKey, tx)
 		if err != nil {
 			attr["err"] = err
 			log.Error("unable to process Record", attr)
@@ -83,7 +83,7 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 
 	if o5.Normalize != nil {
 		nonNilAction = true
-		bir, err := intakeNormalize(o5.Normalize, tx)
+		bir, err := intakeNormalize(o5.Normalize, msg.PubKey, tx)
 		if err != nil {
 			attr["err"] = err
 			log.Error("unable to process Normalize", attr)
@@ -98,7 +98,7 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 	}
 }
 
-func intakeRecord(r *RecordProto, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
+func intakeRecord(r *RecordProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	m := jsonpb.Marshaler{}
 
 	var buf bytes.Buffer
@@ -115,6 +115,7 @@ func intakeRecord(r *RecordProto, tx *datastore.TransactionData) (*elastic.BulkI
 		Block:       tx.Block,
 		BlockHash:   tx.BlockHash,
 		Deactivated: false,
+		SignedBy:    string(pubKey),
 		Time:        tx.Transaction.Time,
 		Tx:          tx,
 		Txid:        tx.Transaction.Txid,
@@ -190,6 +191,7 @@ type RMeta struct {
 	Block       int64                      `json:"block"`
 	BlockHash   string                     `json:"block_hash"`
 	Deactivated bool                       `json:"deactivated"`
+	SignedBy    string                     `json:"signed_by"`
 	Time        int64                      `json:"time"`
 	Tx          *datastore.TransactionData `json:"-"`
 	Txid        string                     `json:"txid"`

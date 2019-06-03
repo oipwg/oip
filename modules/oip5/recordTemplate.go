@@ -24,7 +24,7 @@ func init() {
 	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
 }
 
-func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
+func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
@@ -59,6 +59,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, tx *datastore.TransactionData
 	elRt := elRecordTemplate{
 		Template: templateCache[uint32(ident)],
 		Meta: TMeta{
+			SignedBy:  string(pubKey),
 			Tx:        tx,
 			Time:      tx.Transaction.Time,
 			Txid:      tx.Transaction.Txid,
@@ -201,6 +202,7 @@ type elRecordTemplate struct {
 type TMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
+	SignedBy  string                     `json:"signed_by"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`

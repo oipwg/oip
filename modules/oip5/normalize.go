@@ -285,7 +285,7 @@ func detailsMessageFromTemplate(detAny *any.Any, id uint32) (*dynamic.Message, b
 	return dMsg, true
 }
 
-func intakeNormalize(n *NormalizeRecordProto, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
+func intakeNormalize(n *NormalizeRecordProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	m := jsonpb.Marshaler{}
 
 	var buf bytes.Buffer
@@ -301,6 +301,7 @@ func intakeNormalize(n *NormalizeRecordProto, tx *datastore.TransactionData) (*e
 	el.Meta = NMeta{
 		Block:     tx.Block,
 		BlockHash: tx.BlockHash,
+		SignedBy:  string(pubKey),
 		Time:      tx.Transaction.Time,
 		Tx:        tx,
 		Txid:      tx.Transaction.Txid,
@@ -321,6 +322,7 @@ func intakeNormalize(n *NormalizeRecordProto, tx *datastore.TransactionData) (*e
 type NMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
+	SignedBy  string                     `json:"signed_by"`
 	Time      int64                      `json:"time"`
 	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`

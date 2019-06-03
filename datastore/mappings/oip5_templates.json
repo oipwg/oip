@@ -50,6 +50,10 @@
               "type": "keyword",
               "ignore_above": 64
             },
+            "signed_by": {
+              "type": "keyword",
+              "ignore_above": 40
+            },
             "time": {
               "type": "long"
             },
