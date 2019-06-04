@@ -30,7 +30,7 @@ func init() {
 var (
 	o5Indices = []string{o5RecordIndexName}
 	o5Fsc     = elastic.NewFetchSourceContext(true).
-			Include("record.*", "template.*", "file_descriptor_set", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+			Include("record.*", "template.*", "file_descriptor_set", "meta.signed_by", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
 )
 
 func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
