@@ -258,7 +258,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:5610fa05d9afd7cb13890f42f3f450e47b4412c44ceb23bca03cb9da017ff6aa"
+  branch = "overrideTxid"
+  digest = "1:3b836aed7ca1ae6c1587924e7de53ca0763b950f7a4d6bc77688c0ae8510224d"
   name = "github.com/jhump/protoreflect"
   packages = [
     "desc",
@@ -268,8 +269,8 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "8bfeffd6b414f964a56d8a0118b5f80906a59def"
-  version = "v1.2.0"
+  revision = "9d035fec84799c12dfb9cfb1030df48fe8f7c403"
+  source = "github.com/bitspill/protoreflect"
 
 [[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
