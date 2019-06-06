@@ -1,6 +1,11 @@
 package oipProto
 
-import "encoding/hex"
+import (
+	"encoding/hex"
+	"encoding/json"
+
+	"github.com/golang/protobuf/jsonpb"
+)
 
 func TxidFromString(txid string) *Txid {
 	if len(txid) != 64 {
@@ -39,4 +44,19 @@ func TxidPrefixToString(txid *Txid) string {
 		return ""
 	}
 	return hex.EncodeToString(txid.Raw[0:8])
+}
+
+func (m *Txid) UnmarshalJSONPB(u *jsonpb.Unmarshaler, b []byte) error {
+	dst := make([]byte, len(b)/2)
+	_, err := hex.Decode(dst, b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Txid) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
+	dst := make([]byte, len(m.Raw)*2)
+	hex.Encode(dst, m.Raw)
+	return json.Marshal(string(dst))
 }

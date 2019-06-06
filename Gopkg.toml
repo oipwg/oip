@@ -84,8 +84,7 @@
 
 [[constraint]]
   name = "github.com/jhump/protoreflect"
-  branch = "overrideTxid"
-  source = "github.com/bitspill/protoreflect"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/json-iterator/go"

@@ -16,6 +16,7 @@ import (
 	"github.com/jhump/protoreflect/desc/builder"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/oipProto"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 )
@@ -126,6 +127,53 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		log.Error("unable to set message name", attr)
 		return errors.New("unable to set message name")
 	}
+
+	children := messageBuilder.GetChildren()
+	for _, child := range children {
+		if fb, ok := child.(*builder.FieldBuilder); ok {
+			t := fb.GetType()
+			if t.GetType() == descriptor.FieldDescriptorProto_TYPE_MESSAGE {
+				n := t.GetTypeName()
+				if strings.HasPrefix(n, "oipProto.") && strings.HasSuffix(n, ".Txid") {
+					txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oipProto.Txid{})
+					if err != nil {
+						attr["err"] = err
+						log.Error("unable to load txid descriptor", attr)
+						return err
+					}
+					txidMessageType, err := builder.FromMessage(txidDescriptor)
+					if err != nil {
+						attr["err"] = err
+						log.Error("unable to create txid message type", attr)
+						return err
+					}
+					fb.SetType(builder.FieldTypeMessage(txidMessageType))
+					ok := messageBuilder.TryRemoveField(fb.GetName())
+					if ok {
+						err := messageBuilder.TryAddField(fb)
+						if err != nil {
+							attr["err"] = err
+							log.Error("unable to add txid field", attr)
+							return err
+						}
+					} else {
+						log.Error("unable to remove txid field", attr)
+						return errors.New("unable to remove txid field")
+					}
+				}
+			}
+		}
+		if mb, ok := child.(*builder.MessageBuilder); ok {
+			if mb.GetName() == "Txid" {
+				ok := messageBuilder.TryRemoveNestedMessage("Txid")
+				if !ok {
+					log.Error("unable to remove nested Txid Type", attr)
+					return errors.New("unable to remove nested Txid Type")
+				}
+			}
+		}
+	}
+
 	message, err := messageBuilder.Build()
 	if err != nil {
 		attr["err"] = err
