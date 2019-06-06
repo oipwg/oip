@@ -55,13 +55,13 @@ func TestIntakeRecordTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bir, err := intakeRecordTemplate(cb, cbtx)
+	bir, err := intakeRecordTemplate(cb, nil, cbtx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
 	datastore.AutoBulk.Add(bir)
 
-	bir, err = intakeRecordTemplate(bc, bctx)
+	bir, err = intakeRecordTemplate(bc, nil, bctx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
@@ -118,7 +118,7 @@ func TestDescriptorFromProtobufJs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bir, err := intakeRecordTemplate(bc, bctx)
+	bir, err := intakeRecordTemplate(bc, nil, bctx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
@@ -215,7 +215,7 @@ func TestUnmarshalSignedMessage(t *testing.T) {
 }
 
 func TestDecodeRecordTemplate(t *testing.T) {
-	b, err := base64.StdEncoding.DecodeString("CpgBCpUBChVSZWdpc3RlcmVkIFB1Ymxpc2hlcnMSIEFsbCByZWdpc3RlcmVkIHB1Ymxpc2hlcnMgaW4gT0lQIloKWAoHcC5wcm90byJFCgFQEgwKBG5hbWUYASABKAkSFAoMZmxvQmlwNDRYcHViGAIgASgJEhwKFGZsb0JpcDQ0U2lnbmluZ0luZGV4GAMgASgNYgZwcm90bzMQARgBIiJGVGRRSkpDdEVQN1pKeXBYbjJSR3lkZWJ6Y0ZMVmdES1hSKkEgMdJatd2HdlGrwgNQiaD52fVay7HPcRGVFxbbzfrhoBYUL1uhCOfFraLeEdXeNHLfU9pizy1U1mNOsUSfEc7KIQ==")
+	b, err := base64.StdEncoding.DecodeString("ClsKWQoLQmFzaWMgVmlkZW8SCGJhc2ljIGFmIkAKPgoHcC5wcm90bxISb2lwUHJvdG8udGVtcGxhdGVzIhcKAVASEgoKc3VwZXJiYXNpYxgBIAEoCWIGcHJvdG8zEAEYASIiRlRkUUpKQ3RFUDdaSnlwWG4yUkd5ZGViemNGTFZnREtYUipBIB/wdR0scIXM4lp6d5aDlme3ThycRfWG9P56NFaBFkkdMpqYOoM5WgH5v8pHW9suxLy70kf5dM/iQ4hpNYjEhYA=")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,7 +244,14 @@ func TestDecodeRecordTemplate(t *testing.T) {
 }
 
 func TestNotStringProtobufJs(t *testing.T) {
-	descriptor := []byte{10, 42, 10, 7, 112, 46, 112, 114, 111, 116, 111, 34, 23, 10, 1, 80, 18, 18, 10, 10, 100, 101, 99, 111, 100, 101, 84, 104, 105, 115, 24, 1, 32, 1, 40, 13, 98, 6, 112, 114, 111, 116, 111, 51}
+	// descriptor := []byte{10, 42, 10, 7, 112, 46, 112, 114, 111, 116, 111, 34, 23, 10, 1, 80, 18, 18, 10, 10, 100, 101, 99, 111, 100, 101, 84, 104, 105, 115, 24, 1, 32, 1, 40, 13, 98, 6, 112, 114, 111, 116, 111, 51}
+
+	descriptor, ero := base64.StdEncoding.DecodeString("CoQBCgdwLnByb3RvEhJvaXBQcm90by50ZW1wbGF0ZXMiXQoBUBIhChNyZWdpc3RlcmVkUHVibGlzaGVyGAEgASgLMgRUeGlkEhEKCXR3aXR0ZXJJZBgCIAEoCRINCgVnYWJJZBgDIAEoCRoTCgRUeGlkEgsKA3JhdxgBIAEoDGIGcHJvdG8z")
+	if ero != nil {
+		t.Fatal(ero)
+	}
+
+	// descriptor := []byte{10, 75, 10, 7, 112, 46, 112, 114, 111, 116, 111, 18, 18, 111, 105, 112, 80, 114, 111, 116, 111, 46, 116, 101, 109, 112, 108, 97, 116, 101, 115, 34, 36, 10, 1, 80, 18, 12, 10, 4, 110, 97, 109, 101, 24, 1, 32, 1, 40, 9, 18, 17, 10, 3, 114, 101, 102, 24, 2, 32, 1, 40, 11, 50, 4, 84, 120, 105, 100, 98, 6, 112, 114, 111, 116, 111, 51, 10, 55, 10, 14, 111, 105, 112, 80, 114, 111, 116, 111, 46, 112, 114, 111, 116, 111, 18, 8, 111, 105, 112, 80, 114, 111, 116, 111, 34, 19, 10, 4, 84, 120, 105, 100, 18, 11, 10, 3, 114, 97, 119, 24, 1, 32, 1, 40, 12, 98, 6, 112, 114, 111, 116, 111, 5,}
 
 	rt := &RecordTemplate{}
 	err := decodeDescriptorSet(rt, descriptor, "deadbeef")
