@@ -21,10 +21,6 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-func init() {
-	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
-}
-
 func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)

@@ -32,6 +32,9 @@ func init() {
 	log.Info("init oip5")
 	events.SubscribeAsync("modules:oip5:msg", on5msg, false)
 
+	_ = datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
+	_ = datastore.RegisterMapping("oip5_record", "oip5_record.json")
+
 	recordCache, _ = lru.New(recordCacheDepth)
 }
 
