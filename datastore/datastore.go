@@ -94,7 +94,7 @@ func getHttpClient() (*http.Client, error) {
 	return httpClient, nil
 }
 
-func RegisterMapping(index, fileName string) error {
+func RegisterMapping(index, fileName string) {
 	index = Index(index) // apply proper prefix
 	mapping, err := mapBox.FindString(fileName)
 	if err != nil {
@@ -102,9 +102,11 @@ func RegisterMapping(index, fileName string) error {
 	}
 	mappings[index] = mapping
 	if client != nil {
-		return createIndex(context.TODO(), index, mapping)
+		err := createIndex(context.TODO(), index, mapping)
+		if err != nil {
+			panic(fmt.Sprintf("unable to create index %s - %s", index, err))
+		}
 	}
-	return nil
 }
 
 func createIndex(ctx context.Context, index, mapping string) error {
