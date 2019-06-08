@@ -30,7 +30,7 @@ var normalizers = make(map[uint32][]*NormalizeRecordProto)
 
 func init() {
 	log.Info("init oip5")
-	events.SubscribeAsync("modules:oip5:msg", on5msg, false)
+	events.SubscribeAsync("modules:oip5:msg", on5msg)
 
 	datastore.RegisterMapping("oip5_templates", "oip5_templates.json")
 	datastore.RegisterMapping("oip5_record", "oip5_record.json")

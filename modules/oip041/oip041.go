@@ -22,7 +22,7 @@ var artRouter = httpapi.NewSubRoute("/oip041/artifact")
 
 func init() {
 	log.Info("init oip41")
-	events.SubscribeAsync("modules:oip:oip041", on41, false)
+	events.SubscribeAsync("modules:oip:oip041", on41)
 
 	datastore.RegisterMapping(oip41IndexName, "oip041.json")
 

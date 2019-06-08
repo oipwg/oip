@@ -19,7 +19,7 @@ var artRouter = httpapi.NewSubRoute("/alexandria/artifact")
 
 func init() {
 	log.Info("init alexandria-media")
-	events.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
+	events.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia)
 	datastore.RegisterMapping(amIndexName, "alexandria-media.json")
 	artRouter.HandleFunc("/get/latest", handleLatest)
 	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)

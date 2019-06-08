@@ -14,7 +14,7 @@ import (
 var deactivationCommitMutex sync.Mutex
 
 func init() {
-	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
+	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted)
 }
 
 func onMpCompleted() {

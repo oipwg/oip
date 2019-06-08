@@ -12,8 +12,8 @@ import (
 func init() {
 	log.Info("init flotorizer")
 	if !config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloData, false)
-		events.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
+		events.SubscribeAsync("flo:floData", onFloData)
+		events.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized)
 		datastore.RegisterMapping("flotorizer", "flotorizer.json")
 	}
 }

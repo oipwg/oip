@@ -18,8 +18,8 @@ var deactivationCommitMutex sync.Mutex
 
 func init() {
 	log.Info("init alexandria-deactivation")
-	events.SubscribeAsync("modules:oip:alexandriaDeactivation", onAlexandriaDeactivation, false)
-	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
+	events.SubscribeAsync("modules:oip:alexandriaDeactivation", onAlexandriaDeactivation)
+	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted)
 	datastore.RegisterMapping(adIndexName, "alexandria-deactivation.json")
 }
 

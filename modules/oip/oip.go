@@ -23,13 +23,13 @@ const minFloDataLen = 35
 func init() {
 	log.Info("init oip")
 	if config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloDataTestNet, false)
+		events.SubscribeAsync("flo:floData", onFloDataTestNet)
 	} else {
-		events.SubscribeAsync("flo:floData", onFloDataMainNet, false)
+		events.SubscribeAsync("flo:floData", onFloDataMainNet)
 	}
-	events.SubscribeAsync("sync:floData:json", onJson, false)
-	events.SubscribeAsync("sync:floData:p64", onP64, false)
-	events.SubscribeAsync("sync:floData:gp64", onGp64, false)
+	events.SubscribeAsync("sync:floData:json", onJson)
+	events.SubscribeAsync("sync:floData:p64", onP64)
+	events.SubscribeAsync("sync:floData:gp64", onGp64)
 }
 
 func onFloDataMainNet(floData string, tx *datastore.TransactionData) {

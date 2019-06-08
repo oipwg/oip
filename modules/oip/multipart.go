@@ -30,9 +30,9 @@ var mpRouter = httpapi.NewSubRoute("/multipart")
 func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, "multipart.json")
-	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
-	events.SubscribeAsync("modules:oip:multipartProto", onMultipartProto, false)
-	events.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
+	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle)
+	events.SubscribeAsync("modules:oip:multipartProto", onMultipartProto)
+	events.SubscribeAsync("datastore:commit", onDatastoreCommit)
 
 	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
 	mpRouter.HandleFunc("/get/id/{id:[a-f0-9]+}", handleGetId)

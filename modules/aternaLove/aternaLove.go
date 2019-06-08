@@ -13,8 +13,8 @@ import (
 func init() {
 	log.Info("init aterna")
 	if !config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloData, false)
-		events.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
+		events.SubscribeAsync("flo:floData", onFloData)
+		events.SubscribeAsync("modules:aternaLove:alove", onAlove)
 		datastore.RegisterMapping("aterna", "aterna.json")
 	}
 }

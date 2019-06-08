@@ -18,7 +18,7 @@ var pubRouter = httpapi.NewSubRoute("/alexandria/publisher")
 
 func init() {
 	log.Info("init alexandria-publisher")
-	events.SubscribeAsync("modules:oip:alexandriaPublisher", onAlexandriaPublisher, false)
+	events.SubscribeAsync("modules:oip:alexandriaPublisher", onAlexandriaPublisher)
 	datastore.RegisterMapping(apIndexName, "alexandria-publisher.json")
 	pubRouter.HandleFunc("/get/latest/", handleLatestPublishers)
 	pubRouter.HandleFunc("/get/{address:[A-Za-z0-9]+}", handleGetPublisher)

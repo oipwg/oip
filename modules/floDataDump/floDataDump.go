@@ -19,8 +19,8 @@ var (
 
 func init() {
 	log.Info("init floDataDump")
-	events.SubscribeAsync("flo:floData", onFloData, false)
-	events.SubscribeAsync("datastore:commit", onCommit, false)
+	events.SubscribeAsync("flo:floData", onFloData)
+	events.SubscribeAsync("datastore:commit", onCommit)
 
 	var err error
 	f, err = os.OpenFile("textComments.txt", os.O_CREATE|os.O_APPEND, 0644)

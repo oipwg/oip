@@ -13,11 +13,11 @@ import (
 func init() {
 	log.Info("init tZero")
 	if !config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", floDataProcessor, false)
-		events.SubscribeAsync("modules:tZero:cancel", onCancel, false)
-		events.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted, false)
-		events.SubscribeAsync("modules:tZero:executionReport", onExecutionReport, false)
-		events.SubscribeAsync("modules:tZero:clientInterest", onClientInterest, false)
+		events.SubscribeAsync("flo:floData", floDataProcessor)
+		events.SubscribeAsync("modules:tZero:cancel", onCancel)
+		events.SubscribeAsync("modules:tZero:inventoryPosted", onInventoryPosted)
+		events.SubscribeAsync("modules:tZero:executionReport", onExecutionReport)
+		events.SubscribeAsync("modules:tZero:clientInterest", onClientInterest)
 		datastore.RegisterMapping("tzero", "tZero.json")
 	}
 }
