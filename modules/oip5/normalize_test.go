@@ -420,6 +420,9 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	moonDet.SetFieldByNumber(2, "Luna")
 
 	moonAny, err := ptypes.MarshalAny(moonDet)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	moonRecord := &OipFive{
 		Record: &RecordProto{
@@ -477,6 +480,9 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	planetDet.AddRepeatedFieldByNumber(3, lunaRef)
 
 	planetAny, err := ptypes.MarshalAny(planetDet)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	planetRecord := &OipFive{
 		Record: &RecordProto{

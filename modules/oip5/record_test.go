@@ -247,8 +247,8 @@ func TestDecodeRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	datastore.Setup(context.Background())
-	LoadTemplatesFromES(context.Background())
+	_ = datastore.Setup(context.Background())
+	_ = LoadTemplatesFromES(context.Background())
 
 	fmt.Println((&jsonpb.Marshaler{}).MarshalToString(o5))
 }

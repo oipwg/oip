@@ -173,9 +173,7 @@ func stepPath(field *Field, msgIterator *dynamic.Message) (interface{}, error) {
 				returnSlice = append(returnSlice, nextMessage)
 			}
 		} else {
-			for _, sfVal := range sliceFieldValue {
-				returnSlice = append(returnSlice, sfVal)
-			}
+			returnSlice = append(returnSlice, sliceFieldValue...)
 		}
 		return returnSlice, nil
 	} else if Field_Type(f.GetType()) == Field_TYPE_MESSAGE {
@@ -313,7 +311,7 @@ func intakeNormalize(n *NormalizeRecordProto, pubKey []byte, tx *datastore.Trans
 		Id(tx.Transaction.Txid).
 		Doc(el)
 
-	norms, _ := normalizers[n.MainTemplate]
+	norms := normalizers[n.MainTemplate]
 	normalizers[n.MainTemplate] = append(norms, n)
 
 	return bir, nil

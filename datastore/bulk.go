@@ -3,13 +3,13 @@ package datastore
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/azer/logger"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dustin/go-humanize"
 	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
-	"time"
 )
 
 func BeginBulkIndexer() BulkIndexer {
@@ -147,7 +147,10 @@ func (bi *BulkIndexer) Add(bir ...elastic.BulkableRequest) {
 	bi.m.Lock()
 	bi.bulk.Add(bir...)
 	bi.m.Unlock()
-	bi.CheckSizeStore(context.TODO())
+	_, err := bi.CheckSizeStore(context.TODO())
+	if err != nil {
+		log.Error("error storing after add")
+	}
 }
 
 type BulkIndexerResponse struct {

@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/jhump/protoreflect/desc"
@@ -252,32 +251,6 @@ type TMeta struct {
 	Txid      string                     `json:"txid"`
 }
 
-// func (rt *RecordTemplate) CreateNewMessage() proto.Message {
-// // 	if rt.MessageType == nil {
-// // 		log.Error("nil message type", logger.Attrs{"rt.ident": uint64(rt.Identifier), "rt.sIdent": rt.Identifier})
-// // 		return nil
-// // 	}
-// //
-// // 	if rt.MessageType.Kind() == reflect.Ptr {
-// // 		return reflect.New(rt.MessageType.Elem()).Interface().(proto.Message)
-// // 	} else {
-// // 		return reflect.New(rt.MessageType).Elem().Interface().(proto.Message)
-// // 	}
-// // }
-
-type anyResolver struct {
-	upstreamAny jsonpb.AnyResolver
-}
-
-func (r anyResolver) Resolve(typeUrl string) (proto.Message, error) {
-	m, err := CreateNewMessage(typeUrl)
-	if err != nil {
-		return m, nil
-	}
-
-	return r.upstreamAny.Resolve(typeUrl)
-}
-
 func CreateNewMessage(id string) (proto.Message, error) {
 	hexId := strings.TrimPrefix(id, "oipProto.templates.tmpl_")
 	if len(hexId) == 8 {
@@ -318,6 +291,9 @@ func LoadTemplatesFromES(ctx context.Context) error {
 		tmpl := value.(elRecordTemplate)
 
 		b, err := base64.StdEncoding.DecodeString(tmpl.Template.FileDescriptorSet)
+		if err != nil {
+			return err
+		}
 		err = decodeDescriptorSet(tmpl.Template, b, tmpl.Meta.Txid)
 		if err != nil {
 			return err
