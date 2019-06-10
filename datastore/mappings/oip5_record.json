@@ -1,353 +1,354 @@
 {
-  "mainnet-oip5_record": {
-    "mappings": {
-      "_doc": {
-        "dynamic": "true",
-        "properties": {
-          "meta": {
-            "properties": {
-              "block": {
-                "type": "long"
-              },
-              "block_hash": {
-                "type": "keyword",
-                "ignore_above": 64
-              },
-              "deactivated": {
-                "type": "boolean"
-              },
-              "signed_by": {
-                "type": "keyword",
-                "ignore_above": 40
-              },
-              "time": {
-                "type": "date",
-                "format": "epoch_second"
-              },
-              "txid": {
-                "type": "keyword",
-                "ignore_above": 256
-              },
-              "type": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "true",
+      "properties": {
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "deactivated": {
+              "type": "boolean"
+            },
+            "signed_by": {
+              "type": "keyword",
+              "ignore_above": 40
+            },
+            "time": {
+              "type": "date",
+              "format": "epoch_second"
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 256
             }
-          },
-          "record": {
-            "properties": {
-              "details": {
-                "properties": {
-                  "tmpl_159C919B": {
-                    "properties": {
-                      "artistName": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+          }
+        },
+        "record": {
+          "properties": {
+            "details": {
+              "properties": {
+                "tmpl_159C919B": {
+                  "properties": {
+                    "artistName": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "favoriteAlbum": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "favoriteAlbum": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "favoriteTrack": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "favoriteTrack": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
                       }
                     }
-                  },
-                  "tmpl_2D0E791B": {
-                    "properties": {
-                      "description": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "httpUrl": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "name": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "paymentsBtcBip44XPub": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "paymentsFloBip44XPub": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      }
-                    }
-                  },
-                  "tmpl_3084380E": {
-                    "properties": {
-                      "influencerCut": {
-                        "type": "long"
-                      },
-                      "platformCut": {
-                        "type": "long"
-                      }
-                    }
-                  },
-                  "tmpl_433C2783": {
-                    "properties": {
-                      "floBip44XPub": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "name": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_2D0E791B": {
+                  "properties": {
+                    "description": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
                       }
+                    },
+                    "httpUrl": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "name": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "paymentsBtcBip44XPub": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "paymentsFloBip44XPub": {
+                      "type": "keyword",
+                      "ignore_above": 256
                     }
-                  },
-                  "tmpl_4769368E": {
-                    "properties": {
-                      "addressDirectory": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "displayName": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "filename": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "publishDate": {
-                        "type": "date",
-                        "format": "epoch_second"
-                      },
-                      "thumbnailFilename": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_3084380E": {
+                  "properties": {
+                    "influencerCut": {
+                      "type": "long"
+                    },
+                    "platformCut": {
+                      "type": "long"
+                    }
+                  }
+                },
+                "tmpl_433C2783": {
+                  "properties": {
+                    "floBip44XPub": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "name": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
                       }
                     }
-                  },
-                  "tmpl_66089C48": {
-                    "properties": {
-                      "description": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_4769368E": {
+                  "properties": {
+                    "addressDirectory": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "displayName": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "title": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "year": {
-                        "type": "long"
                       }
-                    }
-                  },
-                  "tmpl_868E1CF2": {
-                    "properties": {
-                      "favoriteExGirlfriend": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                    },
+                    "filename": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "favoriteMovie": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "favoriteSport": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "publishDate": {
+                      "type": "date",
+                      "format": "epoch_second"
+                    },
+                    "thumbnailFilename": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
                       }
                     }
-                  },
-                  "tmpl_AFFDC192": {
-                    "properties": {
-                      "description": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_66089C48": {
+                  "properties": {
+                    "description": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "httpUrl": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "name": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "paymentsBtcBip44XPub": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "paymentsFloBip44XPub": {
-                        "type": "keyword",
-                        "ignore_above": 256
                       }
+                    },
+                    "title": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "year": {
+                      "type": "long"
                     }
-                  },
-                  "tmpl_BE26BD14": {
-                    "properties": {
-                      "artistName": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_868E1CF2": {
+                  "properties": {
+                    "favoriteExGirlfriend": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "artistWebsite": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "favoriteMovie": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "favoriteAlbum": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
-                        }
-                      },
-                      "favoriteTrack": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "favoriteSport": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
                       }
                     }
-                  },
-                  "tmpl_DC442E32": {
-                    "properties": {
-                      "brand": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                  }
+                },
+                "tmpl_AFFDC192": {
+                  "properties": {
+                    "description": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "manufacturer": {
-                        "type": "text",
-                        "fields": {
-                          "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                          }
+                      }
+                    },
+                    "httpUrl": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
-                      },
-                      "size": {
-                        "type": "long"
+                      }
+                    },
+                    "name": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "paymentsBtcBip44XPub": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "paymentsFloBip44XPub": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "tmpl_BE26BD14": {
+                  "properties": {
+                    "artistName": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "artistWebsite": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "favoriteAlbum": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "favoriteTrack": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
                       }
                     }
-                  },
-                  "tmpl_F471DFF9": {
-                    "properties": {
-                      "gabId": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "registeredPublisher": {
-                        "type": "keyword",
-                        "ignore_above": 256
-                      },
-                      "twitterId": {
-                        "type": "keyword",
-                        "ignore_above": 256
+                  }
+                },
+                "tmpl_DC442E32": {
+                  "properties": {
+                    "brand": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
                       }
+                    },
+                    "manufacturer": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "size": {
+                      "type": "long"
+                    }
+                  }
+                },
+                "tmpl_F471DFF9": {
+                  "properties": {
+                    "gabId": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "registeredPublisher": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    },
+                    "twitterId": {
+                      "type": "keyword",
+                      "ignore_above": 256
                     }
                   }
                 }
