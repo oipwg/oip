@@ -95,6 +95,14 @@ func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 	bi.Add(bir)
 }
 
+func (bi *BulkIndexer) DeleteBlock(hash string) {
+	bir := elastic.NewBulkDeleteRequest().
+		Index(Index("blocks")).
+		Type("_doc").
+		Id(hash)
+	bi.Add(bir)
+}
+
 func (bi *BulkIndexer) StoreTransaction(td *TransactionData) {
 	bir := elastic.NewBulkIndexRequest().
 		Index(Index("transactions")).

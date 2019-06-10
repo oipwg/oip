@@ -37,7 +37,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	// more difficult cases; new block does not follow
 	// maybe orphan, fork, or future block
 
-	attr["incomingHash"] = header.PrevBlock.String()
+	attr["prevBlockHash"] = header.PrevBlock.String()
 	attr["lastHash"] = ilb.Block.Hash
 	attr["lastHeight"] = ilb.Block.Height
 
@@ -60,6 +60,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 		return
 	}
 
+	/*
 	// ToDo: test rewind/re-org
 	attr["recentBlocksLen"] = recentBlocks.Len()
 	for i := -1; i > -recentBlocks.Len(); i-- {
@@ -72,12 +73,25 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			for ; i < 0; i++ {
 				attr["pop"] = i
 				log.Info("popping block", attr)
-				recentBlocks.PopFront()
+				popped := recentBlocks.PopFront()
+				ilb = popped
+				attr["lastHash"] = ilb.Block.Hash
+				attr["lastHeight"] = ilb.Block.Height
 			}
-			_, err := IndexBlockAtHeight(int64(height), *ilb)
-			if err != nil {
-				attr["err"] = err
-				log.Error("onFilteredBlockConnected unable to index block, re-org", attr)
+			
+			log.Info("refilling gap since re-org", attr)
+			for i := ilb.Block.Height + 1; i <= int64(height); i++ {
+				attr["i"] = i
+				attr["lastHash"] = ilb.Block.Hash
+				attr["lastHeight"] = ilb.Block.Height
+				log.Info("filling gap", attr)
+				nlb, err := IndexBlockAtHeight(int64(i), *ilb)
+				if err != nil {
+					attr["err"] = err
+					log.Error("onFilteredBlockConnected unable to index block, re-org", attr)
+					return
+				}
+				ilb = &nlb
 			}
 
 			return
@@ -85,6 +99,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	}
 
 	log.Error("potential fork, unable to connect block", attr)
+	*/
 }
 
 func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
@@ -108,4 +123,16 @@ func onFilteredBlockDisconnected(height int32, header *wire.BlockHeader) {
 	log.Info("BlockDisconnected", attr)
 
 	// ToDo mark as disconnected in database along with all associated records
+
+	ilb := recentBlocks.PeekFront()
+
+	if ilb.Block.Hash == header.BlockHash().String() {
+		log.Info("Deleting block from ES and recentBlocks", attr)
+		datastore.AutoBulk.DeleteBlock(header.BlockHash().String())
+		recentBlocks.PopFront()
+		nlb := recentBlocks.PeekFront()
+		attr["nlb.hash"] = nlb.Block.Hash
+		attr["nlb.height"]  = nlb.Block.Height
+		log.Info("New last block", attr)
+	}
 }
