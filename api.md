@@ -2,7 +2,7 @@ API
 =
 
 - oipd
-  - /version
+  - /daemon/version
   - /floData/search?q={query}
 - artifacts (oip41 & oip042)
   - /artifact/get/latest?nsfw=true/false
@@ -22,7 +22,7 @@ API
   - /oip041/artifact/get/{id:[a-f0-9]+}
 
 
-##Common Query Params
+## Common Query Params
 All API routes which may return multiple results
 also have `after`, `limit`, `page` and `sort` query
 parameters which can be used to facilitate pagination
