@@ -68,7 +68,7 @@ func (bb *blockBuffer) Len() int {
 
 func (bb *blockBuffer) Get(i int) *datastore.BlockData {
 	if i < 0 {
-		return bb.recentBlocks[(bb.front+i)&bbCapacity]
+		return bb.recentBlocks[(bb.front+i+1)&bbCapacity]
 	}
 	return bb.recentBlocks[(bb.back+i)&bbCapacity]
 }
