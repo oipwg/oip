@@ -58,6 +58,7 @@ func (bi *BulkIndexer) quickCommit() {
 
 		br, err := bi.Do(context.TODO())
 		if err != nil {
+			log.Error("error commiting to ES in quickCommit", logger.Attrs{"err": err})
 			return
 		}
 
