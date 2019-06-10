@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 if [ -z $IMAGE_TAG ]; then
   IMAGE_TAG=dev
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 IMAGE_NAME=oip
 
 if [ -z $IMAGE_TAG ]; then
