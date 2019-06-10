@@ -22,7 +22,8 @@ fi
 
 if [ -z "$RPC_PASSWORD" ]
 then
-	RPC_PASSWORD="F25tcrKYiw9LjktQ"
+	# Generate random RPC Password if unset
+	RPC_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')"
 fi
 
 if [ -z "$HTTP_USER" ]
