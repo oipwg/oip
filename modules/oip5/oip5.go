@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	lru "github.com/hashicorp/golang-lru"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/oipwg/oip/oipProto"
 	"gopkg.in/olivere/elastic.v6"
 
@@ -22,9 +22,11 @@ import (
 	"github.com/oipwg/oip/events"
 )
 
-var recordCache *lru.Cache
-
 const recordCacheDepth = 10000
+const publisherCacheDepth = 1000
+
+var recordCache *lru.Cache
+var publisherCache *lru.Cache
 
 var normalizers = make(map[uint32][]*NormalizeRecordProto)
 
@@ -36,6 +38,7 @@ func init() {
 	datastore.RegisterMapping("oip5_record", "oip5_record.json")
 
 	recordCache, _ = lru.New(recordCacheDepth)
+	publisherCache, _ = lru.New(publisherCacheDepth)
 }
 
 func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
@@ -110,19 +113,25 @@ func intakeRecord(r *RecordProto, pubKey []byte, tx *datastore.TransactionData) 
 		return nil, err
 	}
 
-	fmt.Println(buf.String())
+	strPubKey := string(pubKey)
+
+	pubName, err := GetPublisherName(strPubKey)
+	if err != nil {
+		log.Error("error getting publisher name", logger.Attrs{"txid": tx.Transaction.Txid, "pubkey": strPubKey, "err": err})
+	}
 
 	var el elasticOip5Record
 	el.Record = buf.Bytes()
 	el.Meta = RMeta{
-		Block:       tx.Block,
-		BlockHash:   tx.BlockHash,
-		Deactivated: false,
-		SignedBy:    string(pubKey),
-		Time:        tx.Transaction.Time,
-		Tx:          tx,
-		Txid:        tx.Transaction.Txid,
-		Type:        "oip5",
+		Block:         tx.Block,
+		BlockHash:     tx.BlockHash,
+		Deactivated:   false,
+		SignedBy:      strPubKey,
+		PublisherName: pubName,
+		Time:          tx.Transaction.Time,
+		Tx:            tx,
+		Txid:          tx.Transaction.Txid,
+		Type:          "oip5",
 	}
 
 	bir := elastic.NewBulkIndexRequest().
@@ -180,6 +189,38 @@ func GetRecord(txid string) (*oip5Record, error) {
 	return nil, errors.New("ID not found")
 }
 
+func GetPublisherName(pubKey string) (string, error) {
+	pni, found := publisherCache.Get(pubKey)
+	if found {
+		return pni.(string), nil
+	}
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewExistsQuery("record.details.tmpl_433C2783.name"),
+		elastic.NewTermQuery("meta.signed_by", pubKey),
+	)
+	results, err := datastore.Client().
+		Search(datastore.Index("oip5_record")).
+		Type("_doc").
+		Query(q).
+		Size(1).
+		Sort("meta.time", false).
+		Do(context.TODO())
+	if err != nil {
+		log.Error("elastic search failed", logger.Attrs{"err": err})
+		return "", err
+	}
+
+	if len(results.Hits.Hits) > 0 {
+		src := *results.Hits.Hits[0].Source
+		pn := jsoniter.Get(src, "record", "details", "tmpl_433C2783", "name").ToString()
+		publisherCache.Add(pubKey, pn)
+		return pn, nil
+	}
+
+	return "", errors.New("unable to locate publisher")
+}
+
 type elasticOip5Record struct {
 	Record json.RawMessage `json:"record"`
 	Meta   RMeta           `json:"meta"`
@@ -191,15 +232,16 @@ type oip5Record struct {
 }
 
 type RMeta struct {
-	Block       int64                      `json:"block"`
-	BlockHash   string                     `json:"block_hash"`
-	Deactivated bool                       `json:"deactivated"`
-	SignedBy    string                     `json:"signed_by"`
-	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"-"`
-	Txid        string                     `json:"txid"`
-	Type        string                     `json:"type"`
-	Normalizer  int64                      `json:"normalizer_id,omitempty"`
+	Block         int64                      `json:"block"`
+	BlockHash     string                     `json:"block_hash"`
+	Deactivated   bool                       `json:"deactivated"`
+	SignedBy      string                     `json:"signed_by"`
+	PublisherName string                     `json:"publisher_name"`
+	Time          int64                      `json:"time"`
+	Tx            *datastore.TransactionData `json:"-"`
+	Txid          string                     `json:"txid"`
+	Type          string                     `json:"type"`
+	Normalizer    int64                      `json:"normalizer_id,omitempty"`
 }
 
 func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
