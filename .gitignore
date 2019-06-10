@@ -11,3 +11,7 @@ textComments.txt
 
 # Build stuff
 oipd
+tmp/*
+bin/*
+build/*
+.DS_Store
