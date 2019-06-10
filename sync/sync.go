@@ -11,8 +11,8 @@ import (
 
 func init() {
 	log.Info("Subscribing to events")
-	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, true)
-	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
+	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, false)
+	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, false)
 	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
