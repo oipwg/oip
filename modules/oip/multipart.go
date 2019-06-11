@@ -201,29 +201,22 @@ func tryCompleteMultipart(mp Multipart) {
 	log.Info("completed mp ", logger.Attrs{"reference": mp.Parts[0].Reference})
 
 	dataString := strings.Join(rebuild, "")
-	s := elastic.NewScript("ctx._source.meta.complete=true;"+
-		"ctx._source.meta.assembled=params.assembled").Type("inline").Param("assembled", dataString).Lang("painless")
 
-	q := elastic.NewTermQuery("reference", part0.Reference)
-	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
-		Type("_doc").Script(s)
+	newVal := map[string]interface{}{
+		"meta": map[string]interface{}{
+			"complete":  true,
+			"assembled": dataString,
+		},
+	}
 
-	// elastic.NewBulkUpdateRequest()
-
-	res, err := cuq.Do(context.TODO())
-
-	if err != nil {
-		log.Error("error updating multipart", logger.Attrs{
-			"reference": part0.Reference,
-			"block":     part0.Meta.Block,
-			"err":       err,
-			"errDump":   spew.Sdump(err)})
-		return
+	for _, part := range mp.Parts {
+		upd := elastic.NewBulkUpdateRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Id(part.Meta.Txid).Doc(newVal)
+		datastore.AutoBulk.Add(upd)
 	}
 
 	events.Publish("flo:floData", dataString, part0.Meta.Tx)
 
-	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
+	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference})
 }
 
 func onMultipartSingle(floData string, tx *datastore.TransactionData) {
