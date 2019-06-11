@@ -56,7 +56,7 @@ func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
 		query,
 		[]elastic.SortInfo{
 			{Field: "meta.time", Ascending: false},
-			{Field: "meta.txid.keyword", Ascending: true},
+			{Field: "meta.txid", Ascending: true},
 		},
 		o5Fsc,
 	)
