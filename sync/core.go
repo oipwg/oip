@@ -35,6 +35,7 @@ func IndexBlockAtHeight(height int64, lb datastore.BlockData) (datastore.BlockDa
 	bd := datastore.BlockData{
 		Block:             b,
 		SecSinceLastBlock: b.Time - lbt,
+		Orphaned: false,
 	}
 
 	datastore.AutoBulk.StoreBlock(bd)

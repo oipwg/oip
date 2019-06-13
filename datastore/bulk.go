@@ -58,6 +58,7 @@ func (bi *BulkIndexer) quickCommit() {
 
 		br, err := bi.Do(context.TODO())
 		if err != nil {
+			log.Error("error commiting to ES in quickCommit", logger.Attrs{"err": err})
 			return
 		}
 
@@ -91,6 +92,20 @@ func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 		Type("_doc").
 		Id(bd.Block.Hash).
 		Doc(bd)
+	bi.Add(bir)
+}
+
+func (bi *BulkIndexer) OrphanBlock(hash string) {
+	// Orphan Block
+	bir := elastic.NewBulkUpdateRequest().
+		Index(Index("blocks")).
+		Type("_doc").
+		Id(hash).
+		Doc(struct {
+      Orphaned bool `json:"orphaned"`
+    }{
+      Orphaned: true,
+    })
 	bi.Add(bir)
 }
 

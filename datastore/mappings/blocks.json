@@ -68,6 +68,9 @@
         },
         "sec_since_last_block": {
           "type": "long"
+        },
+        "orphaned": {
+          "type": "boolean"
         }
       }
     }
