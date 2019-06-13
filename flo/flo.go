@@ -95,7 +95,7 @@ func AddFlod(host, user, pass string, tls bool) error {
 			events.Publish("flo:notify:onFilteredBlockConnected", height, header, txns)
 		},
 		OnFilteredBlockDisconnected: func(height int32, header *wire.BlockHeader) {
-			log.Info("Block disconnected: %v (%d) %v",
+			log.Info("Block disconnected:  %v (%d) %v",
 				header.BlockHash(), height, header.Timestamp)
 			events.Publish("flo:notify:onFilteredBlockDisconnected", height, header)
 		},

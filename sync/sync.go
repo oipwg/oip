@@ -44,10 +44,13 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	attr["lHeight"] = lastBlock.Block.Height
 
 	if int64(height) > lastBlock.Block.Height+1 {
-		log.Info("Incoming Block %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
+		log.Info("Incoming Block  %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
 
 		for missingBlockHeight := lastBlock.Block.Height + 1; missingBlockHeight < int64(height); missingBlockHeight++ {
 			//log.Info("Requesting Gap Block at Height %d | Last Block: %v (%d)", missingBlockHeight, lastBlock.Block.Hash, lastBlock.Block.Height)
+			if recentBlocks.PeekFront().Block.Height >= missingBlockHeight {
+				continue
+			}
 
 			nlb, err := IndexBlockAtHeight(int64(missingBlockHeight), *lastBlock)
 			if err != nil {
