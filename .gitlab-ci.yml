@@ -40,7 +40,7 @@ Containerize (master):
     - tar xzvf $CI_PROJECT_DIR/oipd.linux.amd64.tar.gz
     - mv oipd bin/oipd
     - ls bin
-    - ./ci/buildImages.sh
+    - ./ci/buildImage.sh
     - docker tag oip:dev "$CI_REGISTRY_IMAGE":next
     - docker push "$CI_REGISTRY_IMAGE":next
     - docker tag "$CI_REGISTRY_IMAGE":next "$DOCKER_HUB_NAME":next
