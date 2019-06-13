@@ -22,6 +22,16 @@ func (bb *blockBuffer) Push(b *datastore.BlockData) {
 	}
 }
 
+func (bb *blockBuffer) QuickPopFront() *datastore.BlockData {
+	if bb.front == bb.back {
+		return nil
+	}
+	// decrement front index
+	bb.front = (bb.front + bbCapacity) & bbCapacity
+
+	return bb.recentBlocks[bb.front]
+}
+
 func (bb *blockBuffer) PopFront() *datastore.BlockData {
 	if bb.front == bb.back {
 		return nil

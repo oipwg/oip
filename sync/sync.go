@@ -12,94 +12,64 @@ import (
 func init() {
 	log.Info("Subscribing to events")
 	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, false)
-	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, false)
+	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
 	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
 func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
-	attr := logger.Attrs{"incomingHeight": height}
+	headerHash := header.BlockHash().String()
 
-	log.Info("BlockConnected", attr)
+	attr := logger.Attrs{ "iHeight": height, "iHash": headerHash }
 
-	ilb := recentBlocks.PeekFront()
+	//log.Info("Incoming Block: %v (%d) %v", headerHash, height, header.Timestamp)
 
-	if ilb.Block.Hash == header.PrevBlock.String() {
+	lastBlock := recentBlocks.PeekFront()
+
+	if lastBlock.Block.Hash == header.PrevBlock.String() {
 		// easy case new block follows; add it
-		_, err := IndexBlockAtHeight(int64(height), *ilb)
+		_, err := IndexBlockAtHeight(int64(height), *lastBlock)
 		if err != nil {
 			attr["err"] = err
 			log.Error("onFilteredBlockConnected unable to index block, follow", attr)
 		}
+
+		log.Info("Indexed Block:  %v (%d) %v", headerHash, height, header.Timestamp)
 
 		return
 	}
 
 	// more difficult cases; new block does not follow
 	// maybe orphan, fork, or future block
+	attr["lHash"] = lastBlock.Block.Hash
+	attr["lHeight"] = lastBlock.Block.Height
 
-	attr["prevBlockHash"] = header.PrevBlock.String()
-	attr["lastHash"] = ilb.Block.Hash
-	attr["lastHeight"] = ilb.Block.Height
+	if int64(height) > lastBlock.Block.Height+1 {
+		log.Info("Incoming Block %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
 
-	if int64(height) > ilb.Block.Height+1 {
-		log.Info("gap in block heights syncing...", attr)
+		for missingBlockHeight := lastBlock.Block.Height + 1; missingBlockHeight < int64(height); missingBlockHeight++ {
+			//log.Info("Requesting Gap Block at Height %d | Last Block: %v (%d)", missingBlockHeight, lastBlock.Block.Hash, lastBlock.Block.Height)
 
-		for i := ilb.Block.Height + 1; i <= int64(height); i++ {
-			attr["i"] = i
-			attr["lastHash"] = ilb.Block.Hash
-			attr["lastHeight"] = ilb.Block.Height
-			log.Info("filling gap", attr)
-			nlb, err := IndexBlockAtHeight(int64(i), *ilb)
+			nlb, err := IndexBlockAtHeight(int64(missingBlockHeight), *lastBlock)
 			if err != nil {
 				attr["err"] = err
 				log.Error("onFilteredBlockConnected unable to index block, gap", attr)
 				return
 			}
-			ilb = &nlb
+			lastBlock = &nlb
+
+			log.Info("Indexed Gap Block: %v (%d) | Head Block: %v (%d)", nlb.Block.Hash, nlb.Block.Height, headerHash, height)
 		}
+
+		_, err := IndexBlockAtHeight(int64(height), *lastBlock)
+		if err != nil {
+			attr["err"] = err
+			log.Error("onFilteredBlockConnected unable to index block, follow", attr)
+		}
+
+		log.Info("Indexed Block:  %v (%d) %v", headerHash, height, header.Timestamp)
+
 		return
 	}
-
-	/*
-	// ToDo: test rewind/re-org
-	attr["recentBlocksLen"] = recentBlocks.Len()
-	for i := -1; i > -recentBlocks.Len(); i-- {
-		b := recentBlocks.Get(i)
-		attr["i"] = i
-		log.Info("unrolling block", attr)
-		if b.Block.Hash == header.PrevBlock.String() {
-			attr["rewind"] = -i
-			log.Info("re-org detected", attr)
-			for ; i < 0; i++ {
-				attr["pop"] = i
-				log.Info("popping block", attr)
-				popped := recentBlocks.PopFront()
-				ilb = popped
-				attr["lastHash"] = ilb.Block.Hash
-				attr["lastHeight"] = ilb.Block.Height
-			}
-			
-			log.Info("refilling gap since re-org", attr)
-			for i := ilb.Block.Height + 1; i <= int64(height); i++ {
-				attr["i"] = i
-				attr["lastHash"] = ilb.Block.Hash
-				attr["lastHeight"] = ilb.Block.Height
-				log.Info("filling gap", attr)
-				nlb, err := IndexBlockAtHeight(int64(i), *ilb)
-				if err != nil {
-					attr["err"] = err
-					log.Error("onFilteredBlockConnected unable to index block, re-org", attr)
-					return
-				}
-				ilb = &nlb
-			}
-
-			return
-		}
-	}
-
-	log.Error("potential fork, unable to connect block", attr)
-	*/
 }
 
 func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
@@ -118,21 +88,14 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 }
 
 func onFilteredBlockDisconnected(height int32, header *wire.BlockHeader) {
-	attr := logger.Attrs{"oldHeight": height, "oldHash": header.BlockHash().String()}
-
-	log.Info("BlockDisconnected", attr)
-
-	// ToDo mark as disconnected in database along with all associated records
-
-	ilb := recentBlocks.PeekFront()
-
-	if ilb.Block.Hash == header.BlockHash().String() {
-		log.Info("Deleting block from ES and recentBlocks", attr)
-		datastore.AutoBulk.DeleteBlock(header.BlockHash().String())
-		recentBlocks.PopFront()
-		nlb := recentBlocks.PeekFront()
-		attr["nlb.hash"] = nlb.Block.Hash
-		attr["nlb.height"]  = nlb.Block.Height
-		log.Info("New last block", attr)
+	// Because of how this code works, the subscription needs to be Serial (in order, one after the other)
+	if recentBlocks.PeekFront().Block.Hash == header.BlockHash().String() {
+		nlb := recentBlocks.QuickPopFront()
+		log.Info("Disconnected Block: %v (%d) | New Head Block: %v (%d)", header.BlockHash().String(), height, nlb.Block.Hash, nlb.Block.Height)
 	}
+
+	// Mark the blocks as orphaned and send off the update requests
+	datastore.AutoBulk.OrphanBlock(header.BlockHash().String())
+	// Todo orphan transactions, artifacts, multiparts, etc
+	log.Info("Marked Block as Orphaned: %v (%d) %v", header.BlockHash().String(), height, header.Timestamp)
 }

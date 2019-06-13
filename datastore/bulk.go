@@ -95,11 +95,17 @@ func (bi *BulkIndexer) StoreBlock(bd BlockData) {
 	bi.Add(bir)
 }
 
-func (bi *BulkIndexer) DeleteBlock(hash string) {
-	bir := elastic.NewBulkDeleteRequest().
+func (bi *BulkIndexer) OrphanBlock(hash string) {
+	// Orphan Block
+	bir := elastic.NewBulkUpdateRequest().
 		Index(Index("blocks")).
 		Type("_doc").
-		Id(hash)
+		Id(hash).
+		Doc(struct {
+      Orphaned bool `json:"orphaned"`
+    }{
+      Orphaned: true,
+    })
 	bi.Add(bir)
 }
 
