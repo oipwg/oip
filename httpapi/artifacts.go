@@ -41,6 +41,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 			// DefaultField("artifact.info.description").
 			AnalyzeWildcard(false),
 		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
 	)
 
 	searchService := BuildCommonSearchService(
@@ -89,6 +90,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	query := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.deactivated", false),
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
 	)
 
 	searchService := BuildCommonSearchService(
