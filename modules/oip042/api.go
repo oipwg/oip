@@ -2,6 +2,7 @@ package oip042
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -19,6 +20,7 @@ func init() {
 	recordRouter.HandleFunc("/get/{originalTxid}", handleGetLatestEdit)
 	recordRouter.HandleFunc("/get/{originalTxid}/version/{editRecordTxid}", handleGetForVersion)
 	editRouter.HandleFunc("/get/{editRecordTxid}", handleGetEditRecord)
+	editRouter.HandleFunc("/search", handleEditSearch).Queries("q", "{query}")
 }
 
 var (
@@ -162,4 +164,36 @@ func handleGetEditRecord(response http.ResponseWriter, request *http.Request) {
 		o42ArtifactFsc,
 	)
 	httpapi.RespondSearch(response, searchService)
+}
+
+func handleEditSearch(w http.ResponseWriter, r *http.Request) {
+	var opts = mux.Vars(r)
+
+	searchQuery, err := url.PathUnescape(opts["query"])
+	if err != nil {
+		httpapi.RespondJSON(w, 400, map[string]interface{}{
+			"error": "unable to decode query",
+		})
+		return
+	}
+
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewQueryStringQuery(searchQuery).
+			// DefaultField("artifact.info.description").
+			AnalyzeWildcard(false),
+		elastic.NewTermQuery("meta.deactivated", false),
+	)
+
+	searchService := httpapi.BuildCommonSearchService(
+		r.Context(),
+		[]string{oip042EditIndex},
+		query,
+		[]elastic.SortInfo{
+			{Field: "meta.time", Ascending: false},
+			{Field: "meta.txid", Ascending: true},
+		},
+		o42ArtifactFsc,
+	)
+
+	httpapi.RespondSearch(w, searchService)
 }

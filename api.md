@@ -20,6 +20,12 @@ API
 - oip041
   - /oip041/artifact/get/latest?nsfw=true/false
   - /oip041/artifact/get/{id:[a-f0-9]+}
+- oip042
+  - /oip042/artifact/get/latest?nsfw=true/false
+  - /oip042/record/get/{originalTxid}
+  - /oip042/record/get/{originalTxid}/version/{editRecordTxid}
+  - /oip042/edit/get/{editRecordTxid}
+  - /oip042/edit/search?q={query}
 
 
 ##Common Query Params
