@@ -20,7 +20,7 @@ func init() {
 	recordRouter.HandleFunc("/get/{originalTxid}", handleGetLatestEdit)
 	recordRouter.HandleFunc("/get/{originalTxid}/version/{editRecordTxid}", handleGetForVersion)
 	editRouter.HandleFunc("/get/{editRecordTxid}", handleGetEditRecord)
-	editRouter.HandleFunc("/artifact/search", handleEditSearch).Queries("q", "{query}")
+	editRouter.HandleFunc("/search", handleEditSearch).Queries("q", "{query}")
 }
 
 var (
