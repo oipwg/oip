@@ -1,6 +1,7 @@
 package oip042
 
 import (
+	"context"
 	"strconv"
 	"strings"
 
@@ -74,8 +75,12 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		Type:          "oip042",
 	}
 
+	// Send off a bulk index request :) 
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
+
+	// Check to see if we should process the store
+	datastore.AutoBulk.CheckSizeStore(context.TODO())
 }
 
 func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
