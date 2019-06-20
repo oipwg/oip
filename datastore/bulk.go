@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/dustin/go-humanize"
 	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
@@ -54,15 +55,15 @@ func (bi *BulkIndexer) quickCommit() {
 	if bi.NumberOfActions() > 0 {
 		t := log.Timer()
 		estimatedSize := bi.EstimateSizeInBytes()
-		log.Info("Indexing blocks/transactions", logger.Attrs{"human": humanize.Bytes(uint64(estimatedSize)), "bytes": estimatedSize})
+		log.Info("Quick Indexing %v of data containing %d blocks/transactions (%v bytes)", humanize.Bytes(uint64(estimatedSize)), bi.NumberOfActions(), estimatedSize)
 
 		br, err := bi.Do(context.TODO())
 		if err != nil {
-			log.Error("error commiting to ES in quickCommit", logger.Attrs{"err": err})
+			log.Error("Error commiting to ES in quickCommit", logger.Attrs{"err": spew.Sdump(err)})
 			return
 		}
 
-		t.End("Indexed blocks/transactions", logger.Attrs{"items": len(br.Items), "took": br.Took, "errors": br.Errors})
+		t.End("Quick Indexed %d blocks & transactions, took %v (errors=%v)", len(br.Items), br.Took, br.Errors)
 	}
 }
 
@@ -137,30 +138,43 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 	estimatedSize := bi.EstimateSizeInBytes()
 
 	if estimatedSize > 80*humanize.MByte {
-		log.Info("Indexing %s of data", humanize.Bytes(uint64(estimatedSize)))
+		log.Info("Bulk Indexing %s of data, %d bulk actions", humanize.Bytes(uint64(estimatedSize)), bi.NumberOfActions())
 		t := log.Timer()
 		br, err := bi.Do(ctx)
 		if err != nil {
+			// sky todo, test this error logging, see if this is where the error is coming from
+			log.Error("error on bulk indexing!", logger.Attrs{
+				"spewError": spew.Sdump(err),
+			})
 			return BulkIndexerResponse{}, err
 		}
 
-		t.End("Indexed blocks/transactions", logger.Attrs{"items": len(br.Items), "took": br.Took, "errors": br.Errors})
+		t.End("Bulk Indexed %d blocks & transactions, took %v (errors=%v)", len(br.Items), br.Took, br.Errors)
 
 		if br.Errors {
-			log.Error("encountered errors, seeking")
+			log.Error("Encountered errors during Bulk Action Processing!")
 			for _, item := range br.Items {
 				for _, value := range item {
 					if value.Error != nil {
-						log.Error("error executing bulk action", logger.Attrs{
-							"index":  value.Index,
-							"id":     value.Id,
-							"reason": value.Error.Reason,
-							"error":  value.Error,
-							// "errDump": spew.Sdump(err)
-						})
+						log.Error("Error executing bulk action in index `%v` for ID `%v`! Error: `%v`", 
+							value.Index, 
+							value.Id, 
+							value.Error,
+						)
 					}
 				}
 			}
+		}
+
+		// Bulk request actions should get cleared
+		if bi.NumberOfActions() > 0 {
+			log.Error("Error Bulk Indexing, number of actions has not been cleared to 0! Remaining Actions: %d", bi.NumberOfActions())
+		}
+
+		// Check if there were any failed results in the bulk indexing process
+		failedResults := br.Failed()
+		if (len(failedResults) > 0) {
+			log.Error("Error, Bulk Indexing had failed %d results!", len(failedResults))
 		}
 
 		// deactivateArtifact: string -- bad
