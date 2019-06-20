@@ -137,7 +137,12 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 	defer bi.m.Unlock()
 	estimatedSize := bi.EstimateSizeInBytes()
 
-	if estimatedSize > 80*humanize.MByte {
+	// https://www.elastic.co/guide/en/elasticsearch/guide/2.x/indexing-performance.html#_using_and_sizing_bulk_requests
+	// > Bulk sizing is dependent on your data, analysis, and cluster configuration, but a good starting point is 5–15 MB per bulk
+	// https://www.elastic.co/guide/en/elasticsearch/reference/master/tune-for-indexing-speed.html#_use_bulk_requests
+	// > it is advisable to avoid going beyond a couple tens of megabytes per request even if larger requests seem to perform better.
+	// Set to 10mb to straddle between recomended amounts -skyoung
+	if estimatedSize > 10*humanize.MByte {
 		log.Info("Bulk Indexing %s of data, %d bulk actions", humanize.Bytes(uint64(estimatedSize)), bi.NumberOfActions())
 		t := log.Timer()
 		br, err := bi.Do(ctx)
