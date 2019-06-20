@@ -112,6 +112,10 @@ done
 
 echo 'Flo Blockchain Sync Complete'
 
+echo 'Increasing ElasticSearch RAM to 4GB'
+sed -i 's/^-Xms1g/-Xms4g/' /etc/elasticsearch/jvm.options
+sed -i 's/^-Xmx1g/-Xmx4g/' /etc/elasticsearch/jvm.options
+
 # Startup ElasticSearch and Kibana
 echo 'Starting ElasticSearch & Kibana...'
 mkdir -p /data/elasticsearch
@@ -127,8 +131,8 @@ while ! [ -s /data/elasticsearch/last.log ] || [[ "$(cat /data/elasticsearch/las
 do
 	sleep 1
 	curl -s http://127.0.0.1:9201/_cluster/health?pretty=true &> /data/elasticsearch/last.log
+	cat /data/elasticsearch/last.log | grep "status"
 done
-cat /data/elasticsearch/last.log | grep "status"
 rm /data/elasticsearch/last.log
 
 # Startup OIP daemon
