@@ -39,10 +39,6 @@ COPY ci/config/start.sh .
 COPY ci/config/config.yml .
 RUN chmod +x start.sh && mkdir /data && ln -s /data/oipd /root/.oipd
 
-# Set elasticsearch max heap size to 4GB
-RUN sed -i 's/^-Xms4g/-Xms4g/' /etc/elasticsearch/jvm.options && \
-    sed -i 's/^-Xmx4g/-Xmx4g/' /etc/elasticsearch/jvm.options
-
 WORKDIR /root
 
 EXPOSE 1606 5601 9200

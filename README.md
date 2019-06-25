@@ -4,18 +4,18 @@
 
 [![License](https://img.shields.io/github/license/oipwg/oip.svg)](https://github.com/oipwg/oip/blob/master/LICENSE.md) [![Image Pulls](https://img.shields.io/docker/pulls/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip) [![Image Stars](https://img.shields.io/docker/stars/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip)
 
-## Docker Image
+# Docker Image
 The included Docker image runs the following software in tandem to allow access to a fully functional OIP stack.
 * **[OIP](https://github.com/oipwg/oip)**: The OIP daemon processes all Blocks and Transactions that exist in the Flo Blockchain, extracting OIP Records that were stored in Transactions. OIP has an API exposed on port `1606` [(available API endpoints)](https://github.com/oipwg/oip/blob/master/api.md).
 * **[FLOd](https://github.com/bitspill/flod)**: A Go implmentation of a FLO Full node that OIP daemon connects to as its source of information. The RPC ports are not exposed.
 * **[ElasticSearch](https://www.elastic.co/products/elasticsearch)**: ElasticSearch is used as the database backend for OIP daemon to allow for complex queries to be performed near instantaneous. ElasticSearch has its API exposed on port `9200`.
 * **[Kibana](https://www.elastic.co/products/kibana)**: Kibana is installed to provide a convienent UI to view the OIP daemon database. Kibana has its API exposed on port `5601`.
 
-### Available Versions
+## Available Versions
 
 You can see all images available to pull from Docker Hub via the [Tags page](https://hub.docker.com/r/mediciland/oip/tags/).
 
-### Usage Example
+## Usage Example
 ```
 docker volume create oip
 
@@ -30,7 +30,7 @@ docker run -d \
 docker logs --tail 5 -f oip
 ```
 
-### Environment Variables
+## Environment Variables
 
 OIP uses Environment Variables to allow for configuration settings. You set the Env Variables in your `docker run` startup command. Here are the config settings offered by this image.
 
@@ -41,17 +41,18 @@ OIP uses Environment Variables to allow for configuration settings. You set the 
 * **`RPC_USER`**: [`String`] The RPC username for the Flod full node running inside the container.
 * **`RPC_PASSWORD`**: [`String`] The RPC password for the Flod full node running inside the container.
 * **`CUSTOM_BLACKLIST_FILTER`**: [`String` with format `label: remote url`] Add a custom blacklist filter url to the OIP config. Example `myfilter: http://myurl.com/blacklist.txt`.
+* **`ELASTIC_RAM_SIZE`**: [`String` with format in MB or GB i.e. `3g`, `1500m`] The amount of RAM that should be alloted to ElasticSearch. Defaults to 1/4th of the available system ram. Minimum RAM: `1g`.
 
-### Build Instructions
+## Build Instructions
 Want to build OIPd from it's source? We have created a simple docker build script that is able to build the OIPd binary and Docker Image very quickly, fully ensuring you have a non-tampered with copy!
 
-#### Build OIPd Binaries
+### Build OIPd Binaries
 First, you need to build the binaries for OIP daemon. You can do this by running the following script: `./ci/buildBinaries.sh`
 
-#### Build OIP Docker Image
+### Build OIP Docker Image
 Next, after the binaries have been built, build the docker image using `./ci/buildImage.sh`
 
-### Hardware Requirements
+## Hardware Requirements
 In order to run the OIP docker image, it is suggested you meet the following minimum requirements for each of the following network types.
 
 **mainnet**
@@ -66,12 +67,13 @@ In order to run the OIP docker image, it is suggested you meet the following min
 
 **regtest**
 * 1 Core CPU
-* 1 GB RAM
-* 1 GB Disk Space
+* 3.75 GB RAM
+* 5 GB Disk Space
 
 ## Development
 To easily run a development server, ensure you have docker installed, and then run the script `start-dev.sh`. This will automatically build the binaries and docker image from scratch, and then run the image in a new docker container. It will then show you the logs. If you make a change to the source files, re-run the `start-dev.sh` script and it will automatically build the new version and start it up!
 
-## Contacts
-Chris Chrysostom, cchrysostom@mediciland.com
-Sky Young, skyoung@mediciland.com
+# Contacts
+- bitspill, bitspill@oip.dev
+- Chris Chrysostom, cchrysostom@mediciland.com
+- Sky Young, skyoung@mediciland.com

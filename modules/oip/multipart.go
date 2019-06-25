@@ -63,6 +63,11 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 }
 
 func onDatastoreCommit() {
+	// If we are still working on the initial sync, don't attempt to complete multiparts.
+	if oipSync.IsInitialSync {
+		return
+	}
+	
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
 
