@@ -73,7 +73,7 @@ In order to run the OIP docker image, it is suggested you meet the following min
 ## Development
 To easily run a development server, ensure you have docker installed, and then run the script `start-dev.sh`. This will automatically build the binaries and docker image from scratch, and then run the image in a new docker container. It will then show you the logs. If you make a change to the source files, re-run the `start-dev.sh` script and it will automatically build the new version and start it up!
 
-## Contacts
+# Contacts
 - bitspill, bitspill@oip.dev
 - Chris Chrysostom, cchrysostom@mediciland.com
 - Sky Young, skyoung@mediciland.com
