@@ -1,4 +1,19 @@
 # Changelog
+## [mlg-1.3.1] - Jun-26-2019
+### Added
+- `/oip042/edit/search` API endpoint
+
+### Changed
+- Increase Index Shard count for `oip042_artifacts` to `3` (2 -> 3)
+- Increase Index Shard count for `multiparts` to `3` (2 -> 3)
+- Increase Index Shard count for `blocks` to `5` (2 -> 5)
+- Increase Index Shard count for `transactions` to `6` (2 -> 6)
+- Decreased all other indexes to only have a single shard (2 -> 1)
+- Disabled Shard Replicas
+- Modified Multipart processing to only occur after `initialSync` is complete
+- Changed Default RAM for ElasticSearch to 1/4th of the total system RAM
+- Changed the Bulk Indexer to only write 10MB of data at a time instead of 80MB
+
 ## [mlg-1.3.0] - Jun-13-2019
 ### Added
 - Support for Block Reorganizations
