@@ -1,4 +1,8 @@
 # Changelog
+## [Unreleased] - Future Release
+### Changed
+- Refactor Edit error handling & unsquash function to support `remove` operations
+
 ## [mlg-1.3.1] - Jun-26-2019
 ### Added
 - `/oip042/edit/search` API endpoint
