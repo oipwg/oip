@@ -234,20 +234,43 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	return nil
 }
 
-func UnSquashPatch(sp string) (string, error) {
+type SquashPatch struct {
+	Remove    []string       								 `json:"remove"`
+	Replace   map[string]*json.RawMessage    `json:"replace"`
+	Add   		map[string]*json.RawMessage    `json:"add"`
+}
 
-	var p map[string]map[string]*json.RawMessage
+func UnSquashPatch(squashedPatchString string) (string, error) {
+	// Create var to store squashedPatch
+	var squashedPatch SquashPatch
+	// Create unsquashed patch json object
 	var up jsonpatch.Patch
 
-	err := json.Unmarshal([]byte(sp), &p)
+	// Attempt to unmarshal the squashed patch
+	err := json.Unmarshal([]byte(squashedPatchString), &squashedPatch)
 	if err != nil {
+		log.Info("Unable to Unsquash Patch! Patch Str: %v", squashedPatchString)
 		return "", err
 	}
 
-	for op, updates := range p {
-		for path, value := range updates {
+	// Check if we have remove operations
+	if len(squashedPatch.Remove) > 0 {
+		// For each path in the string array, add it to the json patch
+		for _, rmPath := range squashedPatch.Remove {
 			var row = make(map[string]*json.RawMessage)
-			o := json.RawMessage([]byte(`"` + op + `"`))
+			o := json.RawMessage([]byte(`"remove"`))
+			row["op"] = &o
+			pp := json.RawMessage([]byte(`"/artifact` + rmPath + `"`))
+			row["path"] = &pp
+			up = append(up, row)
+		}
+	}
+
+	// Check if we have replace operations
+	if len(squashedPatch.Replace) > 0 {
+		for path, value := range squashedPatch.Replace {
+			var row = make(map[string]*json.RawMessage)
+			o := json.RawMessage([]byte(`"replace"`))
 			row["op"] = &o
 			pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
 			row["path"] = &pp
@@ -256,6 +279,22 @@ func UnSquashPatch(sp string) (string, error) {
 		}
 	}
 
+	// Check if we have add operations
+	if len(squashedPatch.Add) > 0 {
+		for path, value := range squashedPatch.Add {
+			var row = make(map[string]*json.RawMessage)
+			o := json.RawMessage([]byte(`"add"`))
+			row["op"] = &o
+			pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
+			row["path"] = &pp
+			row["value"] = value
+			up = append(up, row)
+		}
+	}
+
+	// todo, handle `test`, `move`, and `copy` JSON Patch Operations
+
+	// Attempt to turn unsquashed patch into a json string
 	usp, err := json.Marshal(&up)
 	if err != nil {
 		return "", err
