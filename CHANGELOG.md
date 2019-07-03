@@ -1,7 +1,8 @@
 # Changelog
-## [Unreleased] - Future Release
+## [mlg-1.3.2] - July-02-2019
 ### Changed
-- Refactor Edit error handling & unsquash function to support `remove` operations
+- Refactor Edit error handling 
+- Support `remove`, `replace` and `add` JSON Patch operations in Edits
 
 ## [mlg-1.3.1] - Jun-26-2019
 ### Added
