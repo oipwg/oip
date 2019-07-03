@@ -80,7 +80,11 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 	datastore.AutoBulk.Add(bir)
 
 	// Check to see if we should process the store
-	datastore.AutoBulk.CheckSizeStore(context.TODO())
+	bir, err := datastore.AutoBulk.CheckSizeStore(ctx)
+	if err != nil {
+		log.Info("Error Checking Store Size in `artifact.go`")
+		return
+	}
 }
 
 func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
