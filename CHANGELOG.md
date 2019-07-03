@@ -1,4 +1,9 @@
 # Changelog
+## [mlg-1.3.2] - July-02-2019
+### Changed
+- Refactor Edit error handling 
+- Support `remove`, `replace` and `add` JSON Patch operations in Edits
+
 ## [mlg-1.3.1] - Jun-26-2019
 ### Added
 - `/oip042/edit/search` API endpoint
