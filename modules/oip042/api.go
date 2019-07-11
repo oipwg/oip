@@ -148,8 +148,6 @@ func handleGetEditRecord(response http.ResponseWriter, request *http.Request) {
 	editRecordTxid := vars["editRecordTxid"]
 
 	query := elastic.NewBoolQuery().Must(
-		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
-		elastic.NewTermQuery("meta.deactivated", false),
 		elastic.NewTermQuery("meta.txid", editRecordTxid),
 	)
 
@@ -181,7 +179,6 @@ func handleEditSearch(w http.ResponseWriter, r *http.Request) {
 		elastic.NewQueryStringQuery(searchQuery).
 			// DefaultField("artifact.info.description").
 			AnalyzeWildcard(false),
-		elastic.NewTermQuery("meta.deactivated", false),
 	)
 
 	searchService := httpapi.BuildCommonSearchService(
