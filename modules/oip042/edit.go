@@ -70,6 +70,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 		Search(datastore.Index(oip042EditIndex)).
 		Type("_doc").
 		Query(q).
+		Size(1000).
 		Sort("edit.timestamp", true)
 
 	// Perform the search
