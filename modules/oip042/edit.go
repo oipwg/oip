@@ -201,7 +201,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	artifactRecord.Meta.Latest = false
 
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("false")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("wait_for")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
