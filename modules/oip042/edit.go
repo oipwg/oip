@@ -43,7 +43,22 @@ func onDatastoreCommit() {
 
 	// Check if there are edits that need to be completed
 	if len(edits) > 0 {
-		log.Info("Processing %d Edits...", len(edits))
+		// Make sure that we are only processing a single Edit for each OriginalTXID
+		editMap := make(map[string]bool)
+		filteredEdits := []*elasticOip042Edit{}
+
+		for _, editRecord := range edits {
+			if !editMap[editRecord.Meta.OriginalTxid] {
+				editMap[editRecord.Meta.OriginalTxid] = true
+				filteredEdits = append(filteredEdits, editRecord)
+			}
+		}
+
+		preFilteredLen := len(edits)
+
+		edits = filteredEdits
+
+		log.Info("Processing %d Edits... (filtered out %d)", len(edits), (preFilteredLen - len(edits)))
 
 		// Iterate through each edit record and process each edit one at a time
 		for _, editRecord := range edits {
