@@ -3,6 +3,8 @@ package oip042
 import (
 	"context"
 	"encoding/json"
+	"sync"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	oipSync "github.com/oipwg/oip/sync"
