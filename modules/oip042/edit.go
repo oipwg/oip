@@ -14,9 +14,7 @@ import (
 //	"strings"
 )
 
-var (
-	currentlyProcessingEdits = false
-)
+var editCommitMutex sync.Mutex
 
 func init() {
 	log.Info("init edit")
@@ -30,13 +28,9 @@ func onDatastoreCommit() {
 		return
 	}
 
-	if currentlyProcessingEdits {
-		log.Info("Skipping Edit Processing this cycle as there is currently another batch processing!")
-		return
-	}
-
-	// Set processing lock to true
-	currentlyProcessingEdits = true
+	// Lock the edit mutex to prevent multiple batches running at the same time (causing race conditions)
+	editCommitMutex.Lock()
+	defer editCommitMutex.Unlock()
 
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
@@ -69,9 +63,6 @@ func onDatastoreCommit() {
 			log.Info("Edit %v on Record %v Successfully Processed!", editRecord.Meta.Txid, editRecord.Meta.OriginalTxid)
 		}
 	}
-
-	// Set processing lock to false (allow new batches)
-	currentlyProcessingEdits = false
 }
 
 func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
