@@ -14,6 +14,10 @@ import (
 //	"strings"
 )
 
+var (
+	currentlyProcessingEdits = false
+)
+
 func init() {
 	log.Info("init edit")
 	// Subscribe to the datastore event emitter, run our edit processing on each datastore
@@ -25,6 +29,14 @@ func onDatastoreCommit() {
 	if oipSync.IsInitialSync {
 		return
 	}
+
+	if currentlyProcessingEdits {
+		log.Info("Skipping Edit Processing this cycle as there is currently another batch processing!")
+		return
+	}
+
+	// Set processing lock to true
+	currentlyProcessingEdits = true
 
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
@@ -57,6 +69,9 @@ func onDatastoreCommit() {
 			log.Info("Edit %v on Record %v Successfully Processed!", editRecord.Meta.Txid, editRecord.Meta.OriginalTxid)
 		}
 	}
+
+	// Set processing lock to false (allow new batches)
+	currentlyProcessingEdits = false
 }
 
 func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
@@ -201,7 +216,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	artifactRecord.Meta.Latest = false
 
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("wait_for")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
@@ -213,7 +228,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	modifiedArtifactRecord.Meta.Time = editRecord.Meta.Time
 
 	// Store the patched Record
-	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("wait_for")
+	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("true")
 	_, err = ci.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not create modified record", logger.Attrs{"err": err})
