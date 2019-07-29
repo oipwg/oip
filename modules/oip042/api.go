@@ -25,7 +25,7 @@ func init() {
 
 var (
 	o42ArtifactFsc = elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type")
 )
 
 func handleLatest(w http.ResponseWriter, r *http.Request) {

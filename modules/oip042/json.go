@@ -49,6 +49,12 @@ func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {
 	edit := jsoniter.Get(message, "edit")
 	err = edit.LastError()
 	if err == nil {
+		// Make sure that the Transaction is confirmed by checking its Block Height.
+		// If we do not filter out unconfirmed transactions, edits could accidently be processed twice (once on mempool tx, and second on the tx becoming confirmed)
+		if tx.Block == -1 {
+			return
+		}
+
 		on42JsonEdit(edit, tx)
 		return
 	}

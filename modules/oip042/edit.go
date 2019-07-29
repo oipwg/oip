@@ -3,6 +3,8 @@ package oip042
 import (
 	"context"
 	"encoding/json"
+	"sync"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	oipSync "github.com/oipwg/oip/sync"
@@ -13,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 //	"strings"
 )
+
+var editCommitMutex sync.Mutex
 
 func init() {
 	log.Info("init edit")
@@ -26,6 +30,10 @@ func onDatastoreCommit() {
 		return
 	}
 
+	// Lock the edit mutex to prevent multiple batches running at the same time (causing race conditions)
+	editCommitMutex.Lock()
+	defer editCommitMutex.Unlock()
+
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
@@ -35,7 +43,22 @@ func onDatastoreCommit() {
 
 	// Check if there are edits that need to be completed
 	if len(edits) > 0 {
-		log.Info("Processing %d Edits...", len(edits))
+		// Make sure that we are only processing a single Edit for each OriginalTXID
+		editMap := make(map[string]bool)
+		filteredEdits := []*elasticOip042Edit{}
+
+		for _, editRecord := range edits {
+			if !editMap[editRecord.Meta.OriginalTxid] {
+				editMap[editRecord.Meta.OriginalTxid] = true
+				filteredEdits = append(filteredEdits, editRecord)
+			}
+		}
+
+		preFilteredLen := len(edits)
+
+		edits = filteredEdits
+
+		log.Info("Processing %d Edits... (filtered out %d)", len(edits), (preFilteredLen - len(edits)))
 
 		// Iterate through each edit record and process each edit one at a time
 		for _, editRecord := range edits {
@@ -70,6 +93,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 		Search(datastore.Index(oip042EditIndex)).
 		Type("_doc").
 		Query(q).
+		Size(1000).
 		Sort("edit.timestamp", true)
 
 	// Perform the search
@@ -200,7 +224,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	artifactRecord.Meta.Latest = false
 
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("false")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
@@ -212,7 +236,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	modifiedArtifactRecord.Meta.Time = editRecord.Meta.Time
 
 	// Store the patched Record
-	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("wait_for")
+	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("true")
 	_, err = ci.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not create modified record", logger.Attrs{"err": err})
