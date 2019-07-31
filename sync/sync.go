@@ -16,6 +16,8 @@ func init() {
 	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
+var gapConnecting = false
+
 func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
 	headerHash := header.BlockHash().String()
 
@@ -44,6 +46,12 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 	attr["lHeight"] = lastBlock.Block.Height
 
 	if int64(height) > lastBlock.Block.Height+1 {
+		// Check if we are currently connecting a gap, and if we are, skip processing the new gap connection since we don't want to mess up recentBlocks
+		if gapConnecting {
+			return
+		}
+		gapConnecting = true
+
 		log.Info("Incoming Block  %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
 
 		for missingBlockHeight := lastBlock.Block.Height + 1; missingBlockHeight < int64(height); missingBlockHeight++ {
@@ -56,6 +64,8 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 			if err != nil {
 				attr["err"] = err
 				log.Error("onFilteredBlockConnected unable to index block, gap", attr)
+
+				gapConnecting = false
 				return
 			}
 			lastBlock = &nlb
@@ -71,6 +81,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 
 		log.Info("Indexed Block:  %v (%d) %v", headerHash, height, header.Timestamp)
 
+		gapConnecting = false
 		return
 	}
 }
