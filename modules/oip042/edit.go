@@ -164,19 +164,15 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 
 	// Create the struct
 	var artifactRecord *elasticOip042Artifact
-	// Iterate through each hit, though we only expect a single result.
-	for _, v := range results.Hits.Hits {
-		err := json.Unmarshal(*v.Source, &artifactRecord)
-		if err != nil {
-			log.Info("Failed to unmarshal Elastic result into OIP042 Record!", logger.Attrs{"err": err})
-			return nil, err
-		}
-		
-		return artifactRecord, nil
+	// Since we have verified we only have a single result, access it directly
+	v := results.Hits.Hits[0]
+	err = json.Unmarshal(*v.Source, &artifactRecord)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal Elastic result into OIP042 Record! %v", err)
 	}
+	
+	return artifactRecord, nil
 
-	// If we got here, then throw an error
-	return nil, errors.New("Unknown error while attempting to query latest Record while processing Edits!")
 }
 
 func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) (error) {
