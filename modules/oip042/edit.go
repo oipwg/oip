@@ -17,9 +17,6 @@ import (
 	"github.com/azer/logger"
 	"gopkg.in/olivere/elastic.v6"
 	jsonpatch "github.com/evanphx/json-patch"
-
-	"github.com/pkg/errors"
-//	"strings"
 )
 
 var editCommitMutex sync.Mutex
@@ -71,14 +68,14 @@ func onDatastoreCommit() {
 			// First, lookup the latest record held in ElasticSearch
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
-				log.Info("Error querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
 				continue
 			}
 			// Then, attempt to process the edit
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
-				log.Info("Error processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
 				// Move on and attempt to process the next edit
 				continue
 			}
@@ -106,8 +103,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 	results, err := search.Do(context.TODO())
 	// Check for and return error
 	if err != nil {
-		log.Info("Error while querying for Incomplete Edits!", logger.Attrs{"err": err})
-		return nil, err
+		return nil, fmt.Errorf("Error while querying for Incomplete Edits! %v", err)
 	}
 
 	// Create an array of OIP Edits
@@ -151,15 +147,11 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	// SANITY CHECKS
 	// Check if there were no search results
 	if len(results.Hits.Hits) == 0 {
-		log.Info("Failed to find OIP Record %v while processing Edits", txid)
-		err := errors.New("Failed to lookup OIP Record!")
-		return nil, err
+		return nil, fmt.Errorf("Failed to find OIP Record %v while processing Edits", txid)
 	}
 	// Check if we have more than one latest result (which should hopefully never happen)
 	if len(results.Hits.Hits) > 1 {
-		log.Info("Found more than one (%d) latest OIP Records for %v while processing Edits!", len(results.Hits.Hits), txid)
-		err := errors.New("Found multiple latest OIP Records!")
-		return nil, err
+		return nil, fmt.Errorf("Found more than one (%d) latest OIP Records for %v while processing Edits!", len(results.Hits.Hits), txid)
 	}
 
 	// Create the struct
@@ -185,9 +177,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	// SANITY CHECK
 	// Make sure that the txid of the Record exists
 	if artifactRecord.Meta.Txid == "" {
-		log.Info("Unable to process Edit Record! Latest OIP042 Record is empty!")
-		err := errors.New("Unable to process Edit Record! Latest OIP042 Record is empty!")
-		return err
+		return fmt.Errorf("Unable to process Edit Record! Latest OIP042 Record is empty!")
 	}
 
 	// Convert the Record interface to JSON
@@ -256,8 +246,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(MetaLatest{Latest{false}}).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
-		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not update latest artifact! %v", err)
 	}
 
 	// Update the metadata fields
@@ -268,8 +257,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("true")
 	_, err = ci.Do(context.TODO())
 	if err != nil {
-		log.Info("Could not create modified record", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not create modified record! %v", err)
 	}
 
 	// Set the Edit to be Complete
@@ -279,8 +267,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	cu = datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(editRecord).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
-		log.Info("Could update edit record", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could update edit record! %v", err)
 	}
 
 	// Return nil if everything was successful
@@ -302,8 +289,7 @@ func UnSquashPatch(squashedPatchString string) (string, error) {
 	// Attempt to unmarshal the squashed patch
 	err := json.Unmarshal([]byte(squashedPatchString), &squashedPatch)
 	if err != nil {
-		log.Info("Unable to Unsquash Patch! Patch Str: %v", squashedPatchString)
-		return "", err
+		return "", fmt.Errorf("Unable to unmarshal squashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
 	}
 
 	// For each path in the "Remove" ops array, add it to the json patch
@@ -343,7 +329,7 @@ func UnSquashPatch(squashedPatchString string) (string, error) {
 	// Attempt to turn unsquashed patch into a json string
 	usp, err := json.Marshal(&up)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Unable to marshal unsquashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
 	}
 
 	return string(usp), nil
