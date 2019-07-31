@@ -172,7 +172,13 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	}
 	
 	return artifactRecord, nil
+}
 
+type Latest struct {
+	Latest bool `json:"latest"`
+}
+type MetaLatest struct {
+	Meta Latest `json:"meta"`
 }
 
 func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) (error) {
@@ -246,11 +252,8 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 		return fmt.Errorf("Could not unmarshal the patched Record into an OIP042 Record Struct! %v", err)
 	}
 
-	// Final updates
-	artifactRecord.Meta.Latest = false
-
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("true")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(MetaLatest{Latest{false}}).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
 		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
