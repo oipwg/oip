@@ -31,7 +31,21 @@ COPY Gopkg.toml Gopkg.lock $SRC_PATH/
 
 RUN dep ensure -v -vendor-only
 
-COPY . $SRC_PATH/
+# Copy all required source folders to build image (Only rebuild binary if source has changed, not if an external file has changed)
+# btc cmd config datastore events filters flo httpapi linux modules sync version 
+COPY .git $SRC_PATH/.git
+COPY btc $SRC_PATH/btc
+COPY cmd $SRC_PATH/cmd
+COPY config $SRC_PATH/config
+COPY datastore $SRC_PATH/datastore
+COPY events $SRC_PATH/events
+COPY filters $SRC_PATH/filters
+COPY flo $SRC_PATH/flo
+COPY httpapi $SRC_PATH/httpapi
+COPY linux $SRC_PATH/linux
+COPY modules $SRC_PATH/modules
+COPY sync $SRC_PATH/sync
+COPY version $SRC_PATH/version
 
 RUN cd cmd/oipd && packr2 -v && cd -
 RUN go test -v -race ./...
