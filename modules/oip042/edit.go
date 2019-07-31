@@ -3,8 +3,14 @@ package oip042
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 
+	"github.com/json-iterator/go"
+
+	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	oipSync "github.com/oipwg/oip/sync"
@@ -182,42 +188,66 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 		return err
 	}
 
-	// Serialize the Record
-	byteArtRecord, err := json.Marshal(artifactRecord)
+	// Convert the Record interface to JSON
+	jsonArtRecord, err := json.Marshal(artifactRecord)
 	if err != nil {
-		log.Info("Could not JSON Marshal latest Record!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not JSON Marshal latest Record! %v", err)
+	}
+
+	// Convert the Edit Record to JSON
+	jsonEditRecord, err := json.Marshal(editRecord)
+	if err != nil {
+		return fmt.Errorf("Could not JSON Marshal Edit Record! %v", err)
+	}
+
+	// Verify the Edit is being signed with the Address that owns the Original Record
+	floAddress := jsoniter.Get(jsonArtRecord, "artifact", "floAddress").ToString()
+	signature := editRecord.Meta.Signature
+	preImageArray := []string{artifactRecord.Meta.OriginalTxid, strconv.FormatInt(jsoniter.Get(jsonEditRecord, "edit", "timestamp").ToInt64(), 10)}
+	preImage := strings.Join(preImageArray, "-")
+
+	signatureOk, err := flo.CheckSignature(floAddress, signature, preImage)
+	if !signatureOk {
+		return fmt.Errorf("Edit has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
 	}
 
 	// Grab the patch string
-	spatchString := string(editRecord.Patch)
+	patchString := string(editRecord.Patch)
 	// Unsquash the patch into a standard JSON Edit patch
-	editPatchString, err := UnSquashPatch(spatchString)
+	editPatchString, err := UnSquashPatch(patchString)
 	if err != nil {
-		log.Info("Could not unsquash Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not unsquash Edit patch! %v", err)
 	}
 
 	// Attempt to decode the patch
 	editPatch, err := jsonpatch.DecodePatch([]byte(editPatchString))
 	if err != nil {
-		log.Info("Could not decode Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not decode Edit patch! %v", err)
 	}
 
 	// Apply the patch to the serialized Record
-	byteModifiedArtRecord, err := editPatch.Apply(byteArtRecord)
+	jsonModifiedArtRecord, err := editPatch.Apply(jsonArtRecord)
 	if err != nil {
-		log.Info("Could not apply Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not apply Edit patch! %v", err)
+	}
+
+	// Verify the updated signature of a Record is valid!
+	signature = jsoniter.Get(jsonModifiedArtRecord, "artifact", "signature").ToString()
+	preImageArray = []string{
+		jsoniter.Get(jsonModifiedArtRecord, "artifact", "storage", "location").ToString(), floAddress,
+		strconv.FormatInt(jsoniter.Get(jsonModifiedArtRecord, "artifact", "timestamp").ToInt64(), 10)}
+	preImage = strings.Join(preImageArray, "-")
+
+	signatureOk, err = flo.CheckSignature(floAddress, signature, preImage)
+	if !signatureOk {
+		return fmt.Errorf("Editted Record has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
 	}
 
 	// Load the patched Record into the OIP042 Struct 
 	var modifiedArtifactRecord *elasticOip042Artifact
-	err = json.Unmarshal(byteModifiedArtRecord, &modifiedArtifactRecord)
+	err = json.Unmarshal(jsonModifiedArtRecord, &modifiedArtifactRecord)
 	if err != nil {
-		log.Info("Could not unmarshal the patched Record into an OIP042 Record Struct", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not unmarshal the patched Record into an OIP042 Record Struct! %v", err)
 	}
 
 	// Final updates

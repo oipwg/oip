@@ -142,6 +142,8 @@ func on42JsonEdit(any jsoniter.Any, tx *datastore.TransactionData) {
 	t := log.Timer()
 	defer t.End("on42JsonEdit", logger.Attrs{"txid": tx.Transaction.Txid})
 
+	sig := any.Get("signature").ToString()
+
 	// artifact
 	// publisher
 	// influencer
@@ -151,41 +153,41 @@ func on42JsonEdit(any jsoniter.Any, tx *datastore.TransactionData) {
 	art := any.Get("artifact")
 	err := art.LastError()
 	if err == nil {
-		on42JsonEditArtifact(art, tx)
+		on42JsonEditArtifact(art, tx, sig)
 		return
 	}
 	pub := any.Get("pub")
 	err = pub.LastError()
 	if err == nil {
-		on42JsonEditPub(pub, tx)
+		on42JsonEditPub(pub, tx, sig)
 		return
 	}
 	inf := any.Get("influencer")
 	err = inf.LastError()
 	if err == nil {
-		on42JsonEditInfluencer(inf, tx)
+		on42JsonEditInfluencer(inf, tx, sig)
 		return
 	}
 	plat := any.Get("platform")
 	err = plat.LastError()
 	if err == nil {
-		on42JsonEditPlatform(plat, tx)
+		on42JsonEditPlatform(plat, tx, sig)
 		return
 	}
 	pool := any.Get("pool")
 	err = pool.LastError()
 	if err == nil {
-		on42JsonEditPool(pool, tx)
+		on42JsonEditPool(pool, tx, sig)
 		return
 	}
 	miner := any.Get("autominer")
 	err = miner.LastError()
 	if err == nil {
-		on42JsonEditAutominer(miner, tx)
+		on42JsonEditAutominer(miner, tx, sig)
 		return
 	}
 
-	log.Error("no supported edit %s", tx.Transaction.Txid)
+	log.Error("No supported edit type %s", tx.Transaction.Txid)
 }
 
 func on42JsonTransfer(any jsoniter.Any, tx *datastore.TransactionData) {

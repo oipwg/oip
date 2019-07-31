@@ -30,11 +30,9 @@ func on42JsonRegisterPlatform(any jsoniter.Any, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func on42JsonEditPlatform(any jsoniter.Any, tx *datastore.TransactionData) {
+func on42JsonEditPlatform(any jsoniter.Any, tx *datastore.TransactionData, sig string) {
 	t := log.Timer()
 	defer t.End("on42JsonEditPlatform", logger.Attrs{"txid": tx.Transaction.Txid})
-
-	sig := any.Get("signature").ToString()
 
 	var el elasticOip042Edit
 	el.Edit = any.GetInterface()
