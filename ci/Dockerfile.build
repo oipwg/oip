@@ -42,7 +42,6 @@ COPY events $SRC_PATH/events
 COPY filters $SRC_PATH/filters
 COPY flo $SRC_PATH/flo
 COPY httpapi $SRC_PATH/httpapi
-COPY linux $SRC_PATH/linux
 COPY modules $SRC_PATH/modules
 COPY sync $SRC_PATH/sync
 COPY version $SRC_PATH/version
