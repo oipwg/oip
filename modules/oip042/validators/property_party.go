@@ -15,17 +15,17 @@ type propertyParty struct{}
 
 var _ ArtifactValidator = propertyParty{}
 
-type PartyRole struct{
-	Party string    `json:"party,omitempty"`
-	Role string     `json:"role,omitempty"`
+type PartyRole struct {
+	Party string `json:"party,omitempty"`
+	Role  string `json:"role,omitempty"`
 }
 
 type PartyDetails struct {
-	Ns        string          `json:"ns,omitempty"`
-	ModifiedDate time.Time    `json:"modifiedDate,omitempty"`
-	PartyType string          `json:"partyType,omitempty"`
-	Members   []PartyRole     `json:"members"`
-	Attrs     json.RawMessage `json:"attrs,omitempty"`
+	Ns           string          `json:"ns,omitempty"`
+	ModifiedDate time.Time       `json:"modifiedDate,omitempty"`
+	PartyType    string          `json:"partyType,omitempty"`
+	Members      []PartyRole     `json:"members"`
+	Attrs        json.RawMessage `json:"attrs,omitempty"`
 }
 
 func (r propertyParty) IsValid(art *jsoniter.Any) (Validity, error) {

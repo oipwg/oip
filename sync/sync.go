@@ -1,14 +1,14 @@
 package sync
 
 import (
-	goSync "sync"
-	"sync/atomic"
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/floutil"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	goSync "sync"
+	"sync/atomic"
 )
 
 func init() {
@@ -33,7 +33,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 
 	headerHash := header.BlockHash().String()
 
-	attr := logger.Attrs{ "iHeight": height, "iHash": headerHash }
+	attr := logger.Attrs{"iHeight": height, "iHash": headerHash}
 
 	//log.Info("Incoming Block: %v (%d) %v", headerHash, height, header.Timestamp)
 

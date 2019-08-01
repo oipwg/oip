@@ -67,7 +67,7 @@ func onDatastoreCommit() {
 	if oipSync.IsInitialSync {
 		return
 	}
-	
+
 	multiPartCommitMutex.Lock()
 	defer multiPartCommitMutex.Unlock()
 

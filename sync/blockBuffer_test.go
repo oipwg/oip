@@ -16,8 +16,8 @@ func TestBlockBuffer(t *testing.T) {
 	}
 
 	for i := int64(1); i <= bbCapacity; i++ {
-  	bb.Push(&datastore.BlockData{SecSinceLastBlock: i})
-  }
+		bb.Push(&datastore.BlockData{SecSinceLastBlock: i})
+	}
 
 	for i := 1; i <= bbCapacity; i++ {
 		b := bb.Get(i)

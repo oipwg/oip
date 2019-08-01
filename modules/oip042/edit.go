@@ -10,13 +10,13 @@ import (
 
 	"github.com/json-iterator/go"
 
-	"github.com/oipwg/oip/flo"
+	"github.com/azer/logger"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"github.com/azer/logger"
 	"gopkg.in/olivere/elastic.v6"
-	jsonpatch "github.com/evanphx/json-patch"
 )
 
 var editCommitMutex sync.Mutex
@@ -117,7 +117,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 			log.Info("Failed to unmarshal Elastic result into Edit Record!", logger.Attrs{"err": err})
 			continue
 		}
-		
+
 		// Append the latest edit record on top of the others
 		edits = append(edits, editRecord)
 	}
@@ -163,7 +163,7 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal Elastic result into OIP042 Record! %v", err)
 	}
-	
+
 	return artifactRecord, nil
 }
 
@@ -174,7 +174,7 @@ type MetaLatest struct {
 	Meta Latest `json:"meta"`
 }
 
-func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) (error) {
+func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) error {
 	// SANITY CHECK
 	// Make sure that the txid of the Record exists
 	if artifactRecord.Meta.Txid == "" {
@@ -236,7 +236,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 		return fmt.Errorf("Editted Record has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
 	}
 
-	// Load the patched Record into the OIP042 Struct 
+	// Load the patched Record into the OIP042 Struct
 	var modifiedArtifactRecord *elasticOip042Artifact
 	err = json.Unmarshal(jsonModifiedArtRecord, &modifiedArtifactRecord)
 	if err != nil {
@@ -276,9 +276,9 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 }
 
 type SquashPatch struct {
-	Remove    []string       								 `json:"remove"`
-	Replace   map[string]*json.RawMessage    `json:"replace"`
-	Add   		map[string]*json.RawMessage    `json:"add"`
+	Remove  []string                    `json:"remove"`
+	Replace map[string]*json.RawMessage `json:"replace"`
+	Add     map[string]*json.RawMessage `json:"add"`
 }
 
 func UnSquashPatch(squashedPatchString string) (string, error) {
