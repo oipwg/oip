@@ -76,6 +76,7 @@ func onDatastoreCommit() {
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
 				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				// todo: Mark as broken to prevent processing again in the future
 				// Move on and attempt to process the next edit
 				continue
 			}
@@ -96,7 +97,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 		Search(datastore.Index(oip042EditIndex)).
 		Type("_doc").
 		Query(q).
-		Size(1000).
+		Size(10000).
 		Sort("edit.timestamp", true)
 
 	// Perform the search
