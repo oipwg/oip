@@ -167,7 +167,7 @@ curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'h
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*publisher' -d '{"attributes":{"title":"*publisher","timeFieldName":""}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*artifact' -d '{"attributes":{"title":"*artifact","timeFieldName":"meta.time"}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*historian*' -d '{"attributes":{"title":"*historian*","timeFieldName":"meta.time"}}'
-curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*edit' -d '{"attributes":{"title":"*edit"}}'
+curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*edit' -d '{"attributes":{"title":"*edit","timeFieldName":"meta.time"}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/kibana/settings/defaultIndex' -d '{"value": "*artifact"}'
 
 # Final startup of oipd

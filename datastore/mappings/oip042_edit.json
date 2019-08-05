@@ -9,7 +9,8 @@
         "edit": {
           "properties": {
             "timestamp": {
-              "type": "long"
+              "type": "date",
+              "format": "epoch_millis"
             },
             "txid": {
               "type": "text",
@@ -67,7 +68,8 @@
               }
             },
             "time": {
-              "type": "long"
+              "type": "date",
+              "format": "epoch_second"
             },
             "tx": {
               "type": "object",
