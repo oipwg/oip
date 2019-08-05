@@ -5,7 +5,7 @@
   },
   "mappings": {
     "_doc": {
-      "dynamic": "true",
+      "dynamic": "strict",
       "properties": {
         "artifact": {
           "properties": {
@@ -89,10 +89,10 @@
                 "tiltStep": {
                   "type": "long"
                 },
-		"spatialData": {
-	          "enabled": false,
-		  "type": "object"
-		}
+                "spatialData": {
+                  "enabled": false,
+                  "type": "object"
+                }
               }
             },
             "floAddress": {
