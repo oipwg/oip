@@ -3,16 +3,23 @@ package oip042
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
+	"sync"
+
+	"github.com/json-iterator/go"
+
+	"github.com/azer/logger"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"github.com/azer/logger"
 	"gopkg.in/olivere/elastic.v6"
-	jsonpatch "github.com/evanphx/json-patch"
-
-	"github.com/pkg/errors"
-//	"strings"
 )
+
+var editCommitMutex sync.Mutex
 
 func init() {
 	log.Info("init edit")
@@ -26,6 +33,10 @@ func onDatastoreCommit() {
 		return
 	}
 
+	// Lock the edit mutex to prevent multiple batches running at the same time (causing race conditions)
+	editCommitMutex.Lock()
+	defer editCommitMutex.Unlock()
+
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
@@ -35,21 +46,37 @@ func onDatastoreCommit() {
 
 	// Check if there are edits that need to be completed
 	if len(edits) > 0 {
-		log.Info("Processing %d Edits...", len(edits))
+		// Make sure that we are only processing a single Edit for each OriginalTXID
+		editMap := make(map[string]bool)
+		filteredEdits := []*elasticOip042Edit{}
+
+		for _, editRecord := range edits {
+			if !editMap[editRecord.Meta.OriginalTxid] {
+				editMap[editRecord.Meta.OriginalTxid] = true
+				filteredEdits = append(filteredEdits, editRecord)
+			}
+		}
+
+		preFilteredLen := len(edits)
+
+		edits = filteredEdits
+
+		log.Info("Processing %d Edits... (filtered out %d)", len(edits), (preFilteredLen - len(edits)))
 
 		// Iterate through each edit record and process each edit one at a time
 		for _, editRecord := range edits {
 			// First, lookup the latest record held in ElasticSearch
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
-				log.Info("Error querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
 				continue
 			}
 			// Then, attempt to process the edit
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
-				log.Info("Error processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				// todo: Mark as broken to prevent processing again in the future
 				// Move on and attempt to process the next edit
 				continue
 			}
@@ -70,14 +97,14 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 		Search(datastore.Index(oip042EditIndex)).
 		Type("_doc").
 		Query(q).
+		Size(10000).
 		Sort("edit.timestamp", true)
 
 	// Perform the search
 	results, err := search.Do(context.TODO())
 	// Check for and return error
 	if err != nil {
-		log.Info("Error while querying for Incomplete Edits!", logger.Attrs{"err": err})
-		return nil, err
+		return nil, fmt.Errorf("Error while querying for Incomplete Edits! %v", err)
 	}
 
 	// Create an array of OIP Edits
@@ -90,7 +117,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 			log.Info("Failed to unmarshal Elastic result into Edit Record!", logger.Attrs{"err": err})
 			continue
 		}
-		
+
 		// Append the latest edit record on top of the others
 		edits = append(edits, editRecord)
 	}
@@ -121,90 +148,106 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	// SANITY CHECKS
 	// Check if there were no search results
 	if len(results.Hits.Hits) == 0 {
-		log.Info("Failed to find OIP Record %v while processing Edits", txid)
-		err := errors.New("Failed to lookup OIP Record!")
-		return nil, err
+		return nil, fmt.Errorf("Failed to find OIP Record %v while processing Edits", txid)
 	}
 	// Check if we have more than one latest result (which should hopefully never happen)
 	if len(results.Hits.Hits) > 1 {
-		log.Info("Found more than one (%d) latest OIP Records for %v while processing Edits!", len(results.Hits.Hits), txid)
-		err := errors.New("Found multiple latest OIP Records!")
-		return nil, err
+		return nil, fmt.Errorf("Found more than one (%d) latest OIP Records for %v while processing Edits!", len(results.Hits.Hits), txid)
 	}
 
 	// Create the struct
 	var artifactRecord *elasticOip042Artifact
-	// Iterate through each hit, though we only expect a single result.
-	for _, v := range results.Hits.Hits {
-		err := json.Unmarshal(*v.Source, &artifactRecord)
-		if err != nil {
-			log.Info("Failed to unmarshal Elastic result into OIP042 Record!", logger.Attrs{"err": err})
-			return nil, err
-		}
-		
-		return artifactRecord, nil
+	// Since we have verified we only have a single result, access it directly
+	v := results.Hits.Hits[0]
+	err = json.Unmarshal(*v.Source, &artifactRecord)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal Elastic result into OIP042 Record! %v", err)
 	}
 
-	// If we got here, then throw an error
-	return nil, errors.New("Unknown error while attempting to query latest Record while processing Edits!")
+	return artifactRecord, nil
 }
 
-func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) (error) {
+type Latest struct {
+	Latest bool `json:"latest"`
+}
+type MetaLatest struct {
+	Meta Latest `json:"meta"`
+}
+
+func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) error {
 	// SANITY CHECK
 	// Make sure that the txid of the Record exists
 	if artifactRecord.Meta.Txid == "" {
-		log.Info("Unable to process Edit Record! Latest OIP042 Record is empty!")
-		err := errors.New("Unable to process Edit Record! Latest OIP042 Record is empty!")
-		return err
+		return fmt.Errorf("Unable to process Edit Record! Latest OIP042 Record is empty!")
 	}
 
-	// Serialize the Record
-	byteArtRecord, err := json.Marshal(artifactRecord)
+	// Convert the Record interface to JSON
+	jsonArtRecord, err := json.Marshal(artifactRecord)
 	if err != nil {
-		log.Info("Could not JSON Marshal latest Record!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not JSON Marshal latest Record! %v", err)
+	}
+
+	// Convert the Edit Record to JSON
+	jsonEditRecord, err := json.Marshal(editRecord)
+	if err != nil {
+		return fmt.Errorf("Could not JSON Marshal Edit Record! %v", err)
+	}
+
+	// Verify the Edit is being signed with the Address that owns the Original Record
+	floAddress := jsoniter.Get(jsonArtRecord, "artifact", "floAddress").ToString()
+	signature := editRecord.Meta.Signature
+	preImageArray := []string{artifactRecord.Meta.OriginalTxid, strconv.FormatInt(jsoniter.Get(jsonEditRecord, "edit", "timestamp").ToInt64(), 10)}
+	preImage := strings.Join(preImageArray, "-")
+
+	signatureOk, err := flo.CheckSignature(floAddress, signature, preImage)
+	if !signatureOk {
+		return fmt.Errorf("Edit has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
 	}
 
 	// Grab the patch string
-	spatchString := string(editRecord.Patch)
+	patchString := string(editRecord.Patch)
 	// Unsquash the patch into a standard JSON Edit patch
-	editPatchString, err := UnSquashPatch(spatchString)
+	editPatchString, err := UnSquashPatch(patchString)
 	if err != nil {
-		log.Info("Could not unsquash Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not unsquash Edit patch! %v", err)
 	}
 
 	// Attempt to decode the patch
 	editPatch, err := jsonpatch.DecodePatch([]byte(editPatchString))
 	if err != nil {
-		log.Info("Could not decode Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not decode Edit patch! %v", err)
 	}
 
 	// Apply the patch to the serialized Record
-	byteModifiedArtRecord, err := editPatch.Apply(byteArtRecord)
+	jsonModifiedArtRecord, err := editPatch.Apply(jsonArtRecord)
 	if err != nil {
-		log.Info("Could not apply Edit patch!", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not apply Edit patch! %v", err)
 	}
 
-	// Load the patched Record into the OIP042 Struct 
+	// Verify the updated signature of a Record is valid!
+	signature = jsoniter.Get(jsonModifiedArtRecord, "artifact", "signature").ToString()
+	preImageArray = []string{
+		jsoniter.Get(jsonModifiedArtRecord, "artifact", "storage", "location").ToString(), floAddress,
+		strconv.FormatInt(jsoniter.Get(jsonModifiedArtRecord, "artifact", "timestamp").ToInt64(), 10)}
+	preImage = strings.Join(preImageArray, "-")
+
+	signatureOk, err = flo.CheckSignature(floAddress, signature, preImage)
+	if !signatureOk {
+		return fmt.Errorf("Editted Record has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
+	}
+
+	// Load the patched Record into the OIP042 Struct
 	var modifiedArtifactRecord *elasticOip042Artifact
-	err = json.Unmarshal(byteModifiedArtRecord, &modifiedArtifactRecord)
+	err = json.Unmarshal(jsonModifiedArtRecord, &modifiedArtifactRecord)
 	if err != nil {
-		log.Info("Could not unmarshal the patched Record into an OIP042 Record Struct", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not unmarshal the patched Record into an OIP042 Record Struct! %v", err)
 	}
-
-	// Final updates
-	artifactRecord.Meta.Latest = false
 
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(artifactRecord).Refresh("false")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(artifactRecord.Meta.Txid).Doc(MetaLatest{Latest{false}}).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
-		log.Info("Could not update latest artifact", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not update latest artifact! %v", err)
 	}
 
 	// Update the metadata fields
@@ -212,11 +255,10 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	modifiedArtifactRecord.Meta.Time = editRecord.Meta.Time
 
 	// Store the patched Record
-	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("wait_for")
+	ci := datastore.Client().Index().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(modifiedArtifactRecord.Meta.Txid).BodyJson(modifiedArtifactRecord).Refresh("true")
 	_, err = ci.Do(context.TODO())
 	if err != nil {
-		log.Info("Could not create modified record", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could not create modified record! %v", err)
 	}
 
 	// Set the Edit to be Complete
@@ -226,8 +268,7 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	cu = datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(editRecord).Refresh("true")
 	_, err = cu.Do(context.TODO())
 	if err != nil {
-		log.Info("Could update edit record", logger.Attrs{"err": err})
-		return err
+		return fmt.Errorf("Could update edit record! %v", err)
 	}
 
 	// Return nil if everything was successful
@@ -235,9 +276,9 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 }
 
 type SquashPatch struct {
-	Remove    []string       								 `json:"remove"`
-	Replace   map[string]*json.RawMessage    `json:"replace"`
-	Add   		map[string]*json.RawMessage    `json:"add"`
+	Remove  []string                    `json:"remove"`
+	Replace map[string]*json.RawMessage `json:"replace"`
+	Add     map[string]*json.RawMessage `json:"add"`
 }
 
 func UnSquashPatch(squashedPatchString string) (string, error) {
@@ -249,47 +290,39 @@ func UnSquashPatch(squashedPatchString string) (string, error) {
 	// Attempt to unmarshal the squashed patch
 	err := json.Unmarshal([]byte(squashedPatchString), &squashedPatch)
 	if err != nil {
-		log.Info("Unable to Unsquash Patch! Patch Str: %v", squashedPatchString)
-		return "", err
+		return "", fmt.Errorf("Unable to unmarshal squashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
 	}
 
-	// Check if we have remove operations
-	if len(squashedPatch.Remove) > 0 {
-		// For each path in the string array, add it to the json patch
-		for _, rmPath := range squashedPatch.Remove {
-			var row = make(map[string]*json.RawMessage)
-			o := json.RawMessage([]byte(`"remove"`))
-			row["op"] = &o
-			pp := json.RawMessage([]byte(`"/artifact` + rmPath + `"`))
-			row["path"] = &pp
-			up = append(up, row)
-		}
+	// For each path in the "Remove" ops array, add it to the json patch
+	for _, rmPath := range squashedPatch.Remove {
+		var row = make(map[string]*json.RawMessage)
+		o := json.RawMessage([]byte(`"remove"`))
+		row["op"] = &o
+		pp := json.RawMessage([]byte(`"/artifact` + rmPath + `"`))
+		row["path"] = &pp
+		up = append(up, row)
 	}
 
-	// Check if we have replace operations
-	if len(squashedPatch.Replace) > 0 {
-		for path, value := range squashedPatch.Replace {
-			var row = make(map[string]*json.RawMessage)
-			o := json.RawMessage([]byte(`"replace"`))
-			row["op"] = &o
-			pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
-			row["path"] = &pp
-			row["value"] = value
-			up = append(up, row)
-		}
+	// Add any "Replace" operations to the json patch
+	for path, value := range squashedPatch.Replace {
+		var row = make(map[string]*json.RawMessage)
+		o := json.RawMessage([]byte(`"replace"`))
+		row["op"] = &o
+		pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
+		row["path"] = &pp
+		row["value"] = value
+		up = append(up, row)
 	}
 
-	// Check if we have add operations
-	if len(squashedPatch.Add) > 0 {
-		for path, value := range squashedPatch.Add {
-			var row = make(map[string]*json.RawMessage)
-			o := json.RawMessage([]byte(`"add"`))
-			row["op"] = &o
-			pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
-			row["path"] = &pp
-			row["value"] = value
-			up = append(up, row)
-		}
+	// Add any "Add" operations to the json patch
+	for path, value := range squashedPatch.Add {
+		var row = make(map[string]*json.RawMessage)
+		o := json.RawMessage([]byte(`"add"`))
+		row["op"] = &o
+		pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
+		row["path"] = &pp
+		row["value"] = value
+		up = append(up, row)
 	}
 
 	// todo, handle `test`, `move`, and `copy` JSON Patch Operations
@@ -297,7 +330,7 @@ func UnSquashPatch(squashedPatchString string) (string, error) {
 	// Attempt to turn unsquashed patch into a json string
 	usp, err := json.Marshal(&up)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Unable to marshal unsquashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
 	}
 
 	return string(usp), nil

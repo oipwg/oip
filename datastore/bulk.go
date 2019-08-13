@@ -103,10 +103,10 @@ func (bi *BulkIndexer) OrphanBlock(hash string) {
 		Type("_doc").
 		Id(hash).
 		Doc(struct {
-      Orphaned bool `json:"orphaned"`
-    }{
-      Orphaned: true,
-    })
+			Orphaned bool `json:"orphaned"`
+		}{
+			Orphaned: true,
+		})
 	bi.Add(bir)
 }
 
@@ -161,9 +161,9 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 			for _, item := range br.Items {
 				for _, value := range item {
 					if value.Error != nil {
-						log.Error("Error executing bulk action in index `%v` for ID `%v`! Error: `%v`", 
-							value.Index, 
-							value.Id, 
+						log.Error("Error executing bulk action in index `%v` for ID `%v`! Error: `%v`",
+							value.Index,
+							value.Id,
 							value.Error,
 						)
 					}
@@ -178,7 +178,7 @@ func (bi *BulkIndexer) CheckSizeStore(ctx context.Context) (BulkIndexerResponse,
 
 		// Check if there were any failed results in the bulk indexing process
 		failedResults := br.Failed()
-		if (len(failedResults) > 0) {
+		if len(failedResults) > 0 {
 			log.Error("Error, Bulk Indexing had failed %d results!", len(failedResults))
 		}
 

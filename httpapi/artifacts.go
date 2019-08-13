@@ -22,7 +22,7 @@ func init() {
 var (
 	artifactIndices = []string{"oip041", "oip042_artifact"}
 	artifactFsc     = elastic.NewFetchSourceContext(true).
-			Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.type")
+			Include("artifact.*", "meta.block_hash", "meta.txid", "meta.originalTxid", "meta.block", "meta.time", "meta.type")
 )
 
 func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
