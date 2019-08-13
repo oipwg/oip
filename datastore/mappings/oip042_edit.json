@@ -9,7 +9,8 @@
         "edit": {
           "properties": {
             "timestamp": {
-              "type": "long"
+              "type": "date",
+              "format": "epoch_millis"
             },
             "txid": {
               "type": "text",
@@ -67,193 +68,12 @@
               }
             },
             "time": {
-              "type": "long"
+              "type": "date",
+              "format": "epoch_second"
             },
             "tx": {
-              "properties": {
-                "block": {
-                  "type": "long"
-                },
-                "block_hash": {
-                  "type": "text",
-                  "fields": {
-                    "keyword": {
-                      "type": "keyword",
-                      "ignore_above": 256
-                    }
-                  }
-                },
-                "confirmed": {
-                  "type": "boolean"
-                },
-                "is_coinbase": {
-                  "type": "boolean"
-                },
-                "tx": {
-                  "properties": {
-                    "blockhash": {
-                      "type": "text",
-                      "fields": {
-                        "keyword": {
-                          "type": "keyword",
-                          "ignore_above": 256
-                        }
-                      }
-                    },
-                    "blocktime": {
-                      "type": "long"
-                    },
-                    "confirmations": {
-                      "type": "long"
-                    },
-                    "floData": {
-                      "type": "text",
-                      "fields": {
-                        "keyword": {
-                          "type": "keyword",
-                          "ignore_above": 256
-                        }
-                      }
-                    },
-                    "hash": {
-                      "type": "text",
-                      "fields": {
-                        "keyword": {
-                          "type": "keyword",
-                          "ignore_above": 256
-                        }
-                      }
-                    },
-                    "hex": {
-                      "type": "text",
-                      "fields": {
-                        "keyword": {
-                          "type": "keyword",
-                          "ignore_above": 256
-                        }
-                      }
-                    },
-                    "locktime": {
-                      "type": "long"
-                    },
-                    "size": {
-                      "type": "long"
-                    },
-                    "time": {
-                      "type": "long"
-                    },
-                    "txid": {
-                      "type": "text",
-                      "fields": {
-                        "keyword": {
-                          "type": "keyword",
-                          "ignore_above": 256
-                        }
-                      }
-                    },
-                    "version": {
-                      "type": "long"
-                    },
-                    "vin": {
-                      "properties": {
-                        "scriptSig": {
-                          "properties": {
-                            "asm": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            },
-                            "hex": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "sequence": {
-                          "type": "long"
-                        },
-                        "txid": {
-                          "type": "text",
-                          "fields": {
-                            "keyword": {
-                              "type": "keyword",
-                              "ignore_above": 256
-                            }
-                          }
-                        },
-                        "vout": {
-                          "type": "long"
-                        }
-                      }
-                    },
-                    "vout": {
-                      "properties": {
-                        "n": {
-                          "type": "long"
-                        },
-                        "scriptPubKey": {
-                          "properties": {
-                            "addresses": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            },
-                            "asm": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            },
-                            "hex": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            },
-                            "reqSigs": {
-                              "type": "long"
-                            },
-                            "type": {
-                              "type": "text",
-                              "fields": {
-                                "keyword": {
-                                  "type": "keyword",
-                                  "ignore_above": 256
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "value": {
-                          "type": "float"
-                        }
-                      }
-                    },
-                    "vsize": {
-                      "type": "long"
-                    }
-                  }
-                }
-              }
+              "type": "object",
+              "enabled": false
             },
             "txid": {
               "type": "text",

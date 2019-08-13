@@ -3,16 +3,16 @@ package oip042
 import "github.com/oipwg/oip/datastore"
 
 type OMeta struct {
-	Block     int64                      `json:"block"`
-	BlockHash string                     `json:"block_hash"`
-	Completed bool                       `json:"completed"`
-	Signature string                     `json:"signature"`
-	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
-	Txid      string                     `json:"txid"`
-	Type      string                     `json:"type"`
-	OriginalTxid     string              `json:"originalTxid"`
-	PriorTxid     string              `json:"priorTxid"`
+	Block        int64                      `json:"block"`
+	BlockHash    string                     `json:"block_hash"`
+	Completed    bool                       `json:"completed"`
+	Signature    string                     `json:"signature"`
+	Time         int64                      `json:"time"`
+	Tx           *datastore.TransactionData `json:"tx"`
+	Txid         string                     `json:"txid"`
+	Type         string                     `json:"type"`
+	OriginalTxid string                     `json:"originalTxid"`
+	PriorTxid    string                     `json:"priorTxid"`
 }
 
 type AMeta struct {
@@ -22,7 +22,7 @@ type AMeta struct {
 	Blacklist     Blacklist                  `json:"blacklist"`
 	Latest        bool                       `json:"latest"`
 	OriginalTxid  string                     `json:"originalTxid"`
-	PreviousEdits []string		             `json:"previousEdits"`
+	PreviousEdits []string                   `json:"previousEdits"`
 	Signature     string                     `json:"signature"`
 	Time          int64                      `json:"time"`
 	Tx            *datastore.TransactionData `json:"tx"`

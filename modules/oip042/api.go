@@ -24,8 +24,8 @@ func init() {
 }
 
 var (
-	o42ArtifactFsc = elastic.NewFetchSourceContext(true).
-		Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type")
+	o42ArtifactFsc = elastic.NewFetchSourceContext(true).Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type")
+	o42EditFsc = elastic.NewFetchSourceContext(true).Include("edit.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type", "meta.completed")
 )
 
 func handleLatest(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +34,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
 		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.latest", true),
 	)
 
 	if n, ok := opts["nsfw"]; ok {
@@ -104,20 +105,12 @@ func handleGetForVersion(response http.ResponseWriter, request *http.Request) {
 
 	var query *elastic.BoolQuery
 
-	if originalTxid == editRecordTxid {
-		query = elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("meta.blacklist.blacklisted", false),
-			elastic.NewTermQuery("meta.deactivated", false),
-			elastic.NewTermQuery("meta.originalTxid", originalTxid),
-		)
-	} else {
-		query = elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("meta.blacklist.blacklisted", false),
-			elastic.NewTermQuery("meta.deactivated", false),
-			elastic.NewTermQuery("meta.originalTxid", originalTxid),
-			elastic.NewTermQuery("meta.txid", editRecordTxid),
-		)
-	}
+	query = elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
+		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.originalTxid", originalTxid),
+		elastic.NewTermQuery("meta.txid", editRecordTxid),
+	)
 
 	if n, ok := opts["nsfw"]; ok {
 		nsfw, _ := strconv.ParseBool(n)
@@ -155,11 +148,8 @@ func handleGetEditRecord(response http.ResponseWriter, request *http.Request) {
 		request.Context(),
 		[]string{oip042EditIndex},
 		query,
-		[]elastic.SortInfo{
-			{Field: "meta.time", Ascending: false},
-			{Field: "meta.txid", Ascending: true},
-		},
-		o42ArtifactFsc,
+		[]elastic.SortInfo{},
+		o42EditFsc,
 	)
 	httpapi.RespondSearch(response, searchService)
 }
@@ -185,11 +175,8 @@ func handleEditSearch(w http.ResponseWriter, r *http.Request) {
 		r.Context(),
 		[]string{oip042EditIndex},
 		query,
-		[]elastic.SortInfo{
-			{Field: "meta.time", Ascending: false},
-			{Field: "meta.txid", Ascending: true},
-		},
-		o42ArtifactFsc,
+		[]elastic.SortInfo{},
+		o42EditFsc,
 	)
 
 	httpapi.RespondSearch(w, searchService)
