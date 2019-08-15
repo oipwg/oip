@@ -25,7 +25,7 @@ func init() {
 
 var (
 	o42ArtifactFsc = elastic.NewFetchSourceContext(true).Include("artifact.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type")
-	o42EditFsc = elastic.NewFetchSourceContext(true).Include("edit.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type", "meta.completed")
+	o42EditFsc     = elastic.NewFetchSourceContext(true).Include("edit.*", "meta.block_hash", "meta.txid", "meta.block", "meta.time", "meta.originalTxid", "meta.type", "meta.completed")
 )
 
 func handleLatest(w http.ResponseWriter, r *http.Request) {
@@ -103,9 +103,7 @@ func handleGetForVersion(response http.ResponseWriter, request *http.Request) {
 	editRecordTxid := vars["editRecordTxid"]
 	var opts = mux.Vars(request)
 
-	var query *elastic.BoolQuery
-
-	query = elastic.NewBoolQuery().Must(
+	query := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.blacklist.blacklisted", false),
 		elastic.NewTermQuery("meta.deactivated", false),
 		elastic.NewTermQuery("meta.originalTxid", originalTxid),
