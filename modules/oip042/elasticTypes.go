@@ -3,26 +3,31 @@ package oip042
 import "github.com/oipwg/oip/datastore"
 
 type OMeta struct {
-	Block     int64                      `json:"block"`
-	BlockHash string                     `json:"block_hash"`
-	Completed bool                       `json:"completed"`
-	Signature string                     `json:"signature"`
-	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
-	Txid      string                     `json:"txid"`
-	Type      string                     `json:"type"`
+	Block        int64                      `json:"block"`
+	BlockHash    string                     `json:"block_hash"`
+	Completed    bool                       `json:"completed"`
+	Signature    string                     `json:"signature"`
+	Time         int64                      `json:"time"`
+	Tx           *datastore.TransactionData `json:"tx"`
+	Txid         string                     `json:"txid"`
+	Type         string                     `json:"type"`
+	OriginalTxid string                     `json:"originalTxid"`
+	PriorTxid    string                     `json:"priorTxid"`
 }
 
 type AMeta struct {
-	Block       int64                      `json:"block"`
-	BlockHash   string                     `json:"block_hash"`
-	Deactivated bool                       `json:"deactivated"`
-	Blacklist   Blacklist                  `json:"blacklist"`
-	Signature   string                     `json:"signature"`
-	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"tx"`
-	Txid        string                     `json:"txid"`
-	Type        string                     `json:"type"`
+	Block         int64                      `json:"block"`
+	BlockHash     string                     `json:"block_hash"`
+	Deactivated   bool                       `json:"deactivated"`
+	Blacklist     Blacklist                  `json:"blacklist"`
+	Latest        bool                       `json:"latest"`
+	OriginalTxid  string                     `json:"originalTxid"`
+	PreviousEdits []string                   `json:"previousEdits"`
+	Signature     string                     `json:"signature"`
+	Time          int64                      `json:"time"`
+	Tx            *datastore.TransactionData `json:"tx"`
+	Txid          string                     `json:"txid"`
+	Type          string                     `json:"type"`
 }
 
 type Blacklist struct {
@@ -31,8 +36,9 @@ type Blacklist struct {
 }
 
 type elasticOip042Edit struct {
-	Edit interface{} `json:"edit"`
-	Meta OMeta       `json:"meta"`
+	Edit  interface{} `json:"edit"`
+	Meta  OMeta       `json:"meta"`
+	Patch string      `json:"patch"`
 }
 
 type elasticOip042Transfer struct {

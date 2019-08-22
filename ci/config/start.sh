@@ -12,7 +12,7 @@ trap '{ \
 # Set Env Variables to Defaults if unset
 if [ -z "$NETWORK" ]
 then
-	NETWORK="livenet"
+	NETWORK="mainnet"
 fi
 
 if [ -z "$RPC_USER" ]
@@ -22,7 +22,8 @@ fi
 
 if [ -z "$RPC_PASSWORD" ]
 then
-	RPC_PASSWORD="F25tcrKYiw9LjktQ"
+	# Generate random RPC Password if unset
+	RPC_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')"
 fi
 
 if [ -z "$HTTP_USER" ]
@@ -111,6 +112,16 @@ done
 
 echo 'Flo Blockchain Sync Complete'
 
+if [ -z "$ELASTIC_RAM_SIZE" ]
+then
+	ELASTIC_RAM_SIZE="$(grep MemTotal /proc/meminfo | awk '{print int($2 / 1024 / 4)}')m"
+	echo "Setting ELASTIC_RAM_SIZE to 1/4 of available system ram: $ELASTIC_RAM_SIZE"
+fi
+
+echo "Setting ElasticSearch RAM to $ELASTIC_RAM_SIZE"
+sed -i "s/^-Xms1g/-Xms$ELASTIC_RAM_SIZE/" /etc/elasticsearch/jvm.options
+sed -i "s/^-Xmx1g/-Xmx$ELASTIC_RAM_SIZE/" /etc/elasticsearch/jvm.options
+
 # Startup ElasticSearch and Kibana
 echo 'Starting ElasticSearch & Kibana...'
 mkdir -p /data/elasticsearch
@@ -126,8 +137,8 @@ while ! [ -s /data/elasticsearch/last.log ] || [[ "$(cat /data/elasticsearch/las
 do
 	sleep 1
 	curl -s http://127.0.0.1:9201/_cluster/health?pretty=true &> /data/elasticsearch/last.log
+	cat /data/elasticsearch/last.log | grep "status"
 done
-cat /data/elasticsearch/last.log | grep "status"
 rm /data/elasticsearch/last.log
 
 # Startup OIP daemon
@@ -156,6 +167,7 @@ curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'h
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*publisher' -d '{"attributes":{"title":"*publisher","timeFieldName":""}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*artifact' -d '{"attributes":{"title":"*artifact","timeFieldName":"meta.time"}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*historian*' -d '{"attributes":{"title":"*historian*","timeFieldName":"meta.time"}}'
+curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/saved_objects/index-pattern/*edit' -d '{"attributes":{"title":"*edit","timeFieldName":"meta.time"}}'
 curl -s -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: anything' 'http://localhost:5602/api/kibana/settings/defaultIndex' -d '{"value": "*artifact"}'
 
 # Final startup of oipd

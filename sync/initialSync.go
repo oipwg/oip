@@ -70,7 +70,7 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 			totalEstimatedSize += bir.EstimatedSize
 		}
 
-		if nh%10000 == 0 {
+		if nh%1000 == 0 {
 			log.Info("Sync currently at height %s (%s) %s elapsed", humanize.Comma(nh), time.Unix(lb.Block.Time, 0), time.Since(startup))
 		}
 	}

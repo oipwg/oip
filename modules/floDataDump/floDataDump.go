@@ -31,7 +31,7 @@ func init() {
 
 func onCommit() {
 	if totalFloData-coinbaseFloData > 0 {
-		log.Info("%d/%d %d %f%%\n", textFloData, totalFloData-coinbaseFloData, totalFloData,
+		log.Info("%d/%d %d %f%%", textFloData, totalFloData-coinbaseFloData, totalFloData,
 			float64(textFloData*10000/(totalFloData-coinbaseFloData))/10000)
 		err := f.Sync()
 		if err != nil {

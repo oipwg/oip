@@ -7,84 +7,95 @@ import (
 	"github.com/bitspill/floutil"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	goSync "sync"
+	"sync/atomic"
 )
 
 func init() {
 	log.Info("Subscribing to events")
-	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, true)
-	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, true)
+	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, false)
+	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, false)
 	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
 }
 
+var gapConnecting = false
+var onBlockConnectMutex goSync.Mutex
+var blocksDisconnecting int32 = 0
+
 func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
-	attr := logger.Attrs{"incomingHeight": height}
+	// Check if we should be waiting for block disconnects to finish processing before connecting new blocks
+	if atomic.LoadInt32(&blocksDisconnecting) > 0 {
+		// Start the Lock to prevent processing
+		onBlockConnectMutex.Lock()
+		// Clean up our own Lock
+		defer onBlockConnectMutex.Unlock()
+	}
 
-	log.Info("BlockConnected", attr)
+	headerHash := header.BlockHash().String()
 
-	ilb := recentBlocks.PeekFront()
+	attr := logger.Attrs{"iHeight": height, "iHash": headerHash}
 
-	if ilb.Block.Hash == header.PrevBlock.String() {
+	//log.Info("Incoming Block: %v (%d) %v", headerHash, height, header.Timestamp)
+
+	lastBlock := recentBlocks.PeekFront()
+
+	if lastBlock.Block.Hash == header.PrevBlock.String() {
 		// easy case new block follows; add it
-		_, err := IndexBlockAtHeight(int64(height), *ilb)
+		_, err := IndexBlockAtHeight(int64(height), *lastBlock)
 		if err != nil {
 			attr["err"] = err
 			log.Error("onFilteredBlockConnected unable to index block, follow", attr)
 		}
+
+		log.Info("Indexed Block:  %v (%d) %v", headerHash, height, header.Timestamp)
 
 		return
 	}
 
 	// more difficult cases; new block does not follow
 	// maybe orphan, fork, or future block
+	attr["lHash"] = lastBlock.Block.Hash
+	attr["lHeight"] = lastBlock.Block.Height
 
-	attr["incomingHash"] = header.PrevBlock.String()
-	attr["lastHash"] = ilb.Block.Hash
-	attr["lastHeight"] = ilb.Block.Height
+	if int64(height) > lastBlock.Block.Height+1 {
+		// Check if we are currently connecting a gap, and if we are, skip processing the new gap connection since we don't want to mess up recentBlocks
+		if gapConnecting {
+			return
+		}
+		gapConnecting = true
 
-	if int64(height) > ilb.Block.Height+1 {
-		log.Info("gap in block heights syncing...", attr)
+		log.Info("Incoming Block  %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
 
-		for i := ilb.Block.Height + 1; i <= int64(height); i++ {
-			attr["i"] = i
-			attr["lastHash"] = ilb.Block.Hash
-			attr["lastHeight"] = ilb.Block.Height
-			log.Info("filling gap", attr)
-			nlb, err := IndexBlockAtHeight(int64(i), *ilb)
+		for missingBlockHeight := lastBlock.Block.Height + 1; missingBlockHeight < int64(height); missingBlockHeight++ {
+			//log.Info("Requesting Gap Block at Height %d | Last Block: %v (%d)", missingBlockHeight, lastBlock.Block.Hash, lastBlock.Block.Height)
+			if recentBlocks.PeekFront().Block.Height >= missingBlockHeight {
+				continue
+			}
+
+			nlb, err := IndexBlockAtHeight(int64(missingBlockHeight), *lastBlock)
 			if err != nil {
 				attr["err"] = err
 				log.Error("onFilteredBlockConnected unable to index block, gap", attr)
+
+				gapConnecting = false
 				return
 			}
-			ilb = &nlb
+			lastBlock = &nlb
+
+			log.Info("Indexed Gap Block: %v (%d) | Incoming Head Block: %v (%d)", nlb.Block.Hash, nlb.Block.Height, headerHash, height)
 		}
+
+		_, err := IndexBlockAtHeight(int64(height), *lastBlock)
+		if err != nil {
+			attr["err"] = err
+			log.Error("onFilteredBlockConnected unable to index block, follow", attr)
+		}
+
+		log.Info("Indexed Block:  %v (%d) %v", headerHash, height, header.Timestamp)
+
+		gapConnecting = false
 		return
 	}
-
-	// ToDo: test rewind/re-org
-	attr["recentBlocksLen"] = recentBlocks.Len()
-	for i := -1; i > -recentBlocks.Len(); i-- {
-		b := recentBlocks.Get(i)
-		attr["i"] = i
-		log.Info("unrolling block", attr)
-		if b.Block.Hash == header.PrevBlock.String() {
-			attr["rewind"] = -i
-			log.Info("re-org detected", attr)
-			for ; i < 0; i++ {
-				attr["pop"] = i
-				log.Info("popping block", attr)
-				recentBlocks.PopFront()
-			}
-			_, err := IndexBlockAtHeight(int64(height), *ilb)
-			if err != nil {
-				attr["err"] = err
-				log.Error("onFilteredBlockConnected unable to index block, re-org", attr)
-			}
-
-			return
-		}
-	}
-
-	log.Error("potential fork, unable to connect block", attr)
 }
 
 func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
@@ -103,9 +114,32 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 }
 
 func onFilteredBlockDisconnected(height int32, header *wire.BlockHeader) {
-	attr := logger.Attrs{"oldHeight": height, "oldHash": header.BlockHash().String()}
+	// Check if we are at the start of a Block Disconnect, and if so, lock processing of new blocks being connected
+	if atomic.LoadInt32(&blocksDisconnecting) == 0 {
+		// Start the initial lock
+		onBlockConnectMutex.Lock()
+	}
 
-	log.Info("BlockDisconnected", attr)
+	// Increment the count of our disconnecting blocks
+	atomic.AddInt32(&blocksDisconnecting, 1)
 
-	// ToDo mark as disconnected in database along with all associated records
+	// Pop the front of recent blocks off. Occasionally block disconnects run out of order, so it is exepected to occasionally see a
+	// different popped block than the disconnected block. As long as all disconnects occur before any new connects occur, it is safe
+	// to disconnect blocks in this manner
+	nlb := recentBlocks.PopFront()
+	log.Info("Disconnected Block: %v (%d) | Popped Block: %v (%d)", header.BlockHash().String(), height, nlb.Block.Hash, nlb.Block.Height)
+
+	// Mark the blocks as orphaned and send off the update requests
+	datastore.AutoBulk.OrphanBlock(header.BlockHash().String())
+	// todo: orphan transactions, artifacts, multiparts, etc
+	log.Info("Marked Block as Orphaned: %v (%d) %v", header.BlockHash().String(), height, header.Timestamp)
+
+	// Decrement the count of our disconnecting blocks
+	atomic.AddInt32(&blocksDisconnecting, -1)
+
+	// Check if we are done with our Block Disconnects, and if so, clear the lock stopping new blocks from being connected
+	if atomic.LoadInt32(&blocksDisconnecting) == 0 {
+		// Clear the initial lock
+		onBlockConnectMutex.Unlock()
+	}
 }

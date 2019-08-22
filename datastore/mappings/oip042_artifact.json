@@ -1,6 +1,7 @@
 {
   "settings": {
-    "number_of_shards": 2
+    "number_of_shards": 3,
+    "number_of_replicas": 0
   },
   "mappings": {
     "_doc": {
@@ -90,7 +91,7 @@
                 },
                 "spatialData": {
                   "enabled": false,
-                  "type": "object",
+                  "type": "object"
                 }
               }
             },
@@ -254,6 +255,21 @@
                 "filter": {
                   "type": "keyword",
                   "ignore_above": 64
+                }
+              }
+            },
+            "latest":{
+              "type":"boolean"
+            },
+            "originalTxid":{
+              "type":"keyword",
+              "ignore_above":64
+            },
+            "previousEdits": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword"
                 }
               }
             },

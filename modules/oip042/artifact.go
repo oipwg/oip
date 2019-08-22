@@ -1,6 +1,7 @@
 package oip042
 
 import (
+	"context"
 	"strconv"
 	"strings"
 
@@ -60,40 +61,52 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 	var el elasticOip042Artifact
 	el.Artifact = artifact.GetInterface()
 	el.Meta = AMeta{
-		Block:       tx.Block,
-		BlockHash:   tx.BlockHash,
-		Blacklist:   Blacklist{Blacklisted: bl, Filter: label},
-		Deactivated: false,
-		Signature:   sig,
-		Time:        tx.Transaction.Time,
-		Tx:          tx,
-		Txid:        tx.Transaction.Txid,
-		Type:        "oip042",
+		Block:         tx.Block,
+		BlockHash:     tx.BlockHash,
+		Blacklist:     Blacklist{Blacklisted: bl, Filter: label},
+		Deactivated:   false,
+		Latest:        true,
+		OriginalTxid:  tx.Transaction.Txid,
+		PreviousEdits: []string{""}, // todo: Store array of previous edit txids that have been applied
+		Signature:     sig,
+		Time:          tx.Transaction.Time,
+		Tx:            tx,
+		Txid:          tx.Transaction.Txid,
+		Type:          "oip042",
 	}
 
+	// Send off a bulk index request :)
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
+
+	// Check to see if we should process the store
+	_, err = datastore.AutoBulk.CheckSizeStore(context.TODO())
+	if err != nil {
+		log.Info("Error Checking Store Size in `artifact.go`")
+		return
+	}
 }
 
-func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData) {
+func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData, sig string) {
 	t := log.Timer()
 	defer t.End("on42JsonEditArtifact", logger.Attrs{"txid": tx.Transaction.Txid})
-
-	sig := any.Get("signature").ToString()
 
 	var el elasticOip042Edit
 	el.Edit = any.GetInterface()
 	el.Meta = OMeta{
-		Block:     tx.Block,
-		BlockHash: tx.BlockHash,
-		Completed: false,
-		Signature: sig,
-		Time:      tx.Transaction.Time,
-		Tx:        tx,
-		Txid:      tx.Transaction.Txid,
-		Type:      "artifact",
+		Block:        tx.Block,
+		BlockHash:    tx.BlockHash,
+		Completed:    false,
+		Signature:    sig,
+		Time:         tx.Transaction.Time,
+		Tx:           tx,
+		Txid:         tx.Transaction.Txid,
+		OriginalTxid: any.Get("txid").ToString(),
+		PriorTxid:    "",
+		Type:         "artifact",
 	}
 
+	el.Patch = any.Get("patch").ToString()
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)
 	datastore.AutoBulk.Add(bir)
 }

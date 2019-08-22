@@ -118,6 +118,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:36a5ff9459163d104f2af9776c8db63f3eb4339f527a00a9835c8d562eb116ba"
+  name = "github.com/evanphx/json-patch"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5858425f75500d40c52783dce87d085a483ce135"
+  version = "v4.2.0"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -581,7 +589,9 @@
     "github.com/cloudflare/backoff",
     "github.com/davecgh/go-spew/spew",
     "github.com/dustin/go-humanize",
+    "github.com/evanphx/json-patch",
     "github.com/gobuffalo/packr/v2",
+    "github.com/gobuffalo/packr/v2/file/resolver",
     "github.com/golang/protobuf/proto",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",

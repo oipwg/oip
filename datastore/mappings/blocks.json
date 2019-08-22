@@ -1,6 +1,7 @@
 {
   "settings": {
-    "number_of_shards": 2
+    "number_of_shards": 5,
+    "number_of_replicas": 0
   },
   "mappings": {
     "_doc": {
@@ -68,6 +69,9 @@
         },
         "sec_since_last_block": {
           "type": "long"
+        },
+        "orphaned": {
+          "type": "boolean"
         }
       }
     }
