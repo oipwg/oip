@@ -55,6 +55,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:fa3d269fd4f44800b177edf9346ff7b4a4547052efdd9065c7bb8ae5555e9ab1"
+  name = "github.com/bitspill/protoPatch"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d00f3abeebf937e72d1c495a117bb953bc13413e"
+
+[[projects]]
+  branch = "master"
   digest = "1:30d4a548e09bca4a0c77317c58e7407e2a65c15325e944f9c08a7b7992f8a59e"
   name = "github.com/btcsuite/btclog"
   packages = ["."]
@@ -228,8 +236,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:e466fdc34f8b0aaedd5624148f63b20ac5ca9de980be61422cf0d7174b8db5a6"
+  digest = "1:deb346615a42bc1675d32127e23aa68e00e553e7bd49a556e0aa07c20bd9e865"
   name = "github.com/jhump/protoreflect"
   packages = [
     "codec",
@@ -240,7 +247,8 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "76f37dc9c20de9cb4fa0e40aedaa4164f1fc2af2"
+  revision = "c67d679c9f863957281faba646d790dbab6cf3b3"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
@@ -485,6 +493,7 @@
     "github.com/bitspill/flod/wire",
     "github.com/bitspill/flosig",
     "github.com/bitspill/floutil",
+    "github.com/bitspill/protoPatch",
     "github.com/cloudflare/backoff",
     "github.com/davecgh/go-spew/spew",
     "github.com/dustin/go-humanize",

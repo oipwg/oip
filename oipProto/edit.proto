@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package oipProto;
+
+option go_package = "oip5";
+
+import "Record.proto";
+import "txid.proto";
+
+
+message EditProto {
+    Txid reference = 1;
+    RecordProto newValues = 2;
+    repeated Op ops = 3;
+}
+
+message Op {
+    repeated Step Path = 1;
+}
+
+message Step {
+    int32 tag = 1;
+
+    Action action = 2;
+
+    int32 srcIndex = 3;
+    int32 dstIndex = 4;
+
+    // ToDo: Add support for maps, perhaps a oneof with each key type
+
+    enum Action {
+        // 0 is reserved for errors.
+        ACTION_ERROR = 0;
+
+        ACTION_REPLACE_ALL = 1;
+        ACTION_APPEND_ALL = 2;
+        ACTION_REMOVE_ALL = 3;
+        ACTION_REMOVE_ONE = 4;
+        ACTION_REPLACE_ONE = 5;
+        ACTION_STRING_PATCH = 6;
+        ACTION_STEP_INTO = 7;
+    }
+}

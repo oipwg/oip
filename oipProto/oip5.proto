@@ -9,6 +9,7 @@ import "RecordTemplateProto.proto";
 import "NormalizeRecord.proto";
 import "txid.proto";
 import "pubkey.proto";
+import "edit.proto";
 
 message OipFive {
     RecordTemplateProto recordTemplate = 1;
@@ -17,7 +18,7 @@ message OipFive {
 
     Transfer transfer = 7;
     Deactivate deactivate = 8;
-    Edit edit = 9;
+    EditProto edit = 9;
 }
 
 message Transfer {
@@ -26,8 +27,4 @@ message Transfer {
 
 message Deactivate {
     Txid txid = 1;
-}
-
-message Edit {
-
 }

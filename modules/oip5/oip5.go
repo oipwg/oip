@@ -99,6 +99,18 @@ func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
 		}
 	}
 
+	if o5.Edit != nil {
+		nonNilAction = true
+		bir, err := intakeEdit(o5.Edit, msg.PubKey, tx)
+		if err != nil {
+			attr["err"] = err
+			log.Error("unable to process Edit", attr)
+		} else {
+			log.Info("adding o5 edit", attr)
+			datastore.AutoBulk.Add(bir)
+		}
+	}
+
 	if !nonNilAction {
 		log.Error("no supported oip5 action to process", attr)
 	}

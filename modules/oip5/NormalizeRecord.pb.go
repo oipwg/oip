@@ -9,6 +9,7 @@ It is generated from these files:
 	oip5.proto
 	Record.proto
 	RecordTemplateProto.proto
+	edit.proto
 
 It has these top-level messages:
 	NormalizeRecordProto
@@ -17,12 +18,14 @@ It has these top-level messages:
 	OipFive
 	Transfer
 	Deactivate
-	Edit
 	RecordProto
 	Permissions
 	Payment
 	OipDetails
 	RecordTemplateProto
+	EditProto
+	Op
+	Step
 */
 package oip5
 
