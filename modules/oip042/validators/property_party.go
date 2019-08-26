@@ -3,8 +3,9 @@ package validators
 import (
 	"encoding/json"
 	"errors"
-	"github.com/json-iterator/go"
 	"time"
+
+	"github.com/json-iterator/go"
 )
 
 func init() {
