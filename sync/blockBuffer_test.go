@@ -91,3 +91,23 @@ func TestBlockBuffer(t *testing.T) {
 		t.Errorf("unexpected count %d; expected %d", c2, c1-40)
 	}
 }
+
+func TestFront(t *testing.T) {
+	bb := blockBuffer{}
+	bb.Push(&datastore.BlockData{SecSinceLastBlock: 1})
+	bb.Push(&datastore.BlockData{SecSinceLastBlock: 2})
+	a := bb.PeekFront().SecSinceLastBlock // 2
+	b := bb.PopFront().SecSinceLastBlock  // 2
+	c := bb.PeekFront().SecSinceLastBlock // 1
+	d := bb.PopFront().SecSinceLastBlock  // 1
+
+	if a != b {
+		t.Errorf("Value mismatch. %d != %d", a, b)
+	}
+	if b == c {
+		t.Errorf("Values should not match. %d - %d", b, c)
+	}
+	if c != d {
+		t.Errorf("Value mismatch. %d != %d", c, d)
+	}
+}
