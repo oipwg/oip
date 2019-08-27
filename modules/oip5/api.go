@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/httpapi"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const o5RecordIndexName = "oip5_record"

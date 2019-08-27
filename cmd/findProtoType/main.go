@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/jhump/protoreflect/dynamic"
+
 	"github.com/oipwg/oip/oipProto"
 )
 

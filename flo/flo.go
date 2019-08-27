@@ -15,9 +15,10 @@ import (
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
 	"github.com/cloudflare/backoff"
+	"github.com/pkg/errors"
+
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/events"
-	"github.com/pkg/errors"
 )
 
 var (

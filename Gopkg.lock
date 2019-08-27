@@ -363,8 +363,8 @@
     "semver",
   ]
   pruneopts = "UT"
-  revision = "438578804ca6f31be148c27683afc419ce47c06e"
-  version = "v1.3.0"
+  revision = "0483ff7b2e24ea0a6fc49d59511d33b631851cca"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:c5dfe46811af7e2eff7c11fc84b6c841520338613c056f659f262d5a4fb42fa8"

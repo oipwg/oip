@@ -10,10 +10,11 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/protoPatch"
 	"github.com/golang/protobuf/jsonpb"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/oipProto"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var editIndex = "oip5_edit"

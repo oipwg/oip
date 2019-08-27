@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/json-iterator/go"
+
 	_ "github.com/oipwg/oip/config"
 )
 

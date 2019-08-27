@@ -15,9 +15,10 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/oipProto"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 func normalizeRecord(r *RecordProto, tx *datastore.TransactionData) error {

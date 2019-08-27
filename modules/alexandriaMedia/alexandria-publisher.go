@@ -5,11 +5,12 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const apIndexName = "alexandria-publisher"

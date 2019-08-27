@@ -9,11 +9,12 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
 	"github.com/oipwg/oip/oipProto"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const histDataPointIndexName = "historian_data_point_"

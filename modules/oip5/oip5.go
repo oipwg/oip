@@ -15,8 +15,9 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	lru "github.com/hashicorp/golang-lru"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/oipwg/oip/oipProto"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/oipProto"
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"

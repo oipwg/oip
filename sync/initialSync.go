@@ -7,9 +7,10 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/chaincfg/chainhash"
 	"github.com/dustin/go-humanize"
+	"github.com/pkg/errors"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/flo"
-	"github.com/pkg/errors"
 )
 
 func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) {

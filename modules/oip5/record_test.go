@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/oipProto"
 )

@@ -2,6 +2,7 @@ package validators
 
 import (
 	"errors"
+
 	"github.com/json-iterator/go"
 )
 

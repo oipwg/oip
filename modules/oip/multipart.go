@@ -12,14 +12,15 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 	"github.com/oipwg/oip/oipProto"
 	oipSync "github.com/oipwg/oip/sync"
-	"github.com/pkg/errors"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const multipartIndex = "oip-multipart-single"

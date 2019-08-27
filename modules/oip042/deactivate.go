@@ -6,9 +6,10 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var deactivationCommitMutex sync.Mutex

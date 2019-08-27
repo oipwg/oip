@@ -12,6 +12,7 @@ import (
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/builder"
 	"github.com/jhump/protoreflect/dynamic"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/oipProto"
 

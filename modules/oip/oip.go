@@ -9,7 +9,8 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/proto"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+
 	"github.com/oipwg/oip/btc"
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"

@@ -12,11 +12,12 @@ import (
 
 	"github.com/azer/logger"
 	jsonpatch "github.com/evanphx/json-patch"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var editCommitMutex sync.Mutex

@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
 )
 
 func GenerateNextAfter(hit *elastic.SearchHit) string {

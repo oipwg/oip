@@ -9,6 +9,7 @@ import (
 	"github.com/bitspill/flod/flojson"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/oipProto"

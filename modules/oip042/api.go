@@ -6,8 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/oipwg/oip/httpapi"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/httpapi"
 )
 
 var artRouter = httpapi.NewSubRoute("/oip042/artifact")

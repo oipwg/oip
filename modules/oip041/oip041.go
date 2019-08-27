@@ -6,14 +6,15 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
-	"github.com/pkg/errors"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const oip41IndexName = "oip041"

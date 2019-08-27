@@ -14,10 +14,11 @@ import (
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/builder"
 	"github.com/jhump/protoreflect/dynamic"
-	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/oipProto"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
+	"github.com/oipwg/oip/oipProto"
 )
 
 func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {

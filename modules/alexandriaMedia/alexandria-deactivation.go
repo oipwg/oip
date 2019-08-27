@@ -6,10 +6,11 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const adIndexName = `alexandria-deactivation`

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bitspill/flod/flojson"
+
 	"github.com/oipwg/oip/datastore"
 )
 
