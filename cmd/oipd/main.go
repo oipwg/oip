@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/azer/logger"
+	"github.com/spf13/viper"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
@@ -17,7 +19,6 @@ import (
 	_ "github.com/oipwg/oip/modules"
 	"github.com/oipwg/oip/sync"
 	"github.com/oipwg/oip/version"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -26,15 +27,18 @@ func main() {
 
 	flag.Parse()
 
-	f, profErr := os.Create(*oipdCpuProfileFile)
-	if profErr != nil {
-		log.Error("could not create CPU profile: ", profErr)
+	if *oipdCpuProfileFile != "" {
+		f, profErr := os.Create(*oipdCpuProfileFile)
+		if profErr != nil {
+			log.Error("could not create CPU profile: ", profErr)
+		} else {
+			defer f.Close()
+			if profErr := pprof.StartCPUProfile(f); profErr != nil {
+				log.Error("could not start CPU profile: ", profErr)
+			}
+			defer pprof.StopCPUProfile()
+		}
 	}
-	defer f.Close()
-	if profErr := pprof.StartCPUProfile(f); profErr != nil {
-		log.Error("could not start CPU profile: ", profErr)
-	}
-	defer pprof.StopCPUProfile()
 
 	log.Info("\n\n\n\n\n\n")
 	log.Info(" OIP Daemon ", logger.Attrs{
@@ -122,13 +126,16 @@ func main() {
 	<-rootContext.Done()
 	shutdown(nil)
 
-	f, memErr := os.Create(*oipdMemProfileFile)
-	if memErr != nil {
-		log.Error("could not create memory profile: ", memErr)
-	}
-	defer f.Close()
-	if memErr := pprof.WriteHeapProfile(f); memErr != nil {
-		log.Error("could not start memory profile: ", memErr)
+	if *oipdMemProfileFile != "" {
+		f, memErr := os.Create(*oipdMemProfileFile)
+		if memErr != nil {
+			log.Error("could not create memory profile: ", memErr)
+		} else {
+			defer f.Close()
+			if memErr := pprof.WriteHeapProfile(f); memErr != nil {
+				log.Error("could not start memory profile: ", memErr)
+			}
+		}
 	}
 }
 
