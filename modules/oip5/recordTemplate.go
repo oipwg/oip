@@ -130,7 +130,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 			t := fb.GetType()
 			if t.GetType() == descriptor.FieldDescriptorProto_TYPE_MESSAGE {
 				n := t.GetTypeName()
-				if strings.HasPrefix(n, "oip.") && strings.HasSuffix(n, ".Txid") {
+				if strings.HasPrefix(n, "oip") && strings.HasSuffix(n, ".Txid") {
 					txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oip.Txid{})
 					if err != nil {
 						attr["err"] = err
