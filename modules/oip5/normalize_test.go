@@ -14,7 +14,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 
 	"github.com/oipwg/oip/datastore"
-	_ "github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/oip/modules/oip"
 )
 
 // func TestIntakeRecordNormalize(t *testing.T) {
