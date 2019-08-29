@@ -19,7 +19,6 @@ import (
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
-	"github.com/oipwg/oip/oipProto"
 	oipSync "github.com/oipwg/oip/sync"
 )
 
@@ -360,10 +359,10 @@ func markStale() {
 	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
 
-func onMultipartProto(msg *oipProto.SignedMessage, tx *datastore.TransactionData) {
+func onMultipartProto(msg *SignedMessage, tx *datastore.TransactionData) {
 	ms := MultipartSingle{}
 
-	mpp := &oipProto.MultiPart{}
+	mpp := &MultiPart{}
 	err := proto.Unmarshal(msg.SerializedMessage, mpp)
 	if err != nil {
 		log.Error("unable to unmarshal multipart", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
@@ -379,7 +378,7 @@ func onMultipartProto(msg *oipProto.SignedMessage, tx *datastore.TransactionData
 	ms.Max = mpp.CountParts - 1
 
 	ms.Data = string(mpp.RawData)
-	ms.Reference = oipProto.TxidPrefixToString(mpp.Reference)
+	ms.Reference = TxidPrefixToString(mpp.Reference)
 
 	if ms.Part == 0 {
 		if len(tx.Transaction.Txid) > 16 {

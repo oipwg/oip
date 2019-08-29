@@ -1,4 +1,4 @@
-package oipProto
+package oip
 
 import (
 	"encoding/hex"

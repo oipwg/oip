@@ -10,7 +10,6 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/oipProto"
 )
 
 // import (
@@ -93,10 +92,10 @@ import (
 //
 // 	sig := "II5q/gIgTi1w6MJYrbn3fIQsQ6SjCUsRvOBNo2bbzI8qFMSX98bAiRyvE69eY1PgGwLRMNMNeIeOFRAe4nR3qwk="
 // 	sigBytes, err := base64.StdEncoding.DecodeString(sig)
-// 	sm := &oipProto.SignedMessage{
+// 	sm := &oip.SignedMessage{
 // 		SerializedMessage: b,
-// 		MessageType:       oipProto.MessageTypes_OIP05,
-// 		SignatureType:     oipProto.SignatureTypes_Flo,
+// 		MessageType:       oip.MessageTypes_OIP05,
+// 		SignatureType:     oip.SignatureTypes_Flo,
 // 		PubKey:            []byte("ofbB67gqjgaYi45u8Qk2U3hGoCmyZcgbN4"),
 // 		Signature:         sigBytes,
 // 	}
@@ -234,7 +233,7 @@ func TestDecodeRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sm := &oipProto.SignedMessage{}
+	sm := &oip.SignedMessage{}
 
 	err = proto.Unmarshal(b, sm)
 	if err != nil {

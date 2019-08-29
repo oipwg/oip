@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package oipProto;
+package oip5;
 
-option go_package = "oip5";
+option go_package = "github.com/oipwg/oip/modules/oip5;oip5";
 
 import "Record.proto";
 import "txid.proto";
 
 
 message EditProto {
-    Txid reference = 1;
+    oip.Txid reference = 1;
     RecordProto newValues = 2;
     repeated Op ops = 3;
 }

@@ -25,7 +25,7 @@ var editCommitMutex sync.Mutex
 func init() {
 	log.Info("init edit")
 	// Subscribe to the datastore event emitter, run our edit processing on each datastore
-	events.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
+	events.SubscribeAsync("datastore:commit", onDatastoreCommit)
 }
 
 func onDatastoreCommit() {

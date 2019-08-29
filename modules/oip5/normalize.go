@@ -18,7 +18,7 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/oipProto"
+	"github.com/oipwg/oip/modules/oip"
 )
 
 func normalizeRecord(r *RecordProto, tx *datastore.TransactionData) error {
@@ -33,7 +33,7 @@ func normalizeRecord(r *RecordProto, tx *datastore.TransactionData) error {
 		if err != nil {
 			continue
 		}
-		tmplName := strings.TrimPrefix(name, "oipProto.templates.tmpl_")
+		tmplName := strings.TrimPrefix(name, "oip.templates.tmpl_")
 
 		if len(tmplName) != len(name) {
 			id, err := strconv.ParseUint(tmplName, 16, 32)
@@ -188,7 +188,7 @@ func stepPath(field *Field, msgIterator *dynamic.Message) (interface{}, error) {
 }
 
 func resolveMessage(fieldValue interface{}, f *desc.FieldDescriptor) (*dynamic.Message, error) {
-	if txid, ok := fieldValue.(*oipProto.Txid); ok {
+	if txid, ok := fieldValue.(*oip.Txid); ok {
 		ref, err := resolveTxidReference(txid)
 		if err != nil {
 			return nil, err
@@ -201,8 +201,8 @@ func resolveMessage(fieldValue interface{}, f *desc.FieldDescriptor) (*dynamic.M
 			return nil, err
 		}
 
-		if f.AsFieldDescriptorProto().GetTypeName() == ".oipProto.Txid" {
-			if link, ok := fieldValue.(*oipProto.Txid); ok {
+		if f.AsFieldDescriptorProto().GetTypeName() == ".oip.Txid" {
+			if link, ok := fieldValue.(*oip.Txid); ok {
 				ref, err := resolveTxidReference(link)
 				if err != nil {
 					return nil, err
@@ -215,8 +215,8 @@ func resolveMessage(fieldValue interface{}, f *desc.FieldDescriptor) (*dynamic.M
 	return nil, errors.New("fieldValue not a message")
 }
 
-func resolveTxidReference(txid *oipProto.Txid) (*dynamic.Message, error) {
-	r, err := GetRecord(oipProto.TxidToString(txid))
+func resolveTxidReference(txid *oip.Txid) (*dynamic.Message, error) {
+	r, err := GetRecord(oip.TxidToString(txid))
 	if err != nil {
 		log.Error("unable to get linked record")
 		return nil, err
@@ -231,7 +231,7 @@ func resolveTxidReference(txid *oipProto.Txid) (*dynamic.Message, error) {
 
 func enterTemplate(recMsg *dynamic.Message, field *Field) (*dynamic.Message, error) {
 	name := recMsg.GetMessageDescriptor().GetFullyQualifiedName()
-	if name != "oipProto.RecordProto" {
+	if name != "oip.RecordProto" {
 		log.Error("cannot enter details of on record type (%s)", name)
 		return nil, fmt.Errorf("cannot enter details of on record type (%s)", name)
 	}
@@ -256,7 +256,7 @@ func detailsMessageFromTemplate(detAny *any.Any, id uint32) (*dynamic.Message, b
 	if err != nil {
 		return nil, false
 	}
-	tmplName := strings.TrimPrefix(name, "oipProto.templates.tmpl_")
+	tmplName := strings.TrimPrefix(name, "oip.templates.tmpl_")
 	tmplId, err := strconv.ParseUint(tmplName, 16, 32)
 	if err != nil {
 		return nil, false

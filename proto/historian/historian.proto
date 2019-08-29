@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package oipProto;
+package historian;
 
-option go_package = "oipProto";
+option go_package = "github.com/oipwg/oip/modules/historian;historian";
 
 message HistorianDataPoint {
     int32 Version = 1;

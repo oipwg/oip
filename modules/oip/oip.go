@@ -16,7 +16,7 @@ import (
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
-	"github.com/oipwg/oip/oipProto"
+	"github.com/oipwg/oip/modules/historian"
 )
 
 const minFloDataLen = 35
@@ -218,7 +218,7 @@ func onGp64(gp64 string, tx *datastore.TransactionData) {
 }
 
 func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
-	var msg oipProto.SignedMessage
+	var msg SignedMessage
 	err := proto.Unmarshal(b, &msg)
 	if err != nil {
 		attr["err"] = err
@@ -232,7 +232,7 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	signedMessage := base64.StdEncoding.EncodeToString(msg.SerializedMessage)
 
 	switch msg.SignatureType {
-	case oipProto.SignatureTypes_Btc:
+	case SignatureTypes_Btc:
 		valid, err := btc.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -243,7 +243,7 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 			log.Error("btc signature validation failed", attr)
 			return
 		}
-	case oipProto.SignatureTypes_Flo:
+	case SignatureTypes_Flo:
 		valid, err := flo.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -261,8 +261,8 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	}
 
 	switch msg.MessageType {
-	case oipProto.MessageTypes_Historian:
-		var hdp = &oipProto.HistorianDataPoint{}
+	case MessageTypes_Historian:
+		var hdp = &historian.HistorianDataPoint{}
 		err = proto.Unmarshal(msg.SerializedMessage, hdp)
 		if err != nil {
 			attr["err"] = err
@@ -270,10 +270,10 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 			return
 		}
 		events.Publish("modules:historian:protoDataPoint", hdp, tx)
-	case oipProto.MessageTypes_OIP05:
+	case MessageTypes_OIP05:
 		log.Info("sending oip5 message", attr)
 		events.Publish("modules:oip5:msg", msg, tx)
-	case oipProto.MessageTypes_Multipart:
+	case MessageTypes_Multipart:
 		events.Publish("modules:oip:multipartProto", msg, tx)
 	default:
 		attr["err"] = err

@@ -12,8 +12,6 @@ import (
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"github.com/oipwg/oip/oipProto"
-
 	_ "github.com/oipwg/oip/modules/oip"
 )
 
@@ -165,12 +163,12 @@ func TestEncodeRecordTemplate(t *testing.T) {
 		panic(err)
 	}
 
-	sm := &oipProto.SignedMessage{
+	sm := &oip.SignedMessage{
 		SerializedMessage: b,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            []byte(pubKey),
 		Signature:         sigBytes,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 	}
 
 	smBytes, err := proto.Marshal(sm)
@@ -221,7 +219,7 @@ func TestDecodeRecordTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sm := &oipProto.SignedMessage{}
+	sm := &oip.SignedMessage{}
 
 	err = proto.Unmarshal(b, sm)
 	if err != nil {

@@ -17,10 +17,9 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"gopkg.in/olivere/elastic.v6"
 
-	"github.com/oipwg/oip/oipProto"
-
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/modules/oip"
 )
 
 const recordCacheDepth = 10000
@@ -42,7 +41,7 @@ func init() {
 	publisherCache, _ = lru.New(publisherCacheDepth)
 }
 
-func on5msg(msg oipProto.SignedMessage, tx *datastore.TransactionData) {
+func on5msg(msg oip.SignedMessage, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
@@ -184,7 +183,7 @@ func GetRecord(txid string) (*oip5Record, error) {
 			Meta:   eRec.Meta,
 			Record: &RecordProto{},
 		}
-		// templates oipProto.templates.tmpl_... not being added to protobuf types
+		// templates oip.templates.tmpl_... not being added to protobuf types
 
 		umarsh := jsonpb.Unmarshaler{
 			AnyResolver: &o5AnyResolver{},
@@ -260,8 +259,8 @@ type RMeta struct {
 func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 	var detMap = make(map[string]*json.RawMessage)
 
-	// "@type": "type.googleapis.com/oipProto.templates.tmpl_deadbeef",
-	// oipProto.templates.tmpl_deadbeef
+	// "@type": "type.googleapis.com/oip.templates.tmpl_deadbeef",
+	// oip.templates.tmpl_deadbeef
 	for _, detAny := range m.Details {
 		name, err := ptypes.AnyMessageName(detAny)
 		if err != nil {
@@ -282,7 +281,7 @@ func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 		}
 		jr := json.RawMessage(buf.Bytes())
 
-		tmplName := strings.TrimPrefix(name, "oipProto.templates.")
+		tmplName := strings.TrimPrefix(name, "oip.templates.")
 		detMap[tmplName] = &jr
 	}
 
@@ -302,7 +301,7 @@ func (m *OipDetails) UnmarshalJSONPB(u *jsonpb.Unmarshaler, b []byte) error {
 
 	for k, v := range detMap {
 		if len(k) == 13 && strings.HasPrefix(k, "tmpl_") {
-			k = "type.googleapis.com/oipProto.templates." + k
+			k = "type.googleapis.com/oip.templates." + k
 		}
 
 		var jsonFields map[string]*json.RawMessage

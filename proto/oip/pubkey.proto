@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package oip;
+
+option go_package = "github.com/oipwg/oip/modules/oip;oip";
+
+message PubKey {
+    NetworkTypes network = 1;
+    bytes raw = 2;
+}
+
+// Currently supported message types
+enum NetworkTypes {
+    // Invalid
+    InvalidNetwork = 0;
+    // FLO address message signing
+    FloNetwork = 1;
+}

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package oipProto;
+package oip;
 
-option go_package = "oipProto";
+option go_package = "github.com/oipwg/oip/modules/oip;oip";
 
 import "txid.proto";
 

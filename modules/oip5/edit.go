@@ -14,7 +14,7 @@ import (
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"github.com/oipwg/oip/oipProto"
+	"github.com/oipwg/oip/modules/oip"
 )
 
 var editIndex = "oip5_edit"
@@ -89,7 +89,7 @@ func intakeEdit(n *EditProto, pubKey []byte, tx *datastore.TransactionData) (*el
 
 	var el elasticOip5Edit
 	el.Edit = buf.Bytes()
-	el.Reference = oipProto.TxidToString(n.Reference)
+	el.Reference = oip.TxidToString(n.Reference)
 	el.Meta = EMeta{
 		Block:     tx.Block,
 		BlockHash: tx.BlockHash,

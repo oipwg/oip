@@ -1,15 +1,16 @@
 syntax = "proto3";
 
-package oipProto;
+package oip5;
 
-option go_package = "oip5";
+option go_package = "github.com/oipwg/oip/modules/oip5;oip5";
 
 import "Record.proto";
 import "RecordTemplateProto.proto";
 import "NormalizeRecord.proto";
+import "edit.proto";
+
 import "txid.proto";
 import "pubkey.proto";
-import "edit.proto";
 
 message OipFive {
     RecordTemplateProto recordTemplate = 1;
@@ -26,5 +27,5 @@ message Transfer {
 }
 
 message Deactivate {
-    Txid txid = 1;
+    oip.Txid txid = 1;
 }

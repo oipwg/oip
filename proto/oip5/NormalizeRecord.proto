@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package oipProto;
+package oip5;
 
-option go_package = "oip5";
+option go_package = "github.com/oipwg/oip/modules/oip5;oip5";
 
 message NormalizeRecordProto {
     // standard template ID which triggers this meta-type
@@ -24,7 +24,7 @@ message Field {
 
     // Expected type
     // if type_message resolution proceeds into the message
-    // if type_message and type_name == oipProto.txid resolves linked record before proceeding
+    // if type_message and type_name == oip.txid resolves linked record before proceeding
     // if type doesn't match field is ignored
     Type type = 2;
 

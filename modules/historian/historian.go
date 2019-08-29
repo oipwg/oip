@@ -14,7 +14,6 @@ import (
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"github.com/oipwg/oip/oipProto"
 )
 
 const histDataPointIndexName = "historian_data_point_"
@@ -98,7 +97,7 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(hdp *oipProto.HistorianDataPoint, tx *datastore.TransactionData) {
+func onProtoHdp(hdp *HistorianDataPoint, tx *datastore.TransactionData) {
 	log.Info("historian dataPoint ", tx.Transaction.Txid)
 
 	var el elasticHdp

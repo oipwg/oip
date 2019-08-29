@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package oip;
+
+option go_package = "github.com/oipwg/oip/modules/oip;oip";
+
+message Txid {
+    bytes raw = 1;
+}

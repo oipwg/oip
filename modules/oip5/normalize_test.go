@@ -14,15 +14,13 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/oipProto"
-
 	_ "github.com/oipwg/oip/modules/oip"
 )
 
 // func TestIntakeRecordNormalize(t *testing.T) {
 // 	t.SkipNow()
 //
-// 	txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oipProto.Txid{})
+// 	txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oip.Txid{})
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
@@ -38,7 +36,7 @@ import (
 // 		AddField(builder.NewField("link",
 // 			builder.FieldTypeMessage(txidMessageType)).SetNumber(3))
 //
-// 	f := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(p)
+// 	f := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(p)
 //
 // 	fd, err := f.Build()
 // 	if err != nil {
@@ -66,7 +64,7 @@ import (
 // 		AddField(builder.NewField("ci64", builder.FieldTypeInt64()).SetNumber(1)).
 // 		AddField(builder.NewField("cstr", builder.FieldTypeString()).SetNumber(2))
 //
-// 	cf := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(cp)
+// 	cf := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(cp)
 //
 // 	cfd, err := cf.Build()
 // 	if err != nil {
@@ -200,11 +198,11 @@ import (
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
-// 	md := nf.FindMessage("oipProto.templates.tmpl_10000000DEADBEEF")
+// 	md := nf.FindMessage("oip.templates.tmpl_10000000DEADBEEF")
 // 	msgDetA := dynamic.NewMessage(md)
 // 	msgDetA.SetFieldByNumber(1, 5)
 // 	msgDetA.SetFieldByNumber(2, "hello")
-// 	msgDetA.SetFieldByNumber(3, oipProto.TxidFromString("0000000000000001000000000000000000000000000000000000000000000000"))
+// 	msgDetA.SetFieldByNumber(3, oip.TxidFromString("0000000000000001000000000000000000000000000000000000000000000000"))
 //
 // 	anyA, err := ptypes.MarshalAny(msgDetA)
 //
@@ -224,7 +222,7 @@ import (
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
-// 	mdb := ncf.FindMessage("oipProto.templates.tmpl_10000000CAFEBABE")
+// 	mdb := ncf.FindMessage("oip.templates.tmpl_10000000CAFEBABE")
 // 	msgDetB := dynamic.NewMessage(mdb)
 // 	msgDetB.SetFieldByNumber(1, 7)
 // 	msgDetB.SetFieldByNumber(2, "world")
@@ -273,7 +271,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	wif := []byte("cRVa9rNx5N1YKBw8PhavegJPFCiYCfC4n8cYmdc3X1Y6TyFZGG4B")
 	_ = wif
 
-	txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oipProto.Txid{})
+	txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oip.Txid{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -289,7 +287,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		AddField(builder.NewField("moons",
 			builder.FieldTypeMessage(txidMessageType)).SetNumber(3).SetRepeated())
 
-	planetFile := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(planetMessage)
+	planetFile := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(planetMessage)
 
 	planetFileDescriptor, err := planetFile.Build()
 	if err != nil {
@@ -327,11 +325,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	planetSignedMessage := &oipProto.SignedMessage{
+	planetSignedMessage := &oip.SignedMessage{
 		SerializedMessage: planetOipFiveBytes,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            pubKey,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 		Signature:         planetSignatureBytes,
 	}
 
@@ -353,7 +351,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		AddField(builder.NewField("mass", builder.FieldTypeInt64()).SetNumber(1)). // billions of kg
 		AddField(builder.NewField("name", builder.FieldTypeString()).SetNumber(2))
 
-	moonFile := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(moonMessage)
+	moonFile := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(moonMessage)
 
 	moonFileDescriptor, err := moonFile.Build()
 	if err != nil {
@@ -388,11 +386,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	moonSignedMessage := &oipProto.SignedMessage{
+	moonSignedMessage := &oip.SignedMessage{
 		SerializedMessage: moonOipFiveBytes,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            pubKey,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 		Signature:         moonSignatureBytes,
 	}
 
@@ -415,7 +413,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	moonMd := moonf.FindMessage("oipProto.templates.tmpl_370840EE")
+	moonMd := moonf.FindMessage("oip.templates.tmpl_370840EE")
 	moonDet := dynamic.NewMessage(moonMd)
 	moonDet.SetFieldByNumber(1, int64(73420000000000)) // billions of kg
 	moonDet.SetFieldByNumber(2, "Luna")
@@ -446,11 +444,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	moonRecordSignedMessage := &oipProto.SignedMessage{
+	moonRecordSignedMessage := &oip.SignedMessage{
 		SerializedMessage: moonRecordBytes,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            pubKey,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 		Signature:         moonRecordSignatureBytes,
 	}
 
@@ -473,11 +471,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	planetMd := nf.FindMessage("oipProto.templates.tmpl_D7309B2A")
+	planetMd := nf.FindMessage("oip.templates.tmpl_D7309B2A")
 	planetDet := dynamic.NewMessage(planetMd)
 	planetDet.SetFieldByNumber(1, int64(5972000000000000)) // billions of kg
 	planetDet.SetFieldByNumber(2, "Earth")
-	lunaRef := oipProto.TxidFromString("37a65ffa5e85e3bce6eb1f80568efc0757ba10726da0b0f9f283df1f50368d68")
+	lunaRef := oip.TxidFromString("37a65ffa5e85e3bce6eb1f80568efc0757ba10726da0b0f9f283df1f50368d68")
 	planetDet.AddRepeatedFieldByNumber(3, lunaRef)
 
 	planetAny, err := ptypes.MarshalAny(planetDet)
@@ -506,11 +504,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	planetRecordSignedMessage := &oipProto.SignedMessage{
+	planetRecordSignedMessage := &oip.SignedMessage{
 		SerializedMessage: planetRecordBytes,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            pubKey,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 		Signature:         planetRecordSignatureBytes,
 	}
 
@@ -611,11 +609,11 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	planetNormalizeSignedMessage := &oipProto.SignedMessage{
+	planetNormalizeSignedMessage := &oip.SignedMessage{
 		SerializedMessage: planetNormalizeBytes,
-		MessageType:       oipProto.MessageTypes_OIP05,
+		MessageType:       oip.MessageTypes_OIP05,
 		PubKey:            pubKey,
-		SignatureType:     oipProto.SignatureTypes_Flo,
+		SignatureType:     oip.SignatureTypes_Flo,
 		Signature:         planetNormalizeSignatureBytes,
 	}
 
