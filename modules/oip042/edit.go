@@ -12,11 +12,12 @@ import (
 
 	"github.com/azer/logger"
 	jsonpatch "github.com/evanphx/json-patch"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var editCommitMutex sync.Mutex
@@ -40,7 +41,7 @@ func onDatastoreCommit() {
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
-		log.Info("Error while querying for Edits!", logger.Attrs{"err": err})
+		log.Error("Error while querying for Edits!", logger.Attrs{"err": err})
 		return
 	}
 
@@ -68,14 +69,14 @@ func onDatastoreCommit() {
 			// First, lookup the latest record held in ElasticSearch
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
-				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+				log.Error("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
 				continue
 			}
 			// Then, attempt to process the edit
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
-				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				log.Error("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
 				// todo: Mark as broken to prevent processing again in the future
 				// Move on and attempt to process the next edit
 				continue
