@@ -47,4 +47,6 @@ type TransactionData struct {
 	Confirmed   bool                 `json:"confirmed"`
 	IsCoinbase  bool                 `json:"is_coinbase"`
 	Transaction *flojson.TxRawResult `json:"tx"`
+	Fee         *float64             `json:"fee,omit_empty"`
+	FeeSat      *int64               `json:"fee_sat,omit_empty"`
 }
