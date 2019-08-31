@@ -287,7 +287,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		AddField(builder.NewField("moons",
 			builder.FieldTypeMessage(txidMessageType)).SetNumber(3).SetRepeated())
 
-	planetFile := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(planetMessage)
+	planetFile := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(planetMessage)
 
 	planetFileDescriptor, err := planetFile.Build()
 	if err != nil {
@@ -351,7 +351,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 		AddField(builder.NewField("mass", builder.FieldTypeInt64()).SetNumber(1)). // billions of kg
 		AddField(builder.NewField("name", builder.FieldTypeString()).SetNumber(2))
 
-	moonFile := builder.NewFile("p.proto").SetPackageName("oip.templates").AddMessage(moonMessage)
+	moonFile := builder.NewFile("p.proto").SetPackageName("oipProto.templates").AddMessage(moonMessage)
 
 	moonFileDescriptor, err := moonFile.Build()
 	if err != nil {
@@ -413,7 +413,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	moonMd := moonf.FindMessage("oip.templates.tmpl_370840EE")
+	moonMd := moonf.FindMessage("oipProto.templates.tmpl_370840EE")
 	moonDet := dynamic.NewMessage(moonMd)
 	moonDet.SetFieldByNumber(1, int64(73420000000000)) // billions of kg
 	moonDet.SetFieldByNumber(2, "Luna")
@@ -471,7 +471,7 @@ func TestNormalizeToBlockchainFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	planetMd := nf.FindMessage("oip.templates.tmpl_D7309B2A")
+	planetMd := nf.FindMessage("oipProto.templates.tmpl_D7309B2A")
 	planetDet := dynamic.NewMessage(planetMd)
 	planetDet.SetFieldByNumber(1, int64(5972000000000000)) // billions of kg
 	planetDet.SetFieldByNumber(2, "Earth")

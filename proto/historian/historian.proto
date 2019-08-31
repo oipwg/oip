@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package historian;
+package oipProto.historian;
 
 option go_package = "github.com/oipwg/oip/modules/historian;historian";
 

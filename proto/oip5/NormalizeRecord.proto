@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package oip5;
+package oipProto;
 
 option go_package = "github.com/oipwg/oip/modules/oip5;oip5";
 

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package oip5;
+package oipProto;
 
 option go_package = "github.com/oipwg/oip/modules/oip5;oip5";
 
@@ -27,5 +27,5 @@ message Transfer {
 }
 
 message Deactivate {
-    oip.Txid txid = 1;
+    oipProto.Txid txid = 1;
 }

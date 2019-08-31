@@ -13,7 +13,6 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/modules/oip"
 )
 
@@ -21,7 +20,7 @@ var editIndex = "oip5_edit"
 var editCommitMutex sync.Mutex
 
 func init() {
-	events.SubscribeAsync("datastore:commit", onDatastoreCommitEdits)
+	// events.SubscribeAsync("datastore:commit", onDatastoreCommitEdits)
 }
 
 func applyEdit(edit *EditProto, record *RecordProto) {

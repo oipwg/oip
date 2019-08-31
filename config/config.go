@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,6 +18,7 @@ var (
 	appDir        string
 	defaultAppDir = floutil.AppDataDir("oipd", false)
 	configBox     = packr.New("defaults", "./defaults")
+	subs          []func(context.Context)
 )
 
 func init() {
@@ -91,6 +93,11 @@ func loadDefaults() {
 	// HttpApi defaults
 	viper.SetDefault("oip.api.listen", "127.0.0.1:1606")
 	viper.SetDefault("oip.api.enabled", false)
+
+	// oip5 defaults
+	viper.SetDefault("oip.oip5.normalizeEnabled", true)
+	viper.SetDefault("oip.oip5.publisherCacheDepth", 1000)
+	viper.SetDefault("oip.oip5.recordCacheDepth", 10000)
 }
 
 func IsTestnet() bool {
@@ -111,4 +118,14 @@ func GetFilePath(key string) string {
 		return v
 	}
 	return filepath.Join(appDir, v)
+}
+
+func OnPostConfig(fn func(context.Context)) {
+	subs = append(subs, fn)
+}
+
+func PostConfig(ctx context.Context) {
+	for _, fn := range subs {
+		fn(ctx)
+	}
 }

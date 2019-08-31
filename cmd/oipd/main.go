@@ -12,8 +12,8 @@ import (
 	"github.com/azer/logger"
 	"github.com/spf13/viper"
 
+	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 	_ "github.com/oipwg/oip/modules"
@@ -99,7 +99,7 @@ func main() {
 		return
 	}
 
-	filters.InitViper(rootContext)
+	config.PostConfig(rootContext)
 
 	err = oip5.LoadTemplatesFromES(rootContext)
 	if err != nil {

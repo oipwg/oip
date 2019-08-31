@@ -112,8 +112,8 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 	}
 	messageBuilder := fileBuilder.GetMessage("P")
 	if messageBuilder == nil {
-		log.Error("unable to find message oip.templates.P", attr)
-		return errors.New("unable to find message oip.templates.P")
+		log.Error("unable to find message oipProto.templates.P", attr)
+		return errors.New("unable to find message oipProto.templates.P")
 	}
 	err = messageBuilder.TrySetName(newName)
 	if err != nil {
@@ -130,7 +130,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 			t := fb.GetType()
 			if t.GetType() == descriptor.FieldDescriptorProto_TYPE_MESSAGE {
 				n := t.GetTypeName()
-				if strings.HasPrefix(n, "oip") && strings.HasSuffix(n, ".Txid") {
+				if strings.HasPrefix(n, "oipProto.") && strings.HasSuffix(n, ".Txid") {
 					txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oip.Txid{})
 					if err != nil {
 						attr["err"] = err
@@ -186,7 +186,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		addProtoType(fileMsgType, txid)
 	}
 
-	if !strings.HasPrefix(message.GetFullyQualifiedName(), "oip.templates.") {
+	if !strings.HasPrefix(message.GetFullyQualifiedName(), "oipProto.templates.") {
 		attr["fqn"] = message.GetFullyQualifiedName()
 		log.Error("missing required package", attr)
 		return errors.New("missing required package")
@@ -253,7 +253,7 @@ type TMeta struct {
 }
 
 func CreateNewMessage(id string) (proto.Message, error) {
-	hexId := strings.TrimPrefix(id, "oip.templates.tmpl_")
+	hexId := strings.TrimPrefix(id, "oipProto.templates.tmpl_")
 	if len(hexId) == 8 {
 		ident, err := strconv.ParseUint(hexId, 16, 32)
 		if err == nil {

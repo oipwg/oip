@@ -12,7 +12,7 @@ import (
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	_ "github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/oip/modules/oip"
 )
 
 func TestIntakeRecordTemplate(t *testing.T) {
@@ -245,7 +245,7 @@ func TestDecodeRecordTemplate(t *testing.T) {
 func TestNotStringProtobufJs(t *testing.T) {
 	// descriptor := []byte{10, 42, 10, 7, 112, 46, 112, 114, 111, 116, 111, 34, 23, 10, 1, 80, 18, 18, 10, 10, 100, 101, 99, 111, 100, 101, 84, 104, 105, 115, 24, 1, 32, 1, 40, 13, 98, 6, 112, 114, 111, 116, 111, 51}
 
-	descriptor, ero := base64.StdEncoding.DecodeString("CoQBCgdwLnByb3RvEhJvaXBQcm90by50ZW1wbGF0ZXMiXQoBUBIhChNyZWdpc3RlcmVkUHVibGlzaGVyGAEgASgLMgRUeGlkEhEKCXR3aXR0ZXJJZBgCIAEoCRINCgVnYWJJZBgDIAEoCRoTCgRUeGlkEgsKA3JhdxgBIAEoDGIGcHJvdG8z")
+	descriptor, ero := base64.StdEncoding.DecodeString("Ck4KB3AucHJvdG8SEm9pcFByb3RvLnRlbXBsYXRlcyInCgFQEgwKBG5hbWUYASABKAkSFAoMZmxvQmlwNDRYUHViGAIgASgJYgZwcm90bzM=")
 	if ero != nil {
 		t.Fatal(ero)
 	}
@@ -257,4 +257,6 @@ func TestNotStringProtobufJs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	spew.Dump(rt.MessageDescriptor)
 }

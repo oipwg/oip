@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package oipProto.templates;
+
+option go_package = "github.com/oipwg/oip/modules/oip5/templates;templates";
+
+// Registered Publisher
+message tmpl_433C2783 {
+    string name = 1;
+    string floBip44XPub = 2;
+}
