@@ -26,7 +26,14 @@ API
   - /oip042/record/get/{originalTxid}/version/{editRecordTxid}
   - /oip042/edit/get/{editRecordTxid}
   - /oip042/edit/search?q={query}
-
+- oip5
+  - /o5/record/get/latest
+  - /o5/record/get/{id:[a-f0-9]+}
+  - /o5/record/mapping/{tmpl:tmpl_[a-fA-F0-9]{8}(?:,tmpl_[a-fA-F0-9]{8})*}
+  - /o5/record/search?q={query}
+  - /o5/template/get/latest
+  - /o5/template/get/{id:[a-f0-9]+}
+  - /o5/template/search?q={query}
 
 ## Common Query Params
 All API routes which may return multiple results
