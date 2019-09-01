@@ -263,7 +263,6 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	case MessageTypes_Historian:
 		events.Publish("modules:historian:protoDataPoint", msg, tx)
 	case MessageTypes_OIP05:
-		log.Info("sending oip5 message", attr)
 		events.Publish("modules:oip5:msg", msg, tx)
 	case MessageTypes_Multipart:
 		events.Publish("modules:oip:multipartProto", msg, tx)
