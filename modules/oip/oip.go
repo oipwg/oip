@@ -16,7 +16,6 @@ import (
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
-	"github.com/oipwg/oip/modules/historian"
 )
 
 const minFloDataLen = 35
@@ -262,14 +261,7 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 
 	switch msg.MessageType {
 	case MessageTypes_Historian:
-		var hdp = &historian.HistorianDataPoint{}
-		err = proto.Unmarshal(msg.SerializedMessage, hdp)
-		if err != nil {
-			attr["err"] = err
-			log.Error("unable to unmarshal protobuf historian message", attr)
-			return
-		}
-		events.Publish("modules:historian:protoDataPoint", hdp, tx)
+		events.Publish("modules:historian:protoDataPoint", msg, tx)
 	case MessageTypes_OIP05:
 		log.Info("sending oip5 message", attr)
 		events.Publish("modules:oip5:msg", msg, tx)
