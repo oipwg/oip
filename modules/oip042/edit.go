@@ -37,6 +37,7 @@ func onDatastoreCommit() {
 	editCommitMutex.Lock()
 	defer editCommitMutex.Unlock()
 
+moreEdits:
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
@@ -87,6 +88,11 @@ func onDatastoreCommit() {
 			}
 
 			log.Info("Edit %v on Record %v Successfully Processed!", editRecord.Meta.Txid, editRecord.Meta.OriginalTxid)
+		}
+
+		if (preFilteredLen - len(edits)) > 0 {
+			// Since we have some edits we filtered out, go ahead and recursively loop back to complete them
+			goto moreEdits
 		}
 	}
 }
