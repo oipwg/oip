@@ -74,6 +74,5 @@ oip:
         # second-list: https://example.com/another.list.txt
 
   oip5:
-    normalizeEnabled: false
     recordCacheDepth: 10000
     publisherCacheDepth: 1000

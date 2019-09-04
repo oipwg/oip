@@ -61,26 +61,12 @@ func on5msg(msg oip.SignedMessage, tx *datastore.TransactionData) {
 
 	if o5.Normalize != nil {
 		nonNilAction = true
-		bir, err := intakeNormalize(o5.Normalize, msg.PubKey, tx)
-		if err != nil {
-			attr["err"] = err
-			log.Error("unable to process Normalize", attr)
-		} else {
-			log.Info("adding o5 normalize", attr)
-			datastore.AutoBulk.Add(bir)
-		}
+		log.Error("oip5 normalize not yet supported")
 	}
 
 	if o5.Edit != nil {
 		nonNilAction = true
-		bir, err := intakeEdit(o5.Edit, msg.PubKey, tx)
-		if err != nil {
-			attr["err"] = err
-			log.Error("unable to process Edit", attr)
-		} else {
-			log.Info("adding o5 edit", attr)
-			datastore.AutoBulk.Add(bir)
-		}
+		log.Error("oip5 edit not yet supported")
 	}
 
 	if !nonNilAction {

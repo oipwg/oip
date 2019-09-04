@@ -95,7 +95,6 @@ func loadDefaults() {
 	viper.SetDefault("oip.api.enabled", false)
 
 	// oip5 defaults
-	viper.SetDefault("oip.oip5.normalizeEnabled", true)
 	viper.SetDefault("oip.oip5.publisherCacheDepth", 1000)
 	viper.SetDefault("oip.oip5.recordCacheDepth", 10000)
 }
