@@ -12,4 +12,3 @@ message MultiPart {
     bytes rawData = 3;
     Txid reference = 4;
 }
-
