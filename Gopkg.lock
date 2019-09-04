@@ -55,14 +55,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fa3d269fd4f44800b177edf9346ff7b4a4547052efdd9065c7bb8ae5555e9ab1"
-  name = "github.com/bitspill/protoPatch"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d00f3abeebf937e72d1c495a117bb953bc13413e"
-
-[[projects]]
-  branch = "master"
   digest = "1:30d4a548e09bca4a0c77317c58e7407e2a65c15325e944f9c08a7b7992f8a59e"
   name = "github.com/btcsuite/btclog"
   packages = ["."]
@@ -436,18 +428,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
+  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
 
 [[projects]]
   branch = "master"
-  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
+  digest = "1:4f9cc50343843f7c58c1a1aecf17c226ea0e855f4d3293e796701ae985111e0d"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
+  revision = "749cb33beabd9aa6d3178e3de05bcc914f70b2bf"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -493,7 +485,6 @@
     "github.com/bitspill/flod/wire",
     "github.com/bitspill/flosig",
     "github.com/bitspill/floutil",
-    "github.com/bitspill/protoPatch",
     "github.com/cloudflare/backoff",
     "github.com/davecgh/go-spew/spew",
     "github.com/dustin/go-humanize",
