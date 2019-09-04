@@ -402,13 +402,13 @@ func onMultipartProto(msg *SignedMessage, tx *datastore.TransactionData) {
 }
 
 type MultipartSingle struct {
-	Part      uint32 `json:"part,omitempty"`
-	Max       uint32 `json:"max,omitempty"`
-	Reference string `json:"reference,omitempty"`
-	Address   string `json:"address,omitempty"`
-	Signature string `json:"signature,omitempty"`
-	Data      string `json:"data,omitempty"`
-	Meta      MSMeta `json:"meta,omitempty"`
+	Part      uint32 `json:"part"`
+	Max       uint32 `json:"max"`
+	Reference string `json:"reference"`
+	Address   string `json:"address"`
+	Signature string `json:"signature"`
+	Data      string `json:"data"`
+	Meta      MSMeta `json:"meta"`
 }
 
 type MSMeta struct {
