@@ -1,7 +1,7 @@
 package oip5
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -152,14 +152,19 @@ func handleGetMapping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(fields)
+	var ret map[string]interface{} = nil
 
-	m := res[indexName].(map[string]interface{})["mappings"].(map[string]interface{})["_doc"].(map[string]interface{})
+	if ri, ok := res[indexName].(map[string]interface{}); ok {
+		if m, ok := ri["mappings"].(map[string]interface{}); ok {
+			if d, ok := m["_doc"].(map[string]interface{}); ok {
+				ret = d
+			}
+		}
+	}
 
-	var ret = make(map[string]interface{})
-
-	for key, value := range m {
-		ret[key] = value
+	if ret == nil {
+		httpapi.RespondESError(w, errors.New("unable to obtain mapping for template"))
+		return
 	}
 
 	httpapi.RespondJSON(w, 200, ret)
