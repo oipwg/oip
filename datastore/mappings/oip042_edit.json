@@ -40,6 +40,9 @@
             "completed": {
               "type": "boolean"
             },
+            "defective": {
+              "type": "boolean"
+            },
             "originalTxid": {
               "type": "text",
               "fields": {

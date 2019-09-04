@@ -97,6 +97,7 @@ func on42JsonEditArtifact(any jsoniter.Any, tx *datastore.TransactionData, sig s
 		Block:        tx.Block,
 		BlockHash:    tx.BlockHash,
 		Completed:    false,
+		Defective:    false,
 		Signature:    sig,
 		Time:         tx.Transaction.Time,
 		Tx:           tx,

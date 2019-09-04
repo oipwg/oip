@@ -76,7 +76,12 @@ func onDatastoreCommit() {
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
 				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
-				// todo: Mark as broken to prevent processing again in the future
+				// Mark as defective to prevent processing again in the future
+				err = markEditDefective(editRecord)
+				if err != nil {
+					log.Info("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+				}
+
 				// Move on and attempt to process the next edit
 				continue
 			}
@@ -90,6 +95,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 	// Create a search query for Edits that are not completed
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.completed", false),
+		elastic.NewTermQuery("meta.defective", false),
 	)
 
 	// Search for pending edits, sort by the given edit timestamp
@@ -167,11 +173,31 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	return artifactRecord, nil
 }
 
+type Defective struct {
+	Defective bool `json:"defective"`
+}
+type MetaDefective struct {
+	Meta Defective `json:"meta"`
+}
 type Latest struct {
 	Latest bool `json:"latest"`
 }
 type MetaLatest struct {
 	Meta Latest `json:"meta"`
+}
+
+func markEditDefective(editRecord *elasticOip042Edit) error {
+	// Run updates to set "latest" to false on the previously latest Record
+	cu := datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(MetaDefective{Defective{true}}).Refresh("true")
+	_, err := cu.Do(context.TODO())
+	if err != nil {
+		return fmt.Errorf("Could not mark edit as defective! %v", err)
+	}
+
+	log.Info("Marked Edit %v as Defective!", editRecord.Meta.Txid)
+
+	// Return nil if successful!
+	return nil
 }
 
 func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) error {
