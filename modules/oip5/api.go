@@ -25,7 +25,7 @@ func init() {
 	o5Router.HandleFunc("/record/get/{id:[a-f0-9]+}", handleGetRecord)
 	o5Router.HandleFunc("/record/mapping/{tmpl:tmpl_[a-fA-F0-9]{8}(?:,tmpl_[a-fA-F0-9]{8})*}", handleGetMapping)
 	o5Router.HandleFunc("/template/get/latest", handleLatestTemplate)
-	o5Router.HandleFunc("/template/get/{id:[a-f0-9]+}", handleGetTemplate)
+	o5Router.HandleFunc("/template/get/{id:[a-fA-F0-9]+}", handleGetTemplate)
 }
 
 var (
@@ -185,7 +185,7 @@ func handleGetTemplate(w http.ResponseWriter, r *http.Request) {
 
 	q := elastic.NewBoolQuery().Must(
 		// elastic.NewTermQuery("meta.deactivated", false),
-		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+		elastic.NewPrefixQuery("meta.txid", strings.ToLower(opts["id"])),
 	)
 
 	searchService := httpapi.BuildCommonSearchService(
