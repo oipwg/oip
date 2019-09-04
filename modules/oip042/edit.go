@@ -242,6 +242,20 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 		return fmt.Errorf("Could not decode Edit patch! %v", err)
 	}
 
+	// Prepend on "artifact" at the start of the edit patch to decend to the correct level
+	for i, operation := range editPatch {
+		pathObj := operation["path"]
+
+		var path string
+		err := json.Unmarshal(*pathObj, &path)
+		if err != nil {
+			return fmt.Errorf("Could not get Path for operation in Edit patch! %v", err)
+		}
+
+		newPath := json.RawMessage([]byte(`"/artifact` + path + `"`))
+		editPatch[i]["path"] = &newPath
+	}
+
 	// Apply the patch to the serialized Record
 	jsonModifiedArtRecord, err := editPatch.Apply(jsonArtRecord)
 	if err != nil {
