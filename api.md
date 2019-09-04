@@ -65,6 +65,9 @@ ex: `sort=tx.size:a$tx.time:d`
 
 ## Oip5 Examples
 
+A public instance is available at https://api.oip.io  
+If running locally the default url is http://localhost:1606
+
 #### Latest Records
 `http://localhost:1606/oip/o5/record/get/latest?limit=1&page=66`
 
