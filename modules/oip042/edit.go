@@ -20,6 +20,7 @@ import (
 )
 
 var editCommitMutex sync.Mutex
+var previousEditLength int
 
 func init() {
 	log.Info("init edit")
@@ -47,6 +48,7 @@ moreEdits:
 
 	// Check if there are edits that need to be completed
 	if len(edits) > 0 {
+		oipSync.EditSyncComplete = false
 		// Make sure that we are only processing a single Edit for each OriginalTXID
 		editMap := make(map[string]bool)
 		filteredEdits := []*elasticOip042Edit{}
@@ -69,8 +71,17 @@ moreEdits:
 			// First, lookup the latest record held in ElasticSearch
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
-				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
+				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+
+				// Check if we should mark this edit as defective (if all multiparts are complete, and we still can't find the Record, than the Edit
+				// txid is likely invalid and the Edit should be marked as defective)
+				if oipSync.MultipartSyncComplete {
+					err = markEditDefective(editRecord)
+					if err != nil {
+						log.Info("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+					}
+				}
 				continue
 			}
 			// Then, attempt to process the edit
@@ -90,10 +101,14 @@ moreEdits:
 			log.Info("Edit %v on Record %v Successfully Processed!", editRecord.Meta.Txid, editRecord.Meta.OriginalTxid)
 		}
 
-		if (preFilteredLen - len(edits)) > 0 {
+		// Check if there are any edits that got filtered, and also check to make sure that we have less edits to perform than the last time
+		// if the number of edits this time is exactly the same as last time, don't loop
+		if (preFilteredLen - len(edits) > 0 && previousEditLength != len(edits)) {
 			// Since we have some edits we filtered out, go ahead and recursively loop back to complete them
 			goto moreEdits
 		}
+	} else {
+		oipSync.EditSyncComplete = true
 	}
 }
 

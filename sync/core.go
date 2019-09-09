@@ -8,6 +8,8 @@ import (
 
 var (
 	IsInitialSync = true
+	MultipartSyncComplete = false
+	EditSyncComplete = false
 	recentBlocks  = blockBuffer{}
 )
 
