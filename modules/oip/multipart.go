@@ -117,6 +117,10 @@ moreMultiparts:
 		events.Publish("modules:oip:mpCompleted")
 	}
 
+	if after != nil {
+		goto moreMultiparts
+	}
+
 	// If we are not still syncing for the first time, and the remaining count is exactly the same as last time we checked,
 	// then it is a good indicator that these Multiparts are stale
 	if (!wasInitialSync && previousMultipartCount == len(multiparts) && previousMultipartCount < 10000) {
@@ -125,10 +129,6 @@ moreMultiparts:
 	}
 
 	previousMultipartCount = len(multiparts)
-
-	if after != nil {
-		goto moreMultiparts
-	}
 }
 
 func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]interface{}, error) {
