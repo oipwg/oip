@@ -12,11 +12,12 @@ import (
 
 	"github.com/azer/logger"
 	jsonpatch "github.com/evanphx/json-patch"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var editCommitMutex sync.Mutex
@@ -42,7 +43,7 @@ moreEdits:
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
-		log.Info("Error while querying for Edits!", logger.Attrs{"err": err})
+		log.Error("Error while querying for Edits!", logger.Attrs{"err": err})
 		return
 	}
 
@@ -72,7 +73,7 @@ moreEdits:
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
-				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+				log.Error("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 
 				// Check if we should mark this edit as defective (if all multiparts are complete, and we still can't find the Record, than the Edit
 				// txid is likely invalid and the Edit should be marked as defective)
@@ -87,11 +88,11 @@ moreEdits:
 			// Then, attempt to process the edit
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
-				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				log.Error("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
 				// Mark as defective to prevent processing again in the future
 				err = markEditDefective(editRecord)
 				if err != nil {
-					log.Info("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+					log.Error("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
 				}
 
 				// Move on and attempt to process the next edit
