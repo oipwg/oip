@@ -14,10 +14,8 @@ import (
 	"github.com/oipwg/oip/modules/oip"
 )
 
-const baseHeader0 = 380
-const baseHeaderX = 414
-const baseDataSize0 = 660
-const baseDataSizeX = /* experiment */ 626
+const baseDataSize0 = 660                  // = maxFloDataLen - 380 bytes
+const baseDataSizeX = /* experiment */ 626 // = maxFloDataLen - 414 bytes
 
 type MultiPart struct {
 	pub       Publisher
