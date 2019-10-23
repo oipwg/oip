@@ -275,7 +275,12 @@ func (a *Address) Publish(o5 ...*oip5.OipFive) (*PublishResult, error) {
 		enc.Encode(floData[4:], serRecord)
 
 		recordSendResult, err := a.SendToBlockchainMultipart(floData)
-		result.Sbr = append(result.Sbr, recordSendResult)
+		if recordSendResult != nil {
+			result.Sbr = append(result.Sbr, recordSendResult)
+		}
+		if err != nil {
+			return result, err
+		}
 	}
 
 	return result, nil
