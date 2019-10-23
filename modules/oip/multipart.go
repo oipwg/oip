@@ -2,6 +2,7 @@ package oip
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -379,6 +380,9 @@ func onMultipartProto(msg *SignedMessage, tx *datastore.TransactionData) {
 
 	ms.Data = string(mpp.RawData)
 	ms.Reference = TxidPrefixToString(mpp.Reference)
+
+	ms.Address = string(msg.PubKey)
+	ms.Signature = base64.StdEncoding.EncodeToString(msg.Signature)
 
 	if ms.Part == 0 {
 		if len(tx.Transaction.Txid) > 16 {
