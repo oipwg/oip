@@ -14,7 +14,6 @@ import (
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
 
 	"github.com/oipwg/oip/modules/oip"
@@ -231,8 +230,6 @@ func (a *Address) SendToBlockchainMultipart(floData []byte) (*SendToBlockchainRe
 		TxHash: []*chainhash.Hash{&txHash},
 	}
 
-	spew.Dump(parts)
-
 	_, err = a.PushTx(tx0)
 	if err != nil {
 		return result, err
@@ -417,7 +414,7 @@ func (a *Address) buildAncestralTrees(utxo map[string]*fastUtxo) error {
 			Value:    amt,
 			Conf:     v.Conf,
 		}
-		// fmt.Println(u.Hash)
+
 		a.utxo[selfKey] = u
 
 		// unconfirmed, determine ancestor/descendant
@@ -439,18 +436,10 @@ func (a *Address) resetUtxo() {
 }
 
 func (a *Address) linkAncestors(parentKey string, selfKey string, u *Utxo) {
-	// is parent confirmed?
-	parentUtxo, hasParent := a.utxo[parentKey]
-	parentConfirmed := !hasParent || parentUtxo.Conf != 0
-	if parentConfirmed {
-		// fmt.Println("parent confirmed")
-	}
-
 	ancestorKey, hasAncestor := a.descendantToAncestorMap[parentKey]
 	descendantKey, hasDescendant := a.ancestorToDescendantMap[selfKey]
 
 	if !hasAncestor {
-		// fmt.Println("no ancestor")
 		ancestorKey = selfKey
 	}
 	// make initial connections
@@ -461,35 +450,19 @@ func (a *Address) linkAncestors(parentKey string, selfKey string, u *Utxo) {
 	a.unconfirmed[ancestorKey] = append(a.unconfirmed[ancestorKey], u)
 	// if have descendant connect to common ancestor
 	if hasDescendant {
-		// fmt.Println("has descendant")
 		a.descendantToAncestorMap[descendantKey] = ancestorKey
 		a.ancestorToDescendantMap[ancestorKey] = descendantKey
 
 		if descendantKey != ancestorKey {
-			// fmt.Println("moving descendants")
 			// move own descendants to common ancestor chain
 			a.unconfirmed[ancestorKey] = append(a.unconfirmed[ancestorKey], a.unconfirmed[descendantKey]...)
 			for i := range a.unconfirmed[ancestorKey] {
 				k := keyFromInternalHash(a.unconfirmed[ancestorKey][i].Hash)
 				a.descendantToAncestorMap[k] = ancestorKey
-				// fmt.Println("move", k, "->", ancestorKey)
 			}
 			delete(a.unconfirmed, descendantKey)
 		}
 	}
-
-	// fmt.Printf(" self (%s)\n parent (%s)\n ancestor (%s)\n descendant (%s)\n\n", selfKey, parentKey, ancestorKey, descendantKey)
-
-	// fmt.Println("anc -> desc")
-	// for anc, desc := range a.ancestorToDescendantMap {
-	// 	fmt.Printf(" %s -> %s\n", anc, desc)
-	// }
-	//
-	// fmt.Println("desc -> anc")
-	// for desc, anc := range a.descendantToAncestorMap {
-	// 	fmt.Printf(" %s -> %s\n", desc, anc)
-	// }
-
 }
 
 func isErrRPCNoTxInfo(err error) bool {
