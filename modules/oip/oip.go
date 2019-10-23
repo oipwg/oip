@@ -217,8 +217,8 @@ func onGp64(gp64 string, tx *datastore.TransactionData) {
 }
 
 func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
-	var msg SignedMessage
-	err := proto.Unmarshal(b, &msg)
+	msg := new(SignedMessage)
+	err := proto.Unmarshal(b, msg)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to unmarshal protobuf message",

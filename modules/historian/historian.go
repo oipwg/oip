@@ -99,7 +99,7 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(msg oip.SignedMessage, tx *datastore.TransactionData) {
+func onProtoHdp(msg *oip.SignedMessage, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("historian dataPoint", attr)
 

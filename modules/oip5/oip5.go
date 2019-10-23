@@ -17,7 +17,7 @@ func init() {
 	datastore.RegisterMapping("oip5_record", "oip5_record.json")
 }
 
-func on5msg(msg oip.SignedMessage, tx *datastore.TransactionData) {
+func on5msg(msg *oip.SignedMessage, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
