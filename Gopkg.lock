@@ -20,7 +20,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3c5ed82b87361f21e84ea760cb09a6bff1a067e941294d6c6f6bd87fe69f5ceb"
+  digest = "1:faec5a4e20104b95b5232d1d17d4894619de551d66833207a275d2332063090a"
   name = "github.com/bitspill/flod"
   packages = [
     "chaincfg",
@@ -28,18 +28,19 @@
     "floec",
     "flojson",
     "rpcclient",
+    "txscript",
     "wire",
   ]
   pruneopts = "UT"
-  revision = "6e8f97b9a4699efafab55badcd5f0f2fa8988cdc"
+  revision = "5342daddb8aeb6e397ab49a78a6b36cdd3a36bce"
 
 [[projects]]
   branch = "master"
-  digest = "1:ed524695233e0f72ed8b120efc28799c5c74f33003b026ee067074f8c07cf80f"
+  digest = "1:385067bf47df0eee068850b9c2b0a0159f0a7da3b7a848206c71bff0092183bf"
   name = "github.com/bitspill/flosig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c22315ab53aabfc133c842ff96a8609d1d688e37"
+  revision = "0d071007b2c07983042ef96b09b634766f2cf7a8"
 
 [[projects]]
   branch = "master"
@@ -102,12 +103,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ac425d784b13d49b37a5bbed3ce022677f8f3073b216f05d6adcb9303e27fa0f"
+  branch = "master"
+  digest = "1:d9d22ecc590efd1a9553bd340d7ef4ae903b9fc2b42ec7c8e61a185193ad60fd"
   name = "github.com/evanphx/json-patch"
   packages = ["."]
   pruneopts = "UT"
-  revision = "026c730a0dcc5d11f93f1cf1cc65b01247ea7b6f"
-  version = "v4.5.0"
+  revision = "e83c0a1c26c884f8ec4fb743f6db92a941f605f1"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -118,12 +119,12 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:d29ee5ef14a7e0253facd0bcebe6a69a7a4e02a67eb24d2aacd8ccb4a7cea6fc"
+  digest = "1:57ae8919194013fb07b8390fb8a32e700c12fdab96e8dc4bb15d5fe45dc43245"
   name = "github.com/gobuffalo/envy"
   packages = ["."]
   pruneopts = "UT"
-  revision = "043cb4b8af871b49563291e32c66bb84378a60ac"
-  version = "v1.7.0"
+  revision = "909ea676d4c90832fefbf55a5a4fb04d8bef8931"
+  version = "v1.7.1"
 
 [[projects]]
   digest = "1:6c9088827dcc7a807c97592a55f190e35e0fdaf237c5a074256c260925c59428"
@@ -145,13 +146,14 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:0053b9863d641597811c187f8a3be73bc5eb957afd6a292c12b1e1fbf17d88d5"
+  digest = "1:d9bb9cf750ff72f31e893a47a18ac0c802fa3abcd66befe1422069d67eeba069"
   name = "github.com/gobuffalo/packr"
   packages = [
     "v2",
     "v2/file",
     "v2/file/resolver",
     "v2/file/resolver/encoding/hex",
+    "v2/internal/takeon/github.com/karrick/godirwalk",
     "v2/internal/takeon/github.com/markbates/errx",
     "v2/internal/takeon/github.com/markbates/oncer",
     "v2/internal/takeon/github.com/markbates/safe",
@@ -159,8 +161,8 @@
     "v2/plog",
   ]
   pruneopts = "UT"
-  revision = "b6d537d853119bfd3a31fe49edf53418ce3a00e9"
-  version = "v2.6.0"
+  revision = "4b4a3c432a2e5a17b4f14c971179b40021c67530"
+  version = "v2.7.1"
 
 [[projects]]
   digest = "1:fab646d893820242d3a211d2521f40d2bd4b75783ca64a8d60dccc4f54ecfea1"
@@ -251,20 +253,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:709cd2a2c29cc9b89732f6c24846bbb9d6270f28ef5ef2128cc73bd0d6d7bff9"
+  digest = "1:beb5b4f42a25056f0aa291b5eadd21e2f2903a05d15dfe7caf7eaee7e12fa972"
   name = "github.com/json-iterator/go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "27518f6661eba504be5a7a9a9f6d9460d892ade3"
-  version = "v1.1.7"
-
-[[projects]]
-  digest = "1:77857b3205f936bdc6928ef347b682ab549cf99454d6c0ca04a49f8df9e418f3"
-  name = "github.com/karrick/godirwalk"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "73c17a9b9528eb3ce857b782a2816c0cda581e62"
-  version = "v1.10.12"
+  revision = "03217c3e97663914aec3faafde50d081f197a0a2"
+  version = "1.1.8"
 
 [[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
@@ -283,8 +277,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ad157c87bae81a72ca4cc7b5d2da8907eeedf060ac9828833bfa3013982f6f66"
+  digest = "1:891f9c13236eb1b6d1abd4fe01e6c9be51bcc65f04da0dfa4bfdf356374e98c4"
   name = "github.com/mailru/easyjson"
   packages = [
     ".",
@@ -293,7 +286,8 @@
     "jwriter",
   ]
   pruneopts = "UT"
-  revision = "b2ccc519800e761ac8000b95e5d57c80a897ff9e"
+  revision = "1b2b06f5f209fea48ff5922d8bfb2b9ed5d8f00b"
+  version = "v0.7.0"
 
 [[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
@@ -320,23 +314,23 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:741417c3fd72f561ee5cb17dc62ad72576b39e1cfcb8912b481bff52b4b5acd3"
+  digest = "1:ffe23790e5e64b54324a50f3fb6c9497c71f019bf7da49e8679fd2e0d7342dff"
   name = "github.com/olivere/elastic"
   packages = [
     "config",
     "uritemplates",
   ]
   pruneopts = "UT"
-  revision = "ff6418bc5a1d8b53f334e39ca004cc8d593fc42c"
-  version = "v7.0.6"
+  revision = "a9e8e9e5e57adb159537e502954f21b425467bb8"
+  version = "v7.0.8"
 
 [[projects]]
-  digest = "1:93131d8002d7025da13582877c32d1fc302486775a1b06f62241741006428c5e"
+  digest = "1:bbd3997f0121200f72b64d7a3826eb8a0b910d6a4c19894c9fe2852b9e5eaf3b"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "728039f679cbcd4f6a54e080d2219a4c4928c546"
-  version = "v1.4.0"
+  revision = "8fe62057ea2d46ce44254c98e84e810044dbe197"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -355,8 +349,8 @@
     "semver",
   ]
   pruneopts = "UT"
-  revision = "0483ff7b2e24ea0a6fc49d59511d33b631851cca"
-  version = "v1.3.1"
+  revision = "d89504fbbf2c313df24867a5ffafcc9b847961ff"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:c5dfe46811af7e2eff7c11fc84b6c841520338613c056f659f262d5a4fb42fa8"
@@ -402,12 +396,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
+  digest = "1:524b71991fc7d9246cc7dc2d9e0886ccb97648091c63e30eef619e6862c955dd"
   name = "github.com/spf13/pflag"
   packages = ["."]
   pruneopts = "UT"
-  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
-  version = "v1.0.3"
+  revision = "2e9d26c8c37aae03e3f9d4e90b7116f5accb7cab"
+  version = "v1.0.5"
 
 [[projects]]
   digest = "1:11118bd196646c6515fea3d6c43f66162833c6ae4939bfb229b9956d91c6cf17"
@@ -428,18 +422,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
+  revision = "87dc89f01550277dc22b74ffcf4cd89fa2f40f4c"
 
 [[projects]]
   branch = "master"
-  digest = "1:4f9cc50343843f7c58c1a1aecf17c226ea0e855f4d3293e796701ae985111e0d"
+  digest = "1:3fa58f7377e1d95d496db43dd3281ddcea4185eb46c6394f89fec1cfa4ec3244"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "749cb33beabd9aa6d3178e3de05bcc914f70b2bf"
+  revision = "742c48ecaeb7c624c475e02f3eb0827ebb4970d4"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -457,20 +451,20 @@
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:c8b80560765df89c5fd66f1b58fd96bd6c0a6eea427c1456d126ff52b1340450"
+  digest = "1:938e94520fafc6677fe5e0660a15c69e5a3766c59164f949ad6e8fa60e43d9a1"
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
   pruneopts = "UT"
-  revision = "91416a867f9a95cdf7332dd1e73264359d0d5c7e"
-  version = "v6.2.23"
+  revision = "bc2ff157722a7cc55b00ac054c26a9c16f6de98a"
+  version = "v6.2.25"
 
 [[projects]]
-  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
+  digest = "1:59f10c1537d2199d9115d946927fe31165959a95190849c82ff11e05803528b0"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "UT"
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "f221b8435cfb71e54062f6c6e99e9ade30b124d5"
+  version = "v2.2.4"
 
 [solve-meta]
   analyzer-name = "dep"
