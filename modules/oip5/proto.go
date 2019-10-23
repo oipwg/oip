@@ -12,6 +12,19 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 )
 
+func CreateOipDetails(details ...proto.Message) (*OipDetails, error) {
+	ret := &OipDetails{}
+
+	for _, v := range details {
+		vAny, err := ptypes.MarshalAny(v)
+		if err != nil {
+			return nil, err
+		}
+		ret.Details = append(ret.Details, vAny)
+	}
+	return ret, nil
+}
+
 func (m *OipDetails) MarshalJSONPB(marsh *jsonpb.Marshaler) ([]byte, error) {
 	var detMap = make(map[string]*json.RawMessage)
 
