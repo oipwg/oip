@@ -166,7 +166,7 @@ func (a *Address) CreateAndSignTx(floData []byte) (*wire.MsgTx, error) {
 	}
 
 	// ToDo: refactor flosig and flod to process flodata as byte slices instead of string
-	tx, err := flosig.CreateAndSignTx(vin, vout, a.keys, a.params, string(floData))
+	tx, err := flosig.CreateAndSignTx(vin, vout, a.keys, a.params, floData)
 	if err != nil {
 		return nil, err
 	}

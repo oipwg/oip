@@ -20,7 +20,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:faec5a4e20104b95b5232d1d17d4894619de551d66833207a275d2332063090a"
+  digest = "1:4ad5192cb5051c38481e61d3a9161e394826d2c552d4326c3f215966bf09a86f"
   name = "github.com/bitspill/flod"
   packages = [
     "chaincfg",
@@ -32,15 +32,15 @@
     "wire",
   ]
   pruneopts = "UT"
-  revision = "5342daddb8aeb6e397ab49a78a6b36cdd3a36bce"
+  revision = "2ad8b32be4324a2a75b376977abb7be4da3e417b"
 
 [[projects]]
   branch = "master"
-  digest = "1:385067bf47df0eee068850b9c2b0a0159f0a7da3b7a848206c71bff0092183bf"
+  digest = "1:ed558a32a5da72dc5722f6570a64af1f20c84ff60b0ea2dd885069ef7f1f5705"
   name = "github.com/bitspill/flosig"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0d071007b2c07983042ef96b09b634766f2cf7a8"
+  revision = "11583367a86ed920aab3363a282d70bd97b16c97"
 
 [[projects]]
   branch = "master"
@@ -426,14 +426,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3fa58f7377e1d95d496db43dd3281ddcea4185eb46c6394f89fec1cfa4ec3244"
+  digest = "1:0451cf21ce34bcd708e508b7a80c92f3718b4df72fadef0dd3a60bee403e9f37"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "742c48ecaeb7c624c475e02f3eb0827ebb4970d4"
+  revision = "b4ff53e7a1cb8ab8ce2e12d50d5d63530183e1a9"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
