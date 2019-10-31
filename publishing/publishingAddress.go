@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/bitspill/flod/chaincfg"
 	"github.com/bitspill/flod/chaincfg/chainhash"
@@ -21,7 +22,7 @@ import (
 )
 
 const MaxFloDataLen = 1040
-const AncestorLimit = 1250
+const AncestorLimit = 1200
 
 type Publisher interface {
 	UpdateUtxoSet() error
@@ -36,6 +37,8 @@ type Publisher interface {
 var _ Publisher = &Address{}
 
 type Address struct {
+	WaitForAncestorConfirmations bool
+
 	fee       floutil.Amount
 	addr      floutil.Address
 	addrBytes []byte
@@ -124,7 +127,6 @@ func (a *Address) lockedSendToBlockchain(floData []byte) (*SendToBlockchainResul
 
 // Requires lock
 func (a *Address) PushTx(tx *wire.MsgTx) (*SendToBlockchainResult, error) {
-	// panic("no")
 	_, err := a.client.SendRawTransaction(tx, false)
 	if err != nil {
 		return nil, err
@@ -165,7 +167,6 @@ func (a *Address) CreateAndSignTx(floData []byte) (*wire.MsgTx, error) {
 		return nil, err
 	}
 
-	// ToDo: refactor flosig and flod to process flodata as byte slices instead of string
 	tx, err := flosig.CreateAndSignTx(vin, vout, a.keys, a.params, floData)
 	if err != nil {
 		return nil, err
@@ -176,6 +177,8 @@ func (a *Address) CreateAndSignTx(floData []byte) (*wire.MsgTx, error) {
 
 // requires lock on utxo
 func (a *Address) buildVinVout(fee floutil.Amount) ([]flosig.Vin, []flosig.Vout, error) {
+beginBuild:
+	hitAncestorLimit := false
 	total := floutil.Amount(0)
 	var vin []flosig.Vin
 	for k, u := range a.utxo {
@@ -183,6 +186,7 @@ func (a *Address) buildVinVout(fee floutil.Amount) ([]flosig.Vin, []flosig.Vout,
 		if u.Conf == 0 {
 			ancestor := a.descendantToAncestorMap[k]
 			if len(a.unconfirmed[ancestor]) >= AncestorLimit {
+				hitAncestorLimit = true
 				continue
 			}
 		}
@@ -200,6 +204,17 @@ func (a *Address) buildVinVout(fee floutil.Amount) ([]flosig.Vin, []flosig.Vout,
 	}
 	change := total - fee
 	if change < fee {
+		if hitAncestorLimit && a.WaitForAncestorConfirmations {
+			// ToDo: Computing the full utxo set is expensive
+			//  check/remove individual tx as confirmed
+			//  instead of a full wipe and rebuild
+			time.Sleep(1 * time.Second)
+			err := a.lockedUpdateUtxoSet()
+			if err != nil {
+				return nil, nil, err
+			}
+			goto beginBuild
+		}
 		return nil, nil, errors.New("insufficient balance available")
 	}
 	vout := []flosig.Vout{{
@@ -319,11 +334,14 @@ func (a *Address) UpdateUtxoSet() error {
 	a.utxoLock.Lock()
 	defer a.utxoLock.Unlock()
 
+	return a.lockedUpdateUtxoSet()
+}
+
+func (a *Address) lockedUpdateUtxoSet() error {
 	skip := 0
 	resultsPerRequest := 50000
 
 	utxo := make(map[string]*fastUtxo)
-	mempoolUtxo := make(map[string]*fastUtxo)
 
 requestMore:
 	res, err := a.client.SearchRawTransactionsVerbose(a.addr,
@@ -337,7 +355,7 @@ requestMore:
 	// vin/vout will be filtered by the rpc server
 
 	for _, tx := range res {
-		// Add vout to utxo set clearing spent along the way
+		// Add vout to utxo set
 		for i := range tx.Vout {
 			vout := &tx.Vout[i]
 			k := keyFromTxVout(tx, vout)
@@ -350,33 +368,26 @@ requestMore:
 			}
 			utxo[k] = &u
 
-			// Unconfirmed transactions will be unordered so must perform additional tracking
+			// Unconfirmed transactions will be unordered
+			// must save inputs for future processing
 			if tx.Confirmations == 0 {
 				u.VinPrevOut = tx.Vin
-				mempoolUtxo[k] = &u
 			}
 		}
 
 		// purge spent vin from utxo set
 		for i := range tx.Vin {
-			k := keyFromVinPrevOut(&tx.Vin[i])
-			delete(utxo, k)
-			delete(mempoolUtxo, k)
+			if tx.Confirmations > 0 {
+				k := keyFromVinPrevOut(&tx.Vin[i])
+				delete(utxo, k)
+			}
 		}
 	}
 
 	// request subsequent pages of tx
-	if len(res) != 0 {
+	if len(res) == resultsPerRequest {
 		skip += len(res)
 		goto requestMore
-	}
-	// cleanup utxo of any out of order mempool spends
-	for _, v := range mempoolUtxo {
-		for i := range v.VinPrevOut {
-			prev := &v.VinPrevOut[i]
-			k := keyFromVinPrevOut(prev)
-			delete(utxo, k)
-		}
 	}
 
 	err = a.buildAncestralTrees(utxo)
@@ -388,9 +399,11 @@ requestMore:
 }
 
 func (a *Address) buildAncestralTrees(utxo map[string]*fastUtxo) error {
+	a.resetUtxo()
+
+	var spentParents []string
+
 	// convert fastUtxo to a usable UTXO set
-	a.utxo = make(map[string]*Utxo)
-	a.unconfirmed = make(map[string][]*Utxo)
 	for selfKey, v := range utxo {
 		pks, err := hex.DecodeString(*v.PkScript)
 		if err != nil {
@@ -421,10 +434,16 @@ func (a *Address) buildAncestralTrees(utxo map[string]*fastUtxo) error {
 		if v.Conf == 0 {
 			for i := range v.VinPrevOut {
 				parentKey := keyFromVinPrevOut(&v.VinPrevOut[i])
+				spentParents = append(spentParents, parentKey)
 				a.linkAncestors(parentKey, selfKey, u)
 			}
 		}
 	}
+
+	for _, k := range spentParents {
+		delete(a.utxo, k)
+	}
+
 	return nil
 }
 
@@ -447,6 +466,9 @@ func (a *Address) linkAncestors(parentKey string, selfKey string, u *Utxo) {
 	a.ancestorToDescendantMap[ancestorKey] = selfKey
 	a.descendantToAncestorMap[selfKey] = ancestorKey
 	// add self to ancestor descendants chain
+	if _, ok := a.unconfirmed[ancestorKey]; !ok {
+		a.unconfirmed[ancestorKey] = make([]*Utxo, 0, AncestorLimit)
+	}
 	a.unconfirmed[ancestorKey] = append(a.unconfirmed[ancestorKey], u)
 	// if have descendant connect to common ancestor
 	if hasDescendant {
