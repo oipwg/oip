@@ -10,12 +10,13 @@ import (
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/proto/go/pb_historian"
+	"github.com/oipwg/proto/go/pb_oip"
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"github.com/oipwg/oip/modules/oip"
 )
 
 const histDataPointIndexName = "historian_data_point_"
@@ -99,11 +100,11 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(msg *oip.SignedMessage, tx *datastore.TransactionData) {
+func onProtoHdp(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("historian dataPoint", attr)
 
-	var hdp = &HistorianDataPoint{}
+	var hdp = &pb_historian.DataPoint{}
 	err := proto.Unmarshal(msg.SerializedMessage, hdp)
 	if err != nil {
 		attr["err"] = err

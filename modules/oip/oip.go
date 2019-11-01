@@ -10,6 +10,7 @@ import (
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/proto"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/oipwg/proto/go/pb_oip"
 
 	"github.com/oipwg/oip/btc"
 	"github.com/oipwg/oip/config"
@@ -217,7 +218,7 @@ func onGp64(gp64 string, tx *datastore.TransactionData) {
 }
 
 func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
-	msg := new(SignedMessage)
+	msg := new(pb_oip.SignedMessage)
 	err := proto.Unmarshal(b, msg)
 	if err != nil {
 		attr["err"] = err
@@ -231,7 +232,7 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	signedMessage := base64.StdEncoding.EncodeToString(msg.SerializedMessage)
 
 	switch msg.SignatureType {
-	case SignatureTypes_Btc:
+	case pb_oip.SignatureTypes_Btc:
 		valid, err := btc.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -242,7 +243,7 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 			log.Error("btc signature validation failed", attr)
 			return
 		}
-	case SignatureTypes_Flo:
+	case pb_oip.SignatureTypes_Flo:
 		valid, err := flo.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -260,11 +261,11 @@ func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
 	}
 
 	switch msg.MessageType {
-	case MessageTypes_Historian:
+	case pb_oip.MessageTypes_Historian:
 		events.Publish("modules:historian:protoDataPoint", msg, tx)
-	case MessageTypes_OIP05:
+	case pb_oip.MessageTypes_OIP05:
 		events.Publish("modules:oip5:msg", msg, tx)
-	case MessageTypes_Multipart:
+	case pb_oip.MessageTypes_Multipart:
 		events.Publish("modules:oip:multipartProto", msg, tx)
 	default:
 		attr["err"] = err

@@ -9,6 +9,7 @@ import (
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/jsonpb"
 	lru "github.com/hashicorp/golang-lru"
+	"github.com/oipwg/proto/go/pb_oip5"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"
 
@@ -31,7 +32,7 @@ func init() {
 	})
 }
 
-func intakeRecord(r *RecordProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
+func intakeRecord(r *pb_oip5.RecordProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	m := jsonpb.Marshaler{}
 
 	var buf bytes.Buffer
@@ -96,12 +97,12 @@ func GetRecord(txid string) (*oip5Record, error) {
 
 		rec := &oip5Record{
 			Meta:   eRec.Meta,
-			Record: &RecordProto{},
+			Record: &pb_oip5.RecordProto{},
 		}
 		// templates oipProto.templates.tmpl_... not being added to protobuf types
 
 		umarsh := jsonpb.Unmarshaler{
-			AnyResolver: &o5AnyResolver{},
+			AnyResolver: &pb_oip5.O5AnyResolver{},
 		}
 
 		err = umarsh.Unmarshal(bytes.NewReader(eRec.Record), rec.Record)
@@ -122,8 +123,8 @@ type elasticOip5Record struct {
 }
 
 type oip5Record struct {
-	Record *RecordProto `json:"record"`
-	Meta   RMeta        `json:"meta"`
+	Record *pb_oip5.RecordProto `json:"record"`
+	Meta   RMeta                `json:"meta"`
 }
 
 type RMeta struct {

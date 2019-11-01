@@ -5,16 +5,15 @@ import (
 
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/jhump/protoreflect/dynamic"
-
-	"github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/proto/go/pb_oip"
 )
 
 func main() {
-	mp := &oip.MultiPart{
+	mp := &pb_oip.MultiPart{
 		RawData:     []byte("hello world"),
 		CountParts:  2,
 		CurrentPart: 1,
-		Reference: &oip.Txid{
+		Reference: &pb_oip.Txid{
 			Raw: []byte{0xde, 0xad, 0xbe, 0xef},
 		},
 	}

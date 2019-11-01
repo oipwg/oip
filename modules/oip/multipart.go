@@ -13,6 +13,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/proto/go/pb_oip"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 
@@ -223,7 +224,7 @@ func tryCompleteMultipart(mp Multipart) {
 func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 	ms, err := multipartSingleFromString(floData)
 	if err != nil {
-		log.Info("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+		log.Error("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
 		return
 	}
 
@@ -360,10 +361,10 @@ func markStale() {
 	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
 
-func onMultipartProto(msg *SignedMessage, tx *datastore.TransactionData) {
+func onMultipartProto(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
 	ms := MultipartSingle{}
 
-	mpp := &MultiPart{}
+	mpp := &pb_oip.MultiPart{}
 	err := proto.Unmarshal(msg.SerializedMessage, mpp)
 	if err != nil {
 		log.Error("unable to unmarshal multipart", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
@@ -379,7 +380,7 @@ func onMultipartProto(msg *SignedMessage, tx *datastore.TransactionData) {
 	ms.Max = mpp.CountParts - 1
 
 	ms.Data = string(mpp.RawData)
-	ms.Reference = TxidPrefixToString(mpp.Reference)
+	ms.Reference = pb_oip.TxidPrefixToString(mpp.Reference)
 
 	ms.Address = string(msg.PubKey)
 	ms.Signature = base64.StdEncoding.EncodeToString(msg.Signature)

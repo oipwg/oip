@@ -8,9 +8,11 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/oipwg/proto/go/pb_oip5"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/oip/modules/oip5/templates"
 )
 
 // import (
@@ -234,14 +236,14 @@ func TestDecodeRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sm := &oip.SignedMessage{}
+	sm := &pb_oip.SignedMessage{}
 
 	err = proto.Unmarshal(b, sm)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	o5 := &OipFive{}
+	o5 := &pb_oip5.OipFive{}
 
 	err = proto.Unmarshal(sm.SerializedMessage, o5)
 	if err != nil {
@@ -249,7 +251,7 @@ func TestDecodeRecord(t *testing.T) {
 	}
 
 	_ = datastore.Setup(context.Background())
-	_ = LoadTemplatesFromES(context.Background())
+	_ = templates.LoadTemplatesFromES(context.Background())
 
 	fmt.Println((&jsonpb.Marshaler{}).MarshalToString(o5))
 }

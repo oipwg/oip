@@ -10,8 +10,7 @@ import (
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
 	"github.com/golang/protobuf/proto"
-
-	"github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/proto/go/pb_oip"
 )
 
 const baseDataSize0 = 660                  // = maxFloDataLen - 380 bytes
@@ -32,7 +31,7 @@ type MultiPart struct {
 }
 
 type pendingPart struct {
-	mp      *oip.MultiPart
+	mp      *pb_oip.MultiPart
 	encoded []byte
 }
 
@@ -125,12 +124,12 @@ func (mp *MultiPart) genPart0() error {
 }
 
 func (mp *MultiPart) genPart(i uint32) ([]byte, error) {
-	var ref *oip.Txid = nil
+	var ref *pb_oip.Txid = nil
 	baseDataSize := baseDataSizeX
 	if i == 0 {
 		baseDataSize = baseDataSize0
 	} else {
-		ref = oip.TxidFromString(mp.part0TxId)
+		ref = pb_oip.TxidFromString(mp.part0TxId)
 	}
 
 	partFloData := mp.remaining
@@ -142,7 +141,7 @@ func (mp *MultiPart) genPart(i uint32) ([]byte, error) {
 	sizing := true
 
 encodePart:
-	part := &oip.MultiPart{
+	part := &pb_oip.MultiPart{
 		CurrentPart: i,
 		CountParts:  mp.partCount,
 		RawData:     partFloData,
@@ -204,7 +203,7 @@ encodePart:
 	return g64, nil
 }
 
-func (mp *MultiPart) genSerializedSignedMessage(o *oip.MultiPart) ([]byte, error) {
+func (mp *MultiPart) genSerializedSignedMessage(o *pb_oip.MultiPart) ([]byte, error) {
 	serializedProtoMessage, err := proto.Marshal(o)
 	if err != nil {
 		return nil, err
@@ -218,10 +217,10 @@ func (mp *MultiPart) genSerializedSignedMessage(o *oip.MultiPart) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
-	msg := &oip.SignedMessage{
+	msg := &pb_oip.SignedMessage{
 		SerializedMessage: serializedProtoMessage,
-		MessageType:       oip.MessageTypes_Multipart,
-		SignatureType:     oip.SignatureTypes_Flo,
+		MessageType:       pb_oip.MessageTypes_Multipart,
+		SignatureType:     pb_oip.SignatureTypes_Flo,
 		PubKey:            mp.addrBytes,
 		Signature:         sig,
 	}

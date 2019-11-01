@@ -8,13 +8,14 @@ import (
 	"github.com/golang/protobuf/proto"
 	lru "github.com/hashicorp/golang-lru"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/oipwg/proto/go/pb_oip5"
+	"github.com/oipwg/proto/go/pb_oip5/pb_templates"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"github.com/oipwg/oip/modules/oip5/templates"
 )
 
 var publisherCacheDepth = 1000
@@ -66,10 +67,10 @@ func GetPublisherName(pubKey string) (string, error) {
 	return "", errors.New("unable to locate publisher")
 }
 
-func publisherListener(rec *RecordProto, pubKey []byte, _ *datastore.TransactionData) {
+func publisherListener(rec *pb_oip5.RecordProto, pubKey []byte, _ *datastore.TransactionData) {
 	for _, det := range rec.Details.Details {
 		if det.TypeUrl == "type.googleapis.com/oipProto.templates.tmpl_433C2783" {
-			rp := &templates.Tmpl_433C2783{}
+			rp := &pb_templates.Tmpl_433C2783{}
 			err := proto.Unmarshal(det.Value, rp)
 			if err != nil {
 				return

@@ -314,6 +314,20 @@
   version = "1.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:7997c2a00c7e530cfa134fbae1fe934d0550f1a68e7aed4899947f854c1baf1a"
+  name = "github.com/oipwg/proto"
+  packages = [
+    "go/pb_historian",
+    "go/pb_oip",
+    "go/pb_oip5",
+    "go/pb_oip5/pb_templates",
+  ]
+  pruneopts = "UT"
+  revision = "4c90c656ce7144bd88aeb44af41d5ecd3897631a"
+  source = "github.com/bitspill/proto"
+
+[[projects]]
   digest = "1:ffe23790e5e64b54324a50f3fb6c9497c71f019bf7da49e8679fd2e0d7342dff"
   name = "github.com/olivere/elastic"
   packages = [
@@ -325,12 +339,12 @@
   version = "v7.0.8"
 
 [[projects]]
-  digest = "1:bbd3997f0121200f72b64d7a3826eb8a0b910d6a4c19894c9fe2852b9e5eaf3b"
+  digest = "1:6eea828983c70075ca297bb915ffbcfd3e34c5a50affd94428a65df955c0ff9c"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8fe62057ea2d46ce44254c98e84e810044dbe197"
-  version = "v1.5.0"
+  revision = "903d9455db9ff1d7ac1ab199062eca7266dd11a3"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -404,12 +418,20 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:11118bd196646c6515fea3d6c43f66162833c6ae4939bfb229b9956d91c6cf17"
+  digest = "1:0b60fc944fb6a7b6c985832bd341bdb7ed8fe894fea330414e7774bb24652962"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b5bf975e5823809fb22c7644d008757f78a4259e"
-  version = "v1.4.0"
+  revision = "72b022eb357a56469725dcd03918449e2278d02e"
+  version = "v1.5.0"
+
+[[projects]]
+  digest = "1:f4b32291cad5efac2bfdba89ccde6aa04618b62ce06c1a571da2dc4f3f2677fb"
+  name = "github.com/subosito/gotenv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2ef7124db659d49edac6aa459693a15ae36c671a"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -422,18 +444,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "87dc89f01550277dc22b74ffcf4cd89fa2f40f4c"
+  revision = "8986dd9e96cf0a6f74da406c005ba3df38527c04"
 
 [[projects]]
   branch = "master"
-  digest = "1:0451cf21ce34bcd708e508b7a80c92f3718b4df72fadef0dd3a60bee403e9f37"
+  digest = "1:2c482fc32bdcfc572ce8b9cc37a409ae8a24c604b0dde73301d8de05d2c1f3e7"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "b4ff53e7a1cb8ab8ce2e12d50d5d63530183e1a9"
+  revision = "f43be2a4598cf3a47be9f94f0c28197ed9eae611"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -487,8 +509,6 @@
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go/descriptor",
-    "github.com/golang/protobuf/ptypes",
-    "github.com/golang/protobuf/ptypes/any",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/hashicorp/golang-lru",
@@ -496,6 +516,10 @@
     "github.com/jhump/protoreflect/desc/builder",
     "github.com/jhump/protoreflect/dynamic",
     "github.com/json-iterator/go",
+    "github.com/oipwg/proto/go/pb_historian",
+    "github.com/oipwg/proto/go/pb_oip",
+    "github.com/oipwg/proto/go/pb_oip5",
+    "github.com/oipwg/proto/go/pb_oip5/pb_templates",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/spf13/pflag",

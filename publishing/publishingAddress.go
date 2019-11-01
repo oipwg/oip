@@ -16,9 +16,8 @@ import (
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
 	"github.com/golang/protobuf/proto"
-
-	"github.com/oipwg/oip/modules/oip"
-	"github.com/oipwg/oip/modules/oip5"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/oipwg/proto/go/pb_oip5"
 )
 
 const MaxFloDataLen = 1040
@@ -26,7 +25,7 @@ const AncestorLimit = 1200
 
 type Publisher interface {
 	UpdateUtxoSet() error
-	Publish(o5 ...*oip5.OipFive) (*PublishResult, error)
+	Publish(o5 ...*pb_oip5.OipFive) (*PublishResult, error)
 	CreateAndSignTx(floData []byte) (*wire.MsgTx, error)
 	SendToBlockchain(floData []byte) (*SendToBlockchainResult, error)
 	SendToBlockchainMultipart(floData []byte) (*SendToBlockchainResult, error)
@@ -273,7 +272,7 @@ type PublishResult struct {
 	Sbr []*SendToBlockchainResult
 }
 
-func (a *Address) Publish(o5 ...*oip5.OipFive) (*PublishResult, error) {
+func (a *Address) Publish(o5 ...*pb_oip5.OipFive) (*PublishResult, error) {
 	result := &PublishResult{}
 	for _, record := range o5 {
 		serRecord, err := a.genO5SerializedSignedMessage(record)
@@ -298,7 +297,7 @@ func (a *Address) Publish(o5 ...*oip5.OipFive) (*PublishResult, error) {
 	return result, nil
 }
 
-func (a *Address) genO5SerializedSignedMessage(o5 *oip5.OipFive) ([]byte, error) {
+func (a *Address) genO5SerializedSignedMessage(o5 *pb_oip5.OipFive) ([]byte, error) {
 	serializedProtoMessage, err := proto.Marshal(o5)
 	if err != nil {
 		return nil, err
@@ -312,10 +311,10 @@ func (a *Address) genO5SerializedSignedMessage(o5 *oip5.OipFive) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	msg := &oip.SignedMessage{
+	msg := &pb_oip.SignedMessage{
 		SerializedMessage: serializedProtoMessage,
-		MessageType:       oip.MessageTypes_Multipart,
-		SignatureType:     oip.SignatureTypes_Flo,
+		MessageType:       pb_oip.MessageTypes_Multipart,
+		SignatureType:     pb_oip.SignatureTypes_Flo,
 		PubKey:            a.addrBytes,
 		Signature:         sig,
 	}

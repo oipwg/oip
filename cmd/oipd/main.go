@@ -17,7 +17,7 @@ import (
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 	_ "github.com/oipwg/oip/modules"
-	"github.com/oipwg/oip/modules/oip5"
+	"github.com/oipwg/oip/modules/oip5/templates"
 	"github.com/oipwg/oip/sync"
 	"github.com/oipwg/oip/version"
 )
@@ -101,7 +101,7 @@ func main() {
 
 	config.PostConfig(rootContext)
 
-	err = oip5.LoadTemplatesFromES(rootContext)
+	err = templates.LoadTemplatesFromES(rootContext)
 	if err != nil {
 		log.Error("Loading OIP5 record templates failed", logger.Attrs{"err": err})
 		shutdown(err)

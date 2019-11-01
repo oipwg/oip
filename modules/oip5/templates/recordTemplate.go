@@ -1,4 +1,4 @@
-package oip5
+package templates
 
 import (
 	"context"
@@ -14,14 +14,15 @@ import (
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/builder"
 	"github.com/jhump/protoreflect/dynamic"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/oipwg/proto/go/pb_oip5/pb_templates"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/modules/oip"
 )
 
-func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
+func IntakeRecordTemplate(rt *pb_templates.RecordTemplateProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
@@ -46,7 +47,7 @@ func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.
 		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
 	}
 
-	err = decodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
+	err = DecodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to decode descriptor set", attr)
@@ -74,10 +75,10 @@ func intakeRecordTemplate(rt *RecordTemplateProto, pubKey []byte, tx *datastore.
 	return bir, nil
 }
 
-func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid string) (err error) {
+func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid string) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic within decodeDescriptorSet %s", r)
+			err = fmt.Errorf("panic within DecodeDescriptorSet %s", r)
 		}
 	}()
 
@@ -131,7 +132,7 @@ func decodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 			if t.GetType() == descriptor.FieldDescriptorProto_TYPE_MESSAGE {
 				n := t.GetTypeName()
 				if strings.HasPrefix(n, "oipProto.") && strings.HasSuffix(n, ".Txid") {
-					txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&oip.Txid{})
+					txidDescriptor, err := desc.LoadMessageDescriptorForMessage(&pb_oip.Txid{})
 					if err != nil {
 						attr["err"] = err
 						log.Error("unable to load txid descriptor", attr)
@@ -295,7 +296,7 @@ func LoadTemplatesFromES(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		err = decodeDescriptorSet(tmpl.Template, b, tmpl.Meta.Txid)
+		err = DecodeDescriptorSet(tmpl.Template, b, tmpl.Meta.Txid)
 		if err != nil {
 			return err
 		}

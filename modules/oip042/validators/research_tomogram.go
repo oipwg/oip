@@ -39,8 +39,12 @@ type TomogramDetails struct {
 }
 
 func (r researchTomogram) IsValid(art *jsoniter.Any) (Validity, error) {
+	var details = (*art).Get("details")
+	if details.Size() == 0 {
+		return Invalid, errors.New("tomogram details missing")
+	}
 	var td TomogramDetails
-	(*art).Get("details").ToVal(&td)
+	details.ToVal(&td)
 
 	if len(td.SpeciesName) == 0 {
 		m := "tomogram: missing species name"

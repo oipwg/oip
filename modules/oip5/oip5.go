@@ -3,10 +3,12 @@ package oip5
 import (
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/proto"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/oipwg/proto/go/pb_oip5"
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/oip/modules/oip5/templates"
 )
 
 func init() {
@@ -17,11 +19,11 @@ func init() {
 	datastore.RegisterMapping("oip5_record", "oip5_record.json")
 }
 
-func on5msg(msg *oip.SignedMessage, tx *datastore.TransactionData) {
+func on5msg(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
 	log.Info("oip5 ", attr)
 
-	var o5 = &OipFive{}
+	var o5 = &pb_oip5.OipFive{}
 
 	err := proto.Unmarshal(msg.SerializedMessage, o5)
 	if err != nil {
@@ -33,7 +35,7 @@ func on5msg(msg *oip.SignedMessage, tx *datastore.TransactionData) {
 	nonNilAction := false
 	if o5.RecordTemplate != nil {
 		nonNilAction = true
-		bir, err := intakeRecordTemplate(o5.RecordTemplate, msg.PubKey, tx)
+		bir, err := templates.IntakeRecordTemplate(o5.RecordTemplate, msg.PubKey, tx)
 		if err != nil {
 			attr["err"] = err
 			log.Error("unable to process RecordTemplate", attr)

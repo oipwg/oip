@@ -1,4 +1,4 @@
-package oip5
+package templates_test
 
 import (
 	"context"
@@ -9,10 +9,13 @@ import (
 	"github.com/bitspill/flod/flojson"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/oipwg/proto/go/pb_oip5"
+	"github.com/oipwg/proto/go/pb_oip5/pb_templates"
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"github.com/oipwg/oip/modules/oip"
+	"github.com/oipwg/oip/modules/oip5/templates"
 )
 
 func TestIntakeRecordTemplate(t *testing.T) {
@@ -22,7 +25,7 @@ func TestIntakeRecordTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bc := &RecordTemplateProto{
+	bc := &pb_templates.RecordTemplateProto{
 		Description:        "a description",
 		FriendlyName:       "Research Protocol BC",
 		DescriptorSetProto: b,
@@ -35,7 +38,7 @@ func TestIntakeRecordTemplate(t *testing.T) {
 			Txid: "00000000deadbeef",
 		},
 	}
-	cb := &RecordTemplateProto{
+	cb := &pb_templates.RecordTemplateProto{
 		Description:        "a description",
 		FriendlyName:       "Research Protocol CB",
 		DescriptorSetProto: b,
@@ -54,13 +57,13 @@ func TestIntakeRecordTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bir, err := intakeRecordTemplate(cb, nil, cbtx)
+	bir, err := templates.IntakeRecordTemplate(cb, nil, cbtx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
 	datastore.AutoBulk.Add(bir)
 
-	bir, err = intakeRecordTemplate(bc, nil, bctx)
+	bir, err = templates.IntakeRecordTemplate(bc, nil, bctx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
@@ -81,7 +84,7 @@ func TestLoadTemplatesFromES(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = LoadTemplatesFromES(context.Background())
+	err = templates.LoadTemplatesFromES(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +103,7 @@ func TestDescriptorFromProtobufJs(t *testing.T) {
 
 	dsc := []byte{10, 85, 10, 27, 111, 105, 112, 53, 95, 114, 101, 99, 111, 114, 100, 95, 116, 101, 109, 112, 108, 97, 116, 101, 115, 46, 112, 114, 111, 116, 111, 18, 21, 111, 105, 112, 53, 46, 114, 101, 99, 111, 114, 100, 46, 116, 101, 109, 112, 108, 97, 116, 101, 115, 34, 23, 10, 1, 80, 18, 18, 10, 10, 102, 114, 117, 105, 116, 115, 32, 114, 114, 114, 24, 1, 32, 3, 40, 9, 98, 6, 112, 114, 111, 116, 111, 51}
 
-	bc := &RecordTemplateProto{
+	bc := &pb_templates.RecordTemplateProto{
 		Description:        "Test generated from protobuf.js",
 		FriendlyName:       "Protobuf.js test",
 		DescriptorSetProto: dsc,
@@ -117,7 +120,7 @@ func TestDescriptorFromProtobufJs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bir, err := intakeRecordTemplate(bc, nil, bctx)
+	bir, err := templates.IntakeRecordTemplate(bc, nil, bctx)
 	if err != nil {
 		t.Fatal("failed :(")
 	}
@@ -135,13 +138,13 @@ func TestEncodeRecordTemplate(t *testing.T) {
 	t.SkipNow()
 	fd := []byte{10, 79, 10, 27, 111, 105, 112, 53, 95, 114, 101, 99, 111, 114, 100, 95, 116, 101, 109, 112, 108, 97, 116, 101, 115, 46, 112, 114, 111, 116, 111, 18, 21, 111, 105, 112, 53, 46, 114, 101, 99, 111, 114, 100, 46, 116, 101, 109, 112, 108, 97, 116, 101, 115, 34, 17, 10, 1, 80, 18, 12, 10, 4, 116, 101, 115, 116, 24, 1, 32, 1, 40, 9, 98, 6, 112, 114, 111, 116, 111, 51}
 
-	rt := &RecordTemplateProto{
+	rt := &pb_templates.RecordTemplateProto{
 		Description:        "description for test template",
 		DescriptorSetProto: fd,
 		FriendlyName:       "Test Template",
 	}
 
-	o5 := &OipFive{
+	o5 := &pb_oip5.OipFive{
 		RecordTemplate: rt,
 	}
 
@@ -163,12 +166,12 @@ func TestEncodeRecordTemplate(t *testing.T) {
 		panic(err)
 	}
 
-	sm := &oip.SignedMessage{
+	sm := &pb_oip.SignedMessage{
 		SerializedMessage: b,
-		MessageType:       oip.MessageTypes_OIP05,
+		MessageType:       pb_oip.MessageTypes_OIP05,
 		PubKey:            []byte(pubKey),
 		Signature:         sigBytes,
-		SignatureType:     oip.SignatureTypes_Flo,
+		SignatureType:     pb_oip.SignatureTypes_Flo,
 	}
 
 	smBytes, err := proto.Marshal(sm)
@@ -204,7 +207,7 @@ func TestUnmarshalSignedMessage(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	rtp := &RecordTemplateProto{}
+	rtp := &pb_templates.RecordTemplateProto{}
 	err = proto.Unmarshal(b, rtp)
 	if err != nil {
 		panic(err)
@@ -219,22 +222,22 @@ func TestDecodeRecordTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sm := &oip.SignedMessage{}
+	sm := &pb_oip.SignedMessage{}
 
 	err = proto.Unmarshal(b, sm)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	o5 := &OipFive{}
+	o5 := &pb_oip5.OipFive{}
 
 	err = proto.Unmarshal(sm.SerializedMessage, o5)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	rt := &RecordTemplate{}
-	err = decodeDescriptorSet(rt, o5.RecordTemplate.DescriptorSetProto, "8910cbc1923e6b64d4012b88b85703237630bab2083410a74fa1ff8e7ffca439")
+	rt := &templates.RecordTemplate{}
+	err = templates.DecodeDescriptorSet(rt, o5.RecordTemplate.DescriptorSetProto, "8910cbc1923e6b64d4012b88b85703237630bab2083410a74fa1ff8e7ffca439")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,8 +255,8 @@ func TestNotStringProtobufJs(t *testing.T) {
 
 	// descriptor := []byte{10, 75, 10, 7, 112, 46, 112, 114, 111, 116, 111, 18, 18, 111, 105, 112, 80, 114, 111, 116, 111, 46, 116, 101, 109, 112, 108, 97, 116, 101, 115, 34, 36, 10, 1, 80, 18, 12, 10, 4, 110, 97, 109, 101, 24, 1, 32, 1, 40, 9, 18, 17, 10, 3, 114, 101, 102, 24, 2, 32, 1, 40, 11, 50, 4, 84, 120, 105, 100, 98, 6, 112, 114, 111, 116, 111, 51, 10, 55, 10, 14, 111, 105, 112, 80, 114, 111, 116, 111, 46, 112, 114, 111, 116, 111, 18, 8, 111, 105, 112, 80, 114, 111, 116, 111, 34, 19, 10, 4, 84, 120, 105, 100, 18, 11, 10, 3, 114, 97, 119, 24, 1, 32, 1, 40, 12, 98, 6, 112, 114, 111, 116, 111, 5,}
 
-	rt := &RecordTemplate{}
-	err := decodeDescriptorSet(rt, descriptor, "deadbeef")
+	rt := &templates.RecordTemplate{}
+	err := templates.DecodeDescriptorSet(rt, descriptor, "deadbeef")
 	if err != nil {
 		t.Fatal(err)
 	}
