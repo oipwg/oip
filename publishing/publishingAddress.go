@@ -313,7 +313,7 @@ func (a *Address) genO5SerializedSignedMessage(o5 *pb_oip5.OipFive) ([]byte, err
 	}
 	msg := &pb_oip.SignedMessage{
 		SerializedMessage: serializedProtoMessage,
-		MessageType:       pb_oip.MessageTypes_Multipart,
+		MessageType:       pb_oip.MessageTypes_OIP05,
 		SignatureType:     pb_oip.SignatureTypes_Flo,
 		PubKey:            a.addrBytes,
 		Signature:         sig,
