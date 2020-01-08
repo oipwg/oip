@@ -12,14 +12,16 @@ import (
 
 	"github.com/azer/logger"
 	jsonpatch "github.com/evanphx/json-patch"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	oipSync "github.com/oipwg/oip/sync"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 var editCommitMutex sync.Mutex
+var previousEditLength int
 
 func init() {
 	log.Info("init edit")
@@ -37,15 +39,17 @@ func onDatastoreCommit() {
 	editCommitMutex.Lock()
 	defer editCommitMutex.Unlock()
 
+moreEdits:
 	// Lookup edits that have not been completed yet
 	edits, err := queryIncompleteEdits()
 	if err != nil {
-		log.Info("Error while querying for Edits!", logger.Attrs{"err": err})
+		log.Error("Error while querying for Edits!", logger.Attrs{"err": err})
 		return
 	}
 
 	// Check if there are edits that need to be completed
 	if len(edits) > 0 {
+		oipSync.EditSyncComplete = false
 		// Make sure that we are only processing a single Edit for each OriginalTXID
 		editMap := make(map[string]bool)
 		filteredEdits := []*elasticOip042Edit{}
@@ -68,21 +72,44 @@ func onDatastoreCommit() {
 			// First, lookup the latest record held in ElasticSearch
 			latestRecord, err := queryArtifact(editRecord.Meta.OriginalTxid)
 			if err != nil {
-				log.Info("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
+				log.Error("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
+
+				// Check if we should mark this edit as defective (if all multiparts are complete, and we still can't find the Record, than the Edit
+				// txid is likely invalid and the Edit should be marked as defective)
+				if oipSync.MultipartSyncComplete {
+					err = markEditDefective(editRecord)
+					if err != nil {
+						log.Info("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+					}
+				}
 				continue
 			}
 			// Then, attempt to process the edit
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
-				log.Info("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
-				// todo: Mark as broken to prevent processing again in the future
+				log.Error("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
+				// Mark as defective to prevent processing again in the future
+				err = markEditDefective(editRecord)
+				if err != nil {
+					log.Error("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+				}
+
 				// Move on and attempt to process the next edit
 				continue
 			}
 
 			log.Info("Edit %v on Record %v Successfully Processed!", editRecord.Meta.Txid, editRecord.Meta.OriginalTxid)
 		}
+
+		// Check if there are any edits that got filtered, and also check to make sure that we have less edits to perform than the last time
+		// if the number of edits this time is exactly the same as last time, don't loop
+		if (preFilteredLen - len(edits) > 0 && previousEditLength != len(edits)) {
+			// Since we have some edits we filtered out, go ahead and recursively loop back to complete them
+			goto moreEdits
+		}
+	} else {
+		oipSync.EditSyncComplete = true
 	}
 }
 
@@ -90,6 +117,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 	// Create a search query for Edits that are not completed
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.completed", false),
+		elastic.NewTermQuery("meta.defective", false),
 	)
 
 	// Search for pending edits, sort by the given edit timestamp
@@ -167,11 +195,31 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	return artifactRecord, nil
 }
 
+type Defective struct {
+	Defective bool `json:"defective"`
+}
+type MetaDefective struct {
+	Meta Defective `json:"meta"`
+}
 type Latest struct {
 	Latest bool `json:"latest"`
 }
 type MetaLatest struct {
 	Meta Latest `json:"meta"`
+}
+
+func markEditDefective(editRecord *elasticOip042Edit) error {
+	// Run updates to set "latest" to false on the previously latest Record
+	cu := datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(MetaDefective{Defective{true}}).Refresh("true")
+	_, err := cu.Do(context.TODO())
+	if err != nil {
+		return fmt.Errorf("Could not mark edit as defective! %v", err)
+	}
+
+	log.Info("Marked Edit %v as Defective!", editRecord.Meta.Txid)
+
+	// Return nil if successful!
+	return nil
 }
 
 func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042Artifact) error {
@@ -204,18 +252,24 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 		return fmt.Errorf("Edit has invalid Signature! Address: %v | Preimage: %v | Signature: %v | Error: %v", floAddress, preImage, signature, err)
 	}
 
-	// Grab the patch string
-	patchString := string(editRecord.Patch)
-	// Unsquash the patch into a standard JSON Edit patch
-	editPatchString, err := UnSquashPatch(patchString)
-	if err != nil {
-		return fmt.Errorf("Could not unsquash Edit patch! %v", err)
-	}
-
 	// Attempt to decode the patch
-	editPatch, err := jsonpatch.DecodePatch([]byte(editPatchString))
+	editPatch, err := jsonpatch.DecodePatch([]byte(string(editRecord.Patch)))
 	if err != nil {
 		return fmt.Errorf("Could not decode Edit patch! %v", err)
+	}
+
+	// Prepend on "artifact" at the start of the edit patch to decend to the correct level
+	for i, operation := range editPatch {
+		pathObj := operation["path"]
+
+		var path string
+		err := json.Unmarshal(*pathObj, &path)
+		if err != nil {
+			return fmt.Errorf("Could not get Path for operation in Edit patch! %v", err)
+		}
+
+		newPath := json.RawMessage([]byte(`"/artifact` + path + `"`))
+		editPatch[i]["path"] = &newPath
 	}
 
 	// Apply the patch to the serialized Record
@@ -273,65 +327,4 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 
 	// Return nil if everything was successful
 	return nil
-}
-
-type SquashPatch struct {
-	Remove  []string                    `json:"remove"`
-	Replace map[string]*json.RawMessage `json:"replace"`
-	Add     map[string]*json.RawMessage `json:"add"`
-}
-
-func UnSquashPatch(squashedPatchString string) (string, error) {
-	// Create var to store squashedPatch
-	var squashedPatch SquashPatch
-	// Create unsquashed patch json object
-	var up jsonpatch.Patch
-
-	// Attempt to unmarshal the squashed patch
-	err := json.Unmarshal([]byte(squashedPatchString), &squashedPatch)
-	if err != nil {
-		return "", fmt.Errorf("Unable to unmarshal squashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
-	}
-
-	// For each path in the "Remove" ops array, add it to the json patch
-	for _, rmPath := range squashedPatch.Remove {
-		var row = make(map[string]*json.RawMessage)
-		o := json.RawMessage([]byte(`"remove"`))
-		row["op"] = &o
-		pp := json.RawMessage([]byte(`"/artifact` + rmPath + `"`))
-		row["path"] = &pp
-		up = append(up, row)
-	}
-
-	// Add any "Replace" operations to the json patch
-	for path, value := range squashedPatch.Replace {
-		var row = make(map[string]*json.RawMessage)
-		o := json.RawMessage([]byte(`"replace"`))
-		row["op"] = &o
-		pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
-		row["path"] = &pp
-		row["value"] = value
-		up = append(up, row)
-	}
-
-	// Add any "Add" operations to the json patch
-	for path, value := range squashedPatch.Add {
-		var row = make(map[string]*json.RawMessage)
-		o := json.RawMessage([]byte(`"add"`))
-		row["op"] = &o
-		pp := json.RawMessage([]byte(`"/artifact` + path + `"`))
-		row["path"] = &pp
-		row["value"] = value
-		up = append(up, row)
-	}
-
-	// todo, handle `test`, `move`, and `copy` JSON Patch Operations
-
-	// Attempt to turn unsquashed patch into a json string
-	usp, err := json.Marshal(&up)
-	if err != nil {
-		return "", fmt.Errorf("Unable to marshal unsquashed patch! %v | Squashed Patch Str: %v", err, squashedPatchString)
-	}
-
-	return string(usp), nil
 }

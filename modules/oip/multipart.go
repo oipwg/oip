@@ -25,6 +25,8 @@ const multipartIndex = "oip-multipart-single"
 var multiPartCommitMutex sync.Mutex
 var mpRouter = httpapi.NewSubRoute("/multipart")
 
+var previousMultipartCount int
+
 func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, "multipart.json")
@@ -82,6 +84,13 @@ moreMultiparts:
 		log.Error("elastic search failed", logger.Attrs{"err": err})
 	}
 
+	// Check if there are no more multiparts, if so, mark the multipart sync as complete so that we can start marking Edits as defective
+	if len(multiparts) == 0 {
+		oipSync.MultipartSyncComplete = true
+	} else {
+		oipSync.MultipartSyncComplete = false
+	}
+
 	potentialChanges := false
 	for k, mp := range multiparts {
 		if mp.Count >= mp.Total {
@@ -108,14 +117,18 @@ moreMultiparts:
 		events.Publish("modules:oip:mpCompleted")
 	}
 
-	if !wasInitialSync {
-		// ToDo: Consider re-enabling after further tests under high volume
-		// markStale()
-	}
-
 	if after != nil {
 		goto moreMultiparts
 	}
+
+	// If we are not still syncing for the first time, and the remaining count is exactly the same as last time we checked,
+	// then it is a good indicator that these Multiparts are stale
+	if (!wasInitialSync && previousMultipartCount == len(multiparts) && previousMultipartCount < 10000) {
+		// ToDo: Consider re-enabling after further tests under high volume
+		markStale()
+	}
+
+	previousMultipartCount = len(multiparts)
 }
 
 func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]interface{}, error) {
