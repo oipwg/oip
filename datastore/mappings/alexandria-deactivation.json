@@ -16,8 +16,7 @@
           "ignore_above": 36
         },
         "signature": {
-          "type": "text",
-          "index": false
+          "type": "binary"
         },
         "meta": {
           "properties": {
