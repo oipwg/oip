@@ -68,6 +68,9 @@ func GetPublisherName(pubKey string) (string, error) {
 }
 
 func publisherListener(rec *pb_oip5.RecordProto, pubKey []byte, _ *datastore.TransactionData) {
+	if rec.Details == nil {
+		return
+	}
 	for _, det := range rec.Details.Details {
 		if det.TypeUrl == "type.googleapis.com/oipProto.templates.tmpl_433C2783" {
 			rp := &pb_templates.Tmpl_433C2783{}

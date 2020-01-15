@@ -24,6 +24,10 @@
   branch = "master"
 
 [[constraint]]
+  name = "github.com/bitspill/protoPatch"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/cloudflare/backoff"
   branch = "master"
 
@@ -37,10 +41,7 @@
 
 [[constraint]]
   name = "github.com/evanphx/json-patch"
-  branch = "master"
-# pending a new version tag to include PR #87
-# https://github.com/evanphx/json-patch/pull/87
-#  version = "v4.5.0"
+  version = "v4.6.0"
 
 [[constraint]]
   name = "github.com/gobuffalo/packr"
@@ -64,11 +65,11 @@
 
 [[constraint]]
   name = "github.com/jhump/protoreflect"
-  version = "1.5.0"
+  version = "1.6.0"
 
 [[constraint]]
   name = "github.com/json-iterator/go"
-  version = "1.1.7"
+  version = "1.1.9"
 
 [[constraint]]
   name = "github.com/oipwg/proto"
@@ -89,8 +90,8 @@
 
 [[constraint]]
   name = "github.com/spf13/viper"
-  version = "1.5.0"
+  version = "1.6.1"
 
 [[constraint]]
   name = "gopkg.in/olivere/elastic.v6"
-  version = "6.2.25"
+  version = "6.2.27"

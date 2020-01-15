@@ -56,6 +56,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:25d8ccdfe8316c334ccc9d02b85ea58bc12dc243b187f7334ee9b0d7720b9410"
+  name = "github.com/bitspill/protoPatch"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2fc5c45548cd727a8a3b339cbfe29d4fa38df2d9"
+
+[[projects]]
+  branch = "master"
   digest = "1:30d4a548e09bca4a0c77317c58e7407e2a65c15325e944f9c08a7b7992f8a59e"
   name = "github.com/btcsuite/btclog"
   packages = ["."]
@@ -103,12 +111,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:d9d22ecc590efd1a9553bd340d7ef4ae903b9fc2b42ec7c8e61a185193ad60fd"
+  digest = "1:2b5f431fa18891a2ac0e02353c83fb3bf458fced6ccecd664b429054e0c4ce3b"
   name = "github.com/evanphx/json-patch"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e83c0a1c26c884f8ec4fb743f6db92a941f605f1"
+  revision = "bf22ed9311622d93e213ba31e4ae7a5771e5d379"
+  version = "v4.6.0"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -123,16 +131,16 @@
   name = "github.com/gobuffalo/envy"
   packages = ["."]
   pruneopts = "UT"
-  revision = "909ea676d4c90832fefbf55a5a4fb04d8bef8931"
-  version = "v1.7.1"
+  revision = "dc9565002201aca1286f8d6262f5cd568226562a"
+  version = "v1.8.1"
 
 [[projects]]
-  digest = "1:6c9088827dcc7a807c97592a55f190e35e0fdaf237c5a074256c260925c59428"
+  digest = "1:4be32eaa2aff0bac6ccb3cacd9a84b3bc79c1f8ec00765b03d4a8f5cc542cdaa"
   name = "github.com/gobuffalo/logger"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7c291b53e05b81d77bd43109b4a3c6f84e45c8e1"
-  version = "v1.0.1"
+  revision = "fe10b71a76d5acb502f99cd88d1fd28062906dac"
+  version = "v1.0.3"
 
 [[projects]]
   digest = "1:40849e8495ef81a84ff335ef65e23d33671b61e60e9db464fbab55f19f43f120"
@@ -230,7 +238,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:deb346615a42bc1675d32127e23aa68e00e553e7bd49a556e0aa07c20bd9e865"
+  digest = "1:f8445705b78b31a9a4a90f57408307f0989000cd69b6925bed0602856a43fa12"
   name = "github.com/jhump/protoreflect"
   packages = [
     "codec",
@@ -241,8 +249,8 @@
     "internal",
   ]
   pruneopts = "UT"
-  revision = "c67d679c9f863957281faba646d790dbab6cf3b3"
-  version = "v1.5.0"
+  revision = "43f69034e50eb4a370349b6b7194ef0c7b33d5ed"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
@@ -253,12 +261,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:beb5b4f42a25056f0aa291b5eadd21e2f2903a05d15dfe7caf7eaee7e12fa972"
+  digest = "1:7cd2924a44ecf80a319cfa2378529fabd348d011b739fb4eccc565f65e3296c4"
   name = "github.com/json-iterator/go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "03217c3e97663914aec3faafde50d081f197a0a2"
-  version = "1.1.8"
+  revision = "acfec88f7a0d5140ace3dcdbee10184e3684a9e1"
+  version = "v1.1.9"
 
 [[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
@@ -315,7 +323,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7997c2a00c7e530cfa134fbae1fe934d0550f1a68e7aed4899947f854c1baf1a"
+  digest = "1:b83ac17bcf91edb358c4e548f62c73d236f8df3115eb45fd005e3d2f8d7c1eb9"
   name = "github.com/oipwg/proto"
   packages = [
     "go/pb_historian",
@@ -324,19 +332,19 @@
     "go/pb_oip5/pb_templates",
   ]
   pruneopts = "UT"
-  revision = "4c90c656ce7144bd88aeb44af41d5ecd3897631a"
+  revision = "385db7cb317c9b05d4eb9c6e8c161f5de5bf8440"
   source = "github.com/bitspill/proto"
 
 [[projects]]
-  digest = "1:ffe23790e5e64b54324a50f3fb6c9497c71f019bf7da49e8679fd2e0d7342dff"
+  digest = "1:3bcd20129b768bb19232c64be009a30e83f1531853cf7461ebb0d30ff2d3a16e"
   name = "github.com/olivere/elastic"
   packages = [
     "config",
     "uritemplates",
   ]
   pruneopts = "UT"
-  revision = "a9e8e9e5e57adb159537e502954f21b425467bb8"
-  version = "v7.0.8"
+  revision = "ced336a411e5e9f0f1f2162bce6351730ff99bce"
+  version = "v7.0.10"
 
 [[projects]]
   digest = "1:6eea828983c70075ca297bb915ffbcfd3e34c5a50affd94428a65df955c0ff9c"
@@ -363,8 +371,8 @@
     "semver",
   ]
   pruneopts = "UT"
-  revision = "d89504fbbf2c313df24867a5ffafcc9b847961ff"
-  version = "v1.5.0"
+  revision = "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8"
+  version = "v1.5.2"
 
 [[projects]]
   digest = "1:c5dfe46811af7e2eff7c11fc84b6c841520338613c056f659f262d5a4fb42fa8"
@@ -394,12 +402,12 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:08d65904057412fc0270fc4812a1c90c594186819243160dc779a402d4b6d0bc"
+  digest = "1:ff4cd55a3666b6ea3a876c9e133bfb54d6c812e725409a773f2c94a0b3a92f4f"
   name = "github.com/spf13/cast"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
-  version = "v1.3.0"
+  revision = "1ffadf551085444af981432dd0f6d1160c11ec64"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:1b753ec16506f5864d26a28b43703c58831255059644351bbcb019b843950900"
@@ -418,12 +426,12 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:0b60fc944fb6a7b6c985832bd341bdb7ed8fe894fea330414e7774bb24652962"
+  digest = "1:8d0b79a29be9946ea00b2f2b778ec5b36db07453d97abe9d754b25bc2cc49a0e"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "72b022eb357a56469725dcd03918449e2278d02e"
-  version = "v1.5.0"
+  revision = "eabbc68a3ecd5cf8c11a2f84dbda5e7a38493b2f"
+  version = "v1.6.1"
 
 [[projects]]
   digest = "1:f4b32291cad5efac2bfdba89ccde6aa04618b62ce06c1a571da2dc4f3f2677fb"
@@ -444,18 +452,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "8986dd9e96cf0a6f74da406c005ba3df38527c04"
+  revision = "61a87790db17894570dfb32dbaa0a4af9ce60cb4"
 
 [[projects]]
   branch = "master"
-  digest = "1:2c482fc32bdcfc572ce8b9cc37a409ae8a24c604b0dde73301d8de05d2c1f3e7"
+  digest = "1:c8faf148023f13e62a93d3ed6c01fc586b3c6b52a40c5c9b0f2220bae71f390a"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "f43be2a4598cf3a47be9f94f0c28197ed9eae611"
+  revision = "86b910548bc16777f40503131aa424ae0a092199"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -473,20 +481,28 @@
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:938e94520fafc6677fe5e0660a15c69e5a3766c59164f949ad6e8fa60e43d9a1"
+  digest = "1:c4b5592c342f273e18de68e16957f536f6648f2e90c9d7ece653ac90c22079a9"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "94291fffe2b14f4632ec0e67c1bfecfc1287a168"
+  version = "v1.51.1"
+
+[[projects]]
+  digest = "1:686a326336ffc6ddbe9fcdd39b74b91a9508b1c60f15dd05e07b14f09530a1c6"
   name = "gopkg.in/olivere/elastic.v6"
   packages = ["."]
   pruneopts = "UT"
-  revision = "bc2ff157722a7cc55b00ac054c26a9c16f6de98a"
-  version = "v6.2.25"
+  revision = "d7ed85d223ef32bd5ca4c324c444faf5001236fb"
+  version = "v6.2.27"
 
 [[projects]]
-  digest = "1:59f10c1537d2199d9115d946927fe31165959a95190849c82ff11e05803528b0"
+  digest = "1:b75b3deb2bce8bc079e16bb2aecfe01eb80098f5650f9e93e5643ca8b7b73737"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f221b8435cfb71e54062f6c6e99e9ade30b124d5"
-  version = "v2.2.4"
+  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
+  version = "v2.2.7"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -496,11 +512,13 @@
     "github.com/azer/logger",
     "github.com/bitspill/flod/chaincfg",
     "github.com/bitspill/flod/chaincfg/chainhash",
+    "github.com/bitspill/flod/floec",
     "github.com/bitspill/flod/flojson",
     "github.com/bitspill/flod/rpcclient",
     "github.com/bitspill/flod/wire",
     "github.com/bitspill/flosig",
     "github.com/bitspill/floutil",
+    "github.com/bitspill/protoPatch",
     "github.com/cloudflare/backoff",
     "github.com/davecgh/go-spew/spew",
     "github.com/dustin/go-humanize",

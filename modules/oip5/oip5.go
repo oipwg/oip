@@ -68,7 +68,17 @@ func on5msg(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
 
 	if o5.Edit != nil {
 		nonNilAction = true
-		log.Error("oip5 edit not yet supported")
+		attr["edit.reference"] = pb_oip.TxidToString(o5.Edit.Reference)
+		bir, err := intakeEdit(o5.Edit, msg.PubKey, tx)
+		if err != nil {
+			attr["err"] = err
+			log.Error("unable to process Edit", attr)
+		} else {
+			log.Info("adding o5 edit", attr)
+			datastore.AutoBulk.Add(bir)
+
+			events.Publish("modules:oip5:edit", o5.Record, msg.PubKey, tx)
+		}
 	}
 
 	if !nonNilAction {

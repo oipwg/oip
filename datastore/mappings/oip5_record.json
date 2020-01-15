@@ -30,9 +30,23 @@
               "type": "keyword",
               "ignore_above": 256
             },
+            "original": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "history": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
             "type": {
               "type": "keyword",
               "ignore_above": 256
+            },
+            "latest": {
+              "type": "boolean"
+            },
+            "record_raw": {
+              "type": "binary"
             }
           }
         },
