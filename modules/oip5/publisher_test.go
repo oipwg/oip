@@ -138,7 +138,7 @@ func TestCreateEditTestPublisher(t *testing.T) {
 		NewValues: newValues,
 		Ops: []patch.Op{
 			{
-				[]patch.Step{
+				Path: []patch.Step{
 					{
 						Tag:      7, // details
 						Action:   patch.ActionStepInto,
@@ -247,7 +247,7 @@ func TestEditTest(t *testing.T) {
 		NewValues: newRec,
 		Ops: []patch.Op{
 			{
-				[]patch.Step{
+				Path: []patch.Step{
 					{
 						Tag:      7, // details
 						Action:   patch.ActionStepInto,

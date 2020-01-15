@@ -112,6 +112,10 @@ func GetRecord(txid string) (*oip5Record, error) {
 		}
 
 		raw, err := base64.StdEncoding.DecodeString(eRec.Meta.RecordRaw)
+		if err != nil {
+			return nil, err
+		}
+
 		err = proto.Unmarshal(raw, rec.Record)
 		if err != nil {
 			return nil, err

@@ -116,6 +116,11 @@ moreEdits:
 		}
 
 		b, err := base64.StdEncoding.DecodeString(edit.PatchRaw)
+		if err != nil {
+			markEditInvalid(edit.Meta.Txid)
+			log.Error("unable to decode raw patch", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+			continue
+		}
 
 		pp := &patch.ProtoPatch{}
 		err = proto.Unmarshal(b, pp)
