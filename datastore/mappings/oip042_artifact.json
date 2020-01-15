@@ -156,8 +156,8 @@
               }
             },
             "signature": {
-          "type": "binary"
-        },
+              "type": "binary"
+            },
             "storage": {
               "properties": {
                 "files": {
@@ -257,12 +257,12 @@
                 }
               }
             },
-            "latest":{
-              "type":"boolean"
+            "latest": {
+              "type": "boolean"
             },
-            "originalTxid":{
-              "type":"keyword",
-              "ignore_above":64
+            "originalTxid": {
+              "type": "keyword",
+              "ignore_above": 64
             },
             "previousEdits": {
               "type": "text",
@@ -273,8 +273,8 @@
               }
             },
             "signature": {
-          "type": "binary"
-        },
+              "type": "binary"
+            },
             "time": {
               "type": "date",
               "format": "epoch_second"

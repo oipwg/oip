@@ -22,8 +22,8 @@
               "type": "keyword"
             },
             "signature": {
-          "type": "binary"
-        },
+              "type": "binary"
+            },
             "timestamp": {
               "type": "date",
               "format": "epoch_second"
@@ -43,8 +43,8 @@
               "type": "boolean"
             },
             "signature": {
-          "type": "binary"
-        },
+              "type": "binary"
+            },
             "time": {
               "type": "date",
               "format": "epoch_second"
