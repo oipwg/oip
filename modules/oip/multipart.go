@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/oipwg/proto/go/pb_oip"
@@ -99,17 +98,6 @@ moreMultiparts:
 	}
 
 	if potentialChanges {
-		ref, err := datastore.Client().Refresh(datastore.Index(multipartIndex)).Do(context.TODO())
-		if err != nil {
-			log.Info("multipart refresh failed")
-			spew.Dump(err)
-		} else {
-			tot := ref.Shards.Total
-			fai := ref.Shards.Failed
-			suc := ref.Shards.Successful
-			log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
-		}
-
 		events.Publish("modules:oip:mpCompleted")
 	}
 

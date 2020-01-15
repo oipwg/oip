@@ -18,6 +18,7 @@ func BeginBulkIndexer() BulkIndexer {
 		bulk: client.Bulk(),
 		m:    &sync.Mutex{},
 	}
+	bi.bulk.Refresh("true")
 
 	return bi
 }
