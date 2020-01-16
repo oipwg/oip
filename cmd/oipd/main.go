@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"os"
 	"os/signal"
 	"runtime/pprof"
@@ -23,13 +22,9 @@ import (
 )
 
 func main() {
-	oipdCpuProfileFile := flag.String("cpuprofile", "", "Designates the file to use for the cpu profiler")
-	oipdMemProfileFile := flag.String("memprofile", "", "Designates the file to use for the memory profiler")
-
-	flag.Parse()
-
-	if *oipdCpuProfileFile != "" {
-		f, profErr := os.Create(*oipdCpuProfileFile)
+	oipdCpuProfileFile := viper.GetString("cpuprofile")
+	if oipdCpuProfileFile != "" {
+		f, profErr := os.Create(oipdCpuProfileFile)
 		if profErr != nil {
 			log.Error("could not create CPU profile: ", profErr)
 		} else {
@@ -134,8 +129,9 @@ func main() {
 	<-rootContext.Done()
 	shutdown(nil)
 
-	if *oipdMemProfileFile != "" {
-		f, memErr := os.Create(*oipdMemProfileFile)
+	oipdMemProfileFile := viper.GetString("memprofile")
+	if oipdMemProfileFile != "" {
+		f, memErr := os.Create(oipdMemProfileFile)
 		if memErr != nil {
 			log.Error("could not create memory profile: ", memErr)
 		} else {

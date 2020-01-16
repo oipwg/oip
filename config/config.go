@@ -27,6 +27,8 @@ func init() {
 	loadDefaults()
 
 	pflag.String("appdir", defaultAppDir, "Location of oip data directory and config file")
+	pflag.String("cpuprofile", "", "Designates the file to use for the cpu profiler")
+	pflag.String("memprofile", "", "Designates the file to use for the memory profiler")
 	pflag.Parse()
 	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {
