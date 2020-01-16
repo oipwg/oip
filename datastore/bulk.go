@@ -39,6 +39,10 @@ func (bi *BulkIndexer) BeginTimedCommits(rate time.Duration) {
 	go bi.timedCommit()
 }
 
+func (bi *BulkIndexer) Commit() {
+	bi.quickCommit()
+}
+
 func (bi *BulkIndexer) timedCommit() {
 	for {
 		select {

@@ -10,8 +10,10 @@ import (
 	"github.com/azer/logger"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/oipwg/proto/go/pb_oip5"
+	"github.com/oipwg/proto/go/pb_oip5/pb_templates"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"
 
@@ -50,9 +52,23 @@ func intakeRecord(r *pb_oip5.RecordProto, pubKey []byte, tx *datastore.Transacti
 	raw64 := base64.StdEncoding.EncodeToString(raw)
 
 	strPubKey := string(pubKey)
-	pubName, err := GetPublisherName(strPubKey)
-	if err != nil {
-		log.Error("error getting publisher name", logger.Attrs{"txid": tx.Transaction.Txid, "pubkey": strPubKey, "err": err})
+	pubName := ""
+	// Check to see if a publisher registration is contained
+	for i := range r.Details.Details {
+		if r.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
+			regPub := &pb_templates.Tmpl_433C2783{}
+			err := ptypes.UnmarshalAny(r.Details.Details[i], regPub)
+			if err != nil {
+				log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+			}
+			pubName = regPub.Name
+		}
+	}
+	if pubName == "" {
+		pubName, err = GetPublisherName(strPubKey)
+		if err != nil {
+			log.Error("error getting publisher name", logger.Attrs{"txid": tx.Transaction.Txid, "pubkey": strPubKey, "err": err})
+		}
 	}
 
 	var el elasticOip5Record

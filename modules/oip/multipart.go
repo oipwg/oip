@@ -339,7 +339,7 @@ func markStale() {
 		elastic.NewRangeQuery("meta.time").Lte("now-1w"),
 	)
 	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
-		Type("_doc").Script(s) // .Refresh("wait_for")
+		Type("_doc").Script(s).Refresh("true")
 
 	res, err := cuq.Do(context.TODO())
 	if err != nil {

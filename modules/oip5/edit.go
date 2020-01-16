@@ -12,8 +12,10 @@ import (
 	patch "github.com/bitspill/protoPatch"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/oipwg/proto/go/pb_oip"
 	"github.com/oipwg/proto/go/pb_oip5"
+	"github.com/oipwg/proto/go/pb_oip5/pb_templates"
 	"gopkg.in/olivere/elastic.v6"
 
 	"github.com/oipwg/oip/datastore"
@@ -22,6 +24,8 @@ import (
 
 var editIndex = "oip5_edit"
 var editCommitMutex sync.Mutex
+
+const registeredPublisherTypeUrl = "type.googleapis.com/oipProto.templates.tmpl_433C2783"
 
 func init() {
 	events.SubscribeAsync("datastore:commit", onDatastoreCommitEdits)
@@ -157,6 +161,27 @@ moreEdits:
 			continue
 		}
 
+		// Check to see if a publisher name was edited
+		regPubNameChanged := false
+		for i := range newRec.Details.Details {
+			// ToDo evaluate if it's faster to only compare suffix due to common prefix
+			// 	if len(rec.Record.Details.Details[i].TypeUrl) == 52 &&
+			//		rec.Record.Details.Details[i].TypeUrl[44:] == registeredPublisherTypeUrl[44:] {
+			if newRec.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
+				regPub := &pb_templates.Tmpl_433C2783{}
+				err := ptypes.UnmarshalAny(newRec.Details.Details[i], regPub)
+				if err != nil {
+					markEditInvalid(edit.Meta.Txid)
+					log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+					continue
+				}
+				if rec.Meta.PublisherName != regPub.Name {
+					rec.Meta.PublisherName = regPub.Name
+					regPubNameChanged = true
+				}
+			}
+		}
+
 		rec.Record = newRec
 
 		rec.Meta.History = append(rec.Meta.History, edit.Meta.Txid)
@@ -214,7 +239,38 @@ moreEdits:
 			Doc(MetaApplied{Applied{true}})
 
 		datastore.AutoBulk.Add(bur)
+
+		if regPubNameChanged {
+			datastore.AutoBulk.Commit()
+			err := updatePublisherName(rec.Meta.SignedBy, rec.Meta.PublisherName)
+			if err != nil {
+				log.Error("unable to update publisher name", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+			}
+		}
 	}
+}
+
+func updatePublisherName(pubAddr, pubName string) error {
+	log.Info("updating publisher name", logger.Attrs{"pubAddr": pubAddr, "pubName": pubName})
+	s := elastic.NewScript("ctx._source.meta.publisher_name=params.pubName;").
+		Param("pubName", pubName).
+		Type("inline").
+		Lang("painless")
+
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.signed_by", pubAddr),
+		elastic.NewTermQuery("meta.latest", true),
+	)
+	cuq := datastore.Client().UpdateByQuery(datastore.Index("oip5_record")).Query(q).
+		Type("_doc").Script(s).Refresh("true")
+
+	res, err := cuq.Do(context.TODO())
+	if err != nil {
+		log.Error("unable to update publisher name", logger.Attrs{"err": err, "pubAddr": pubAddr, "pubName": pubName})
+		return err
+	}
+	log.Info("update publisher name completed", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated, "pubAddr": pubAddr, "pubName": pubName})
+	return nil
 }
 
 func markEditInvalid(txid string) {

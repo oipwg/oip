@@ -443,7 +443,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:30f1412ac3441c0bbfdb98ae9a102e65ca7974ce8d598605927a7092ab069191"
+  digest = "1:7f07b2ef325b964dec54d155d9d38ae05493b5a4b10e72d602b2243a5ece1a00"
   name = "golang.org/x/crypto"
   packages = [
     "pbkdf2",
@@ -452,7 +452,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "61a87790db17894570dfb32dbaa0a4af9ce60cb4"
+  revision = "6d4e4cb37c7d6416dfea8472e751c7b6615267a6"
 
 [[projects]]
   branch = "master"
@@ -527,6 +527,7 @@
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go/descriptor",
+    "github.com/golang/protobuf/ptypes",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/hashicorp/golang-lru",
