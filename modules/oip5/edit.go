@@ -252,6 +252,9 @@ moreEdits:
 
 func updatePublisherName(pubAddr, pubName string) error {
 	log.Info("updating publisher name", logger.Attrs{"pubAddr": pubAddr, "pubName": pubName})
+
+	publisherCache.Add(pubAddr, pubName)
+
 	s := elastic.NewScript("ctx._source.meta.publisher_name=params.pubName;").
 		Param("pubName", pubName).
 		Type("inline").
