@@ -49,6 +49,7 @@ func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
 		elastic.NewQueryStringQuery(searchQuery).
 			AnalyzeWildcard(false),
 		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.latest", true),
 	)
 
 	searchService := httpapi.BuildCommonSearchService(
@@ -99,6 +100,7 @@ func handleLatestRecord(w http.ResponseWriter, r *http.Request) {
 
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.deactivated", false),
+		elastic.NewTermQuery("meta.latest", true),
 	)
 
 	searchService := httpapi.BuildCommonSearchService(
@@ -116,7 +118,8 @@ func handleGetRecord(w http.ResponseWriter, r *http.Request) {
 	var opts = mux.Vars(r)
 
 	q := elastic.NewBoolQuery().Must(
-		elastic.NewPrefixQuery("meta.txid", opts["id"]),
+		elastic.NewPrefixQuery("meta.original", opts["id"]),
+		elastic.NewTermQuery("meta.latest", true),
 	)
 
 	searchService := httpapi.BuildCommonSearchService(

@@ -111,37 +111,92 @@ func GetRecord(txid string) (*oip5Record, error) {
 		return r.(*oip5Record), nil
 	}
 
-	get, err := datastore.Client().Get().Index(datastore.Index("oip5_record")).Type("_doc").Id(txid).Do(context.Background())
+	q := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("meta.original", txid),
+		elastic.NewTermQuery("meta.latest", true),
+	)
+
+	get, err := datastore.Client().
+		Search(datastore.Index("oip5_record")).
+		Type("_doc").Size(1).
+		Query(q).
+		Do(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
-	if get.Found {
-		var eRec elasticOip5Record
-		err := json.Unmarshal(*get.Source, &eRec)
-		if err != nil {
-			return nil, err
-		}
-
-		rec := &oip5Record{
-			Meta:   eRec.Meta,
-			Record: &pb_oip5.RecordProto{},
-		}
-
-		raw, err := base64.StdEncoding.DecodeString(eRec.Meta.RecordRaw)
-		if err != nil {
-			return nil, err
-		}
-
-		err = proto.Unmarshal(raw, rec.Record)
-		if err != nil {
-			return nil, err
-		}
-
-		recordCache.Add(rec.Meta.Txid, rec)
-
-		return rec, nil
+	if len(get.Hits.Hits) == 0 {
+		return nil, errors.New("ID not found")
 	}
-	return nil, errors.New("ID not found")
+
+	var eRec elasticOip5Record
+	err = json.Unmarshal(*get.Hits.Hits[0].Source, &eRec)
+	if err != nil {
+		return nil, err
+	}
+
+	rec := &oip5Record{
+		Meta:   eRec.Meta,
+		Record: &pb_oip5.RecordProto{},
+	}
+
+	raw, err := base64.StdEncoding.DecodeString(eRec.Meta.RecordRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	err = proto.Unmarshal(raw, rec.Record)
+	if err != nil {
+		return nil, err
+	}
+
+	recordCache.Add(rec.Meta.Txid, rec)
+
+	return rec, nil
+}
+
+func GetRecordRevision(txid string) (*oip5Record, error) {
+	r, found := recordCache.Get(txid)
+	if found {
+		return r.(*oip5Record), nil
+	}
+
+	get, err := datastore.Client().Get().
+		Index(datastore.Index("oip5_record")).
+		Type("_doc").
+		Id(txid).
+		Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	if !get.Found {
+		return nil, errors.New("ID not found")
+	}
+	var eRec elasticOip5Record
+	err = json.Unmarshal(*get.Source, &eRec)
+	if err != nil {
+		return nil, err
+	}
+
+	rec := &oip5Record{
+		Meta:   eRec.Meta,
+		Record: &pb_oip5.RecordProto{},
+	}
+
+	raw, err := base64.StdEncoding.DecodeString(eRec.Meta.RecordRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	err = proto.Unmarshal(raw, rec.Record)
+	if err != nil {
+		return nil, err
+	}
+
+	recordCache.Add(rec.Meta.Txid, rec)
+
+	return rec, nil
 }
 
 type elasticOip5Record struct {
