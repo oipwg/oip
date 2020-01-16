@@ -115,6 +115,12 @@ moreEdits:
 			continue
 		}
 
+		if rec.Meta.SignedBy != edit.Meta.SignedBy {
+			log.Error("edit not signed by record owner", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
+			markEditInvalid(edit.Meta.Txid)
+			continue
+		}
+
 		b, err := base64.StdEncoding.DecodeString(edit.PatchRaw)
 		if err != nil {
 			markEditInvalid(edit.Meta.Txid)
