@@ -161,7 +161,9 @@ func TestCreateEditTestPublisher(t *testing.T) {
 
 	edit := &pb_oip5.EditProto{
 		Reference: pb_oip.TxidFromString("4a059effa20389f2be9bfad9308f4a46b4c2bfaf02dd65e68f113db1669fba81"),
-		Patch:     pp.(*patch.ProtoPatch),
+		Mod: &pb_oip5.EditProto_Patch{
+			Patch: pp.(*patch.ProtoPatch),
+		},
 	}
 
 	o5 := &pb_oip5.OipFive{

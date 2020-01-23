@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"sync"
 
 	"github.com/azer/logger"
@@ -20,6 +20,7 @@ import (
 
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
+	"github.com/oipwg/oip/modules/oip5/templates"
 )
 
 var editIndex = "oip5_edit"
@@ -33,17 +34,29 @@ func init() {
 }
 
 func intakeEdit(n *pb_oip5.EditProto, pubKey []byte, tx *datastore.TransactionData) (*elastic.BulkIndexRequest, error) {
-	m := jsonpb.Marshaler{}
+	m := n.GetMod()
+	if m == nil {
+		return nil, errors.New("no mod")
+	}
 
+	var err error
+	var jm jsonpb.Marshaler
 	var jsonBuf bytes.Buffer
-	err := m.Marshal(&jsonBuf, n)
+	var pm proto.Message
+
+	switch mod := m.(type) {
+	case *pb_oip5.EditProto_Patch:
+		pm = mod.Patch
+		err = jm.Marshal(&jsonBuf, n.GetPatch())
+	case *pb_oip5.EditProto_Template:
+		pm = mod.Template
+		err = jm.Marshal(&jsonBuf, n.GetTemplate())
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(jsonBuf.String())
-
-	rawBuf, err := proto.Marshal(n.Patch)
+	rawBuf, err := proto.Marshal(pm)
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +64,14 @@ func intakeEdit(n *pb_oip5.EditProto, pubKey []byte, tx *datastore.TransactionDa
 	rawB64 := base64.StdEncoding.EncodeToString(rawBuf)
 
 	var el elasticOip5Edit
-	el.PatchJson = jsonBuf.Bytes()
-	el.PatchRaw = rawB64
+	switch m.(type) {
+	case *pb_oip5.EditProto_Patch:
+		el.PatchJson = jsonBuf.Bytes()
+		el.PatchRaw = rawB64
+	case *pb_oip5.EditProto_Template:
+		el.TemplateJson = jsonBuf.Bytes()
+		el.TemplateRaw = rawB64
+	}
 	el.Reference = pb_oip.TxidToString(n.Reference)
 	el.Meta = EMeta{
 		Block:     tx.Block,
@@ -75,10 +94,12 @@ func intakeEdit(n *pb_oip5.EditProto, pubKey []byte, tx *datastore.TransactionDa
 }
 
 type elasticOip5Edit struct {
-	PatchJson json.RawMessage `json:"patch_json"`
-	PatchRaw  string          `json:"patch_raw"`
-	Reference string          `json:"reference"`
-	Meta      EMeta           `json:"meta"`
+	PatchJson    json.RawMessage `json:"patch_json"`
+	PatchRaw     string          `json:"patch_raw"`
+	TemplateJson json.RawMessage `json:"template_json"`
+	TemplateRaw  string          `json:"template_raw"`
+	Reference    string          `json:"reference"`
+	Meta         EMeta           `json:"meta"`
 }
 
 type EMeta struct {
@@ -112,140 +133,172 @@ moreEdits:
 	for _, edit := range edits {
 		log.Info("processing edit", logger.Attrs{"edit": edit.Meta.Txid})
 
-		rec, err := GetRecord(edit.Reference)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to obtain record for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
+		if len(edit.TemplateRaw) != 0 {
+			editTemplate(edit)
+		} else {
+			editRecord(edit)
 		}
+	}
+}
 
-		if rec.Meta.SignedBy != edit.Meta.SignedBy {
-			log.Error("edit not signed by record owner", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
-			markEditInvalid(edit.Meta.Txid)
-			continue
-		}
+func editTemplate(edit elasticOip5Edit) {
+	tmpl, err := templates.GetTemplate(edit.Reference)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to obtain template for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		b, err := base64.StdEncoding.DecodeString(edit.PatchRaw)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to decode raw patch", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+	if tmpl.SignedBy != edit.Meta.SignedBy {
+		log.Error("edit not signed by template owner", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
+		markEditInvalid(edit.Meta.Txid)
+		return
+	}
 
-		pp := &patch.ProtoPatch{}
-		err = proto.Unmarshal(b, pp)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to decode proto patch for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+	// ToDo validate changes are backwards compatible
+	// ToDo rename field?
 
-		p, err := patch.FromProto(pp)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to decode patch for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+	err = templates.EditTemplate(tmpl, edit.TemplateRaw, edit.Meta.Txid)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to edit template", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+	}
+}
 
-		a, err := patch.ApplyPatch(*p, rec.Record)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to apply edit to record", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+func editRecord(edit elasticOip5Edit) {
+	rec, err := GetRecord(edit.Reference)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to obtain record for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		newRec, ok := a.(*pb_oip5.RecordProto)
-		if !ok {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("patch result is no longer a record", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+	if rec.Meta.SignedBy != edit.Meta.SignedBy {
+		log.Error("edit not signed by record owner", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
+		markEditInvalid(edit.Meta.Txid)
+		return
+	}
 
-		// Check to see if a publisher name was edited
-		regPubNameChanged := false
-		for i := range newRec.Details.Details {
-			// ToDo evaluate if it's faster to only compare suffix due to common prefix
-			// 	if len(rec.Record.Details.Details[i].TypeUrl) == 52 &&
-			//		rec.Record.Details.Details[i].TypeUrl[44:] == registeredPublisherTypeUrl[44:] {
-			if newRec.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
-				regPub := &pb_templates.Tmpl_433C2783{}
-				err := ptypes.UnmarshalAny(newRec.Details.Details[i], regPub)
-				if err != nil {
-					markEditInvalid(edit.Meta.Txid)
-					log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-					continue
-				}
-				if rec.Meta.PublisherName != regPub.Name {
-					rec.Meta.PublisherName = regPub.Name
-					regPubNameChanged = true
-				}
-			}
-		}
+	b, err := base64.StdEncoding.DecodeString(edit.PatchRaw)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to decode raw patch", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		rec.Record = newRec
+	pp := &patch.ProtoPatch{}
+	err = proto.Unmarshal(b, pp)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to decode proto patch for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		rec.Meta.History = append(rec.Meta.History, edit.Meta.Txid)
+	p, err := patch.FromProto(pp)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to decode patch for edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		m := jsonpb.Marshaler{}
+	a, err := patch.ApplyPatch(*p, rec.Record)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to apply edit to record", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		var buf bytes.Buffer
-		err = m.Marshal(&buf, newRec)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to marshal record json post edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
+	newRec, ok := a.(*pb_oip5.RecordProto)
+	if !ok {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("patch result is no longer a record", logger.Attrs{"reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
 
-		rawRec, err := proto.Marshal(newRec)
-		if err != nil {
-			markEditInvalid(edit.Meta.Txid)
-			log.Error("unable to marshal record proto post edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
-			continue
-		}
-
-		rawRec64 := base64.StdEncoding.EncodeToString(rawRec)
-		rec.Meta.RecordRaw = rawRec64
-
-		var el elasticOip5Record
-		el.Record = buf.Bytes()
-		el.Meta = rec.Meta
-
-		bir := elastic.NewBulkIndexRequest().
-			Index(datastore.Index("oip5_record")).
-			Type("_doc").
-			Id(edit.Meta.Txid).
-			Doc(el)
-
-		recordCache.Add(rec.Meta.Original, rec)
-
-		datastore.AutoBulk.Add(bir)
-
-		if len(rec.Meta.History) > 1 {
-			for _, prevIteration := range rec.Meta.History[:len(rec.Meta.History)-1] {
-				bur := elastic.NewBulkUpdateRequest().
-					Index(datastore.Index("oip5_record")).
-					Type("_doc").
-					Id(prevIteration).
-					Doc(MetaLatest{Latest{false}})
-
-				datastore.AutoBulk.Add(bur)
-			}
-		}
-
-		bur := elastic.NewBulkUpdateRequest().
-			Index(datastore.Index("oip5_edit")).
-			Type("_doc").
-			Id(edit.Meta.Txid).
-			Doc(MetaApplied{Applied{true}})
-
-		datastore.AutoBulk.Add(bur)
-
-		if regPubNameChanged {
-			datastore.AutoBulk.Commit()
-			err := updatePublisherName(rec.Meta.SignedBy, rec.Meta.PublisherName)
+	// Check to see if a publisher name was edited
+	regPubNameChanged := false
+	for i := range newRec.Details.Details {
+		// ToDo evaluate if it's faster to only compare suffix due to common prefix
+		// 	if len(rec.Record.Details.Details[i].TypeUrl) == 52 &&
+		//		rec.Record.Details.Details[i].TypeUrl[44:] == registeredPublisherTypeUrl[44:] {
+		if newRec.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
+			regPub := &pb_templates.Tmpl_433C2783{}
+			err := ptypes.UnmarshalAny(newRec.Details.Details[i], regPub)
 			if err != nil {
-				log.Error("unable to update publisher name", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+				markEditInvalid(edit.Meta.Txid)
+				log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+				return
 			}
+			if rec.Meta.PublisherName != regPub.Name {
+				rec.Meta.PublisherName = regPub.Name
+				regPubNameChanged = true
+			}
+		}
+	}
+
+	rec.Record = newRec
+
+	rec.Meta.History = append(rec.Meta.History, edit.Meta.Txid)
+
+	m := jsonpb.Marshaler{}
+
+	var buf bytes.Buffer
+	err = m.Marshal(&buf, newRec)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to marshal record json post edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
+
+	rawRec, err := proto.Marshal(newRec)
+	if err != nil {
+		markEditInvalid(edit.Meta.Txid)
+		log.Error("unable to marshal record proto post edit", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
+		return
+	}
+
+	rawRec64 := base64.StdEncoding.EncodeToString(rawRec)
+	rec.Meta.RecordRaw = rawRec64
+
+	var el elasticOip5Record
+	el.Record = buf.Bytes()
+	el.Meta = rec.Meta
+
+	bir := elastic.NewBulkIndexRequest().
+		Index(datastore.Index(o5RecordIndexName)).
+		Type("_doc").
+		Id(edit.Meta.Txid).
+		Doc(el)
+
+	recordCache.Add(rec.Meta.Original, rec)
+
+	datastore.AutoBulk.Add(bir)
+
+	if len(rec.Meta.History) > 1 {
+		for _, prevIteration := range rec.Meta.History[:len(rec.Meta.History)-1] {
+			bur := elastic.NewBulkUpdateRequest().
+				Index(datastore.Index(o5RecordIndexName)).
+				Type("_doc").
+				Id(prevIteration).
+				Doc(MetaLatest{Latest{false}})
+
+			datastore.AutoBulk.Add(bur)
+		}
+	}
+
+	bur := elastic.NewBulkUpdateRequest().
+		Index(datastore.Index("oip5_edit")).
+		Type("_doc").
+		Id(edit.Meta.Txid).
+		Doc(MetaApplied{Applied{true}})
+
+	datastore.AutoBulk.Add(bur)
+
+	if regPubNameChanged {
+		datastore.AutoBulk.Commit()
+		err := updatePublisherName(rec.Meta.SignedBy, rec.Meta.PublisherName)
+		if err != nil {
+			log.Error("unable to update publisher name", logger.Attrs{"err": err, "reference": edit.Reference, "txid": edit.Meta.Txid})
 		}
 	}
 }

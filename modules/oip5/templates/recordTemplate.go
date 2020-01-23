@@ -40,14 +40,16 @@ func IntakeRecordTemplate(rt *pb_templates.RecordTemplateProto, pubKey []byte, t
 	rt.Identifier = uint32(ident)
 
 	tmpl := &RecordTemplate{
+		Txid:              tx.Transaction.Txid,
+		SignedBy:          string(pubKey),
 		FriendlyName:      rt.FriendlyName,
 		Description:       rt.Description,
 		Identifier:        rt.Identifier,
 		Extends:           rt.Extends,
-		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.GetDescriptorSetProto()),
+		FileDescriptorSet: base64.StdEncoding.EncodeToString(rt.DescriptorSetProto),
 	}
 
-	err = DecodeDescriptorSet(tmpl, rt.GetDescriptorSetProto(), tx.Transaction.Txid)
+	err = DecodeDescriptorSet(tmpl, rt.DescriptorSetProto)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to decode descriptor set", attr)
@@ -75,14 +77,14 @@ func IntakeRecordTemplate(rt *pb_templates.RecordTemplateProto, pubKey []byte, t
 	return bir, nil
 }
 
-func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid string) (err error) {
+func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic within DecodeDescriptorSet %s", r)
 		}
 	}()
 
-	attr := logger.Attrs{"txid": txid}
+	attr := logger.Attrs{"txid": rt.Txid}
 	var dsp = &descriptor.FileDescriptorSet{}
 	err = proto.Unmarshal(descriptorSetProto, dsp)
 	if err != nil {
@@ -102,7 +104,7 @@ func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		log.Error("unable to create builder", attr)
 		return errors.New("unable to create builder")
 	}
-	newName := "tmpl_" + strings.ToUpper(txid[:8])
+	newName := "tmpl_" + strings.ToUpper(rt.Txid[:8])
 	err = fileBuilder.TrySetName(newName + ".proto")
 	if err != nil {
 		attr["err"] = err
@@ -184,7 +186,7 @@ func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 		return errors.New("unable to build file descriptor")
 	}
 	for _, fileMsgType := range file.GetMessageTypes() {
-		addProtoType(fileMsgType, txid)
+		addProtoType(fileMsgType, rt.Txid)
 	}
 
 	if !strings.HasPrefix(message.GetFullyQualifiedName(), "oipProto.templates.") {
@@ -205,12 +207,13 @@ func DecodeDescriptorSet(rt *RecordTemplate, descriptorSetProto []byte, txid str
 
 func addProtoType(fileMsgType *desc.MessageDescriptor, txid string) {
 	ktr := TemplateMessageFactory.GetKnownTypeRegistry()
-	fqn := fileMsgType.GetFullyQualifiedName()
-	ktrMsgType := ktr.GetKnownType(fqn)
-	if ktrMsgType != nil {
-		log.Info("message type already known", logger.Attrs{"fqn": fqn, "txid": txid})
-		return
-	}
+	// ToDo: test if dynamic templates override compiled templates
+	// fqn := fileMsgType.GetFullyQualifiedName()
+	// ktrMsgType := ktr.GetKnownType(fqn)
+	// if ktrMsgType != nil {
+	// 	log.Info("message type already known", logger.Attrs{"fqn": fqn, "txid": txid})
+	// 	return
+	// }
 	ktr.AddKnownType(dynamic.NewMessageWithMessageFactory(fileMsgType, TemplateMessageFactory))
 }
 
@@ -237,6 +240,9 @@ type RecordTemplate struct {
 	Identifier uint32 `json:"identifier"`
 	// List of unique template identifiers recommended for use with this template
 	Extends []uint32 `json:"extends,omitempty"`
+
+	Txid     string `json:"-"`
+	SignedBy string `json:"-"`
 }
 
 type elRecordTemplate struct {
@@ -245,12 +251,12 @@ type elRecordTemplate struct {
 }
 
 type TMeta struct {
-	Block     int64                      `json:"block"`
-	BlockHash string                     `json:"block_hash"`
-	SignedBy  string                     `json:"signed_by"`
-	Time      int64                      `json:"time"`
+	Block     int64                      `json:"block,omitempty"`
+	BlockHash string                     `json:"block_hash,omitempty"`
+	SignedBy  string                     `json:"signed_by,omitempty"`
+	Time      int64                      `json:"time,omitempty"`
 	Tx        *datastore.TransactionData `json:"-"`
-	Txid      string                     `json:"txid"`
+	Txid      string                     `json:"txid,omitempty"`
 }
 
 func CreateNewMessage(id string) (proto.Message, error) {
@@ -291,16 +297,93 @@ func LoadTemplatesFromES(ctx context.Context) error {
 
 	for _, value := range templates {
 		tmpl := value.(elRecordTemplate)
+		tmpl.Template.SignedBy = tmpl.Meta.SignedBy
+		tmpl.Template.Txid = tmpl.Meta.Txid
 
 		b, err := base64.StdEncoding.DecodeString(tmpl.Template.FileDescriptorSet)
 		if err != nil {
 			return err
 		}
-		err = DecodeDescriptorSet(tmpl.Template, b, tmpl.Meta.Txid)
+		err = DecodeDescriptorSet(tmpl.Template, b)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func GetTemplate(txid string) (*RecordTemplate, error) {
+	if len(txid) < 8 {
+		log.Error("invalid txid", logger.Attrs{"txid": txid})
+		return nil, errors.New("invalid txid")
+	}
+	strIdent := txid[:8]
+	ident, err := strconv.ParseUint(strIdent, 16, 32)
+	if err != nil {
+		log.Error("invalid txid", logger.Attrs{"txid": txid})
+		return nil, errors.New("invalid txid")
+	}
+	tmpl := templateCache[uint32(ident)]
+	return tmpl, nil
+}
+
+func EditTemplate(tmpl *RecordTemplate, newRaw string, editTxid string) error {
+	b, err := base64.StdEncoding.DecodeString(newRaw)
+	if err != nil {
+		return errors.New("unable to decode raw template")
+	}
+
+	newVal := &pb_templates.RecordTemplateProto{}
+	err = proto.Unmarshal(b, newVal)
+	if err != nil {
+		return errors.New("unable to decode template proto for edit")
+	}
+
+	if newVal.FriendlyName != "" {
+		tmpl.FriendlyName = newVal.FriendlyName
+	}
+	if newVal.Description != "" {
+		tmpl.Description = newVal.Description
+	}
+	if newVal.Extends != nil {
+		tmpl.Extends = newVal.Extends
+	}
+
+	tmpl.FileDescriptorSet = base64.StdEncoding.EncodeToString(newVal.DescriptorSetProto)
+
+	err = DecodeDescriptorSet(tmpl, newVal.DescriptorSetProto)
+	if err != nil {
+		log.Error("unable to decode descriptor set", tmpl.Name)
+		return errors.New("unable to decode descriptor set")
+	}
+
+	elRt := elRecordTemplate{
+		Template: tmpl,
+	}
+
+	bir := elastic.NewBulkUpdateRequest().
+		Index(datastore.Index("oip5_templates")).
+		Type("_doc").
+		Id(tmpl.Txid).
+		Doc(elRt)
+
+	datastore.AutoBulk.Add(bir)
+
+	bur := elastic.NewBulkUpdateRequest().
+		Index(datastore.Index("oip5_edit")).
+		Type("_doc").
+		Id(editTxid).
+		Doc(MetaApplied{Applied{true}})
+
+	datastore.AutoBulk.Add(bur)
+
+	return nil
+}
+
+type Applied struct {
+	Applied bool `json:"applied"`
+}
+type MetaApplied struct {
+	Meta Applied `json:"meta"`
 }

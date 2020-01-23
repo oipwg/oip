@@ -20,7 +20,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4ad5192cb5051c38481e61d3a9161e394826d2c552d4326c3f215966bf09a86f"
+  digest = "1:5bb39800fb8328d30967c7f2d8d0f6cac993967d60fd9df2cf52d598212468b8"
   name = "github.com/bitspill/flod"
   packages = [
     "chaincfg",
@@ -32,7 +32,7 @@
     "wire",
   ]
   pruneopts = "UT"
-  revision = "2ad8b32be4324a2a75b376977abb7be4da3e417b"
+  revision = "bf2a74ee75eef512bbf25a1dd5eee933c481b1a6"
 
 [[projects]]
   branch = "master"
@@ -208,15 +208,15 @@
   version = "v1.7.3"
 
 [[projects]]
-  digest = "1:c77361e611524ec8f2ad37c408c3c916111a70b6acf806a1200855696bf8fa4d"
+  digest = "1:e631368e174090a276fc00b48283f92ac4ccfbbb1945bcfcee083f5f9210dc00"
   name = "github.com/hashicorp/golang-lru"
   packages = [
     ".",
     "simplelru",
   ]
   pruneopts = "UT"
-  revision = "7f827b33c0f158ec5dfbba01bb0b14a4541fd81d"
-  version = "v0.5.3"
+  revision = "14eae340515388ca95aa8e7b86f0de668e981f54"
+  version = "v0.5.4"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -323,7 +323,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b83ac17bcf91edb358c4e548f62c73d236f8df3115eb45fd005e3d2f8d7c1eb9"
+  digest = "1:571f9f0521eb139d00e83b3c3ce976bfe267409c8be69c5f7b9174e8152a2a90"
   name = "github.com/oipwg/proto"
   packages = [
     "go/pb_historian",
@@ -332,7 +332,7 @@
     "go/pb_oip5/pb_templates",
   ]
   pruneopts = "UT"
-  revision = "385db7cb317c9b05d4eb9c6e8c161f5de5bf8440"
+  revision = "dba0e73b681dd2998294e37fff7f48cb59f090d8"
   source = "github.com/bitspill/proto"
 
 [[projects]]
@@ -426,12 +426,12 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:8d0b79a29be9946ea00b2f2b778ec5b36db07453d97abe9d754b25bc2cc49a0e"
+  digest = "1:83d0e0f3f46dc86daf27e4d7c834c8c492db787c53c09d94183de7478db92142"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "eabbc68a3ecd5cf8c11a2f84dbda5e7a38493b2f"
-  version = "v1.6.1"
+  revision = "4525543ce4fe90f7970f5e2cdc300b8ffc8c0582"
+  version = "v1.6.2"
 
 [[projects]]
   digest = "1:f4b32291cad5efac2bfdba89ccde6aa04618b62ce06c1a571da2dc4f3f2677fb"
@@ -452,18 +452,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "6d4e4cb37c7d6416dfea8472e751c7b6615267a6"
+  revision = "530e935923ad688be97c15eeb8e5ee42ebf2b54a"
 
 [[projects]]
   branch = "master"
-  digest = "1:c8faf148023f13e62a93d3ed6c01fc586b3c6b52a40c5c9b0f2220bae71f390a"
+  digest = "1:c0f457d7a781c1acd2f11b5c4a89769201c1bda3d6770417a2c87b7f6be54a97"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "86b910548bc16777f40503131aa424ae0a092199"
+  revision = "e047566fdf82409bf7a52212cf71df83ea2772fb"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"

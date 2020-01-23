@@ -179,7 +179,7 @@ func handleLatestTemplate(w http.ResponseWriter, r *http.Request) {
 
 	searchService := httpapi.BuildCommonSearchService(
 		r.Context(),
-		[]string{"oip5_templates"},
+		[]string{o5TemplateIndexName},
 		q,
 		[]elastic.SortInfo{{Field: "meta.time", Ascending: false}},
 		o5Fsc,

@@ -45,6 +45,13 @@
         },
         "patch_raw": {
           "type": "binary"
+        },
+        "template_json": {
+          "enabled": false,
+          "type": "object"
+        },
+        "template_raw": {
+          "type": "binary"
         }
       }
     }
