@@ -218,10 +218,8 @@ func editRecord(edit elasticOip5Edit) {
 	// Check to see if a publisher name was edited
 	regPubNameChanged := false
 	for i := range newRec.Details.Details {
-		// ToDo evaluate if it's faster to only compare suffix due to common prefix
-		// 	if len(rec.Record.Details.Details[i].TypeUrl) == 52 &&
-		//		rec.Record.Details.Details[i].TypeUrl[44:] == registeredPublisherTypeUrl[44:] {
-		if newRec.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
+		if len(rec.Record.Details.Details[i].TypeUrl) == 52 &&
+			rec.Record.Details.Details[i].TypeUrl[44:] == registeredPublisherTypeUrl[44:] {
 			regPub := &pb_templates.Tmpl_433C2783{}
 			err := ptypes.UnmarshalAny(newRec.Details.Details[i], regPub)
 			if err != nil {
