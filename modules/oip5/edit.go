@@ -352,7 +352,7 @@ func queryEdits(edits []elasticOip5Edit, after []interface{}) ([]elasticOip5Edit
 		Query(q).
 		Size(searchSize).
 		Sort("meta.time", false).
-		Sort("reference", false)
+		Sort("meta.txid", true)
 
 	if after != nil {
 		search.SearchAfter(after...)
