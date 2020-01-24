@@ -19,6 +19,7 @@ var (
 	defaultAppDir = floutil.AppDataDir("oipd", false)
 	configBox     = packr.New("defaults", "./defaults")
 	subs          []func(context.Context)
+	testnetState  *bool
 )
 
 func init() {
@@ -102,7 +103,11 @@ func loadDefaults() {
 }
 
 func IsTestnet() bool {
-	return viper.GetString("oip.network") != "mainnet"
+	if testnetState == nil {
+		b := viper.GetString("oip.network") != "mainnet"
+		testnetState = &b
+	}
+	return *testnetState
 }
 
 func SetTestnet(testnet bool) {
@@ -111,6 +116,10 @@ func SetTestnet(testnet bool) {
 		n = "testnet"
 	}
 	viper.Set("oip.network", n)
+	if testnetState == nil {
+		testnetState = &testnet
+	}
+	*testnetState = testnet
 }
 
 func GetFilePath(key string) string {
