@@ -86,6 +86,7 @@ func intakeRecord(r *pb_oip5.RecordProto, pubKey []byte, tx *datastore.Transacti
 		Txid:          tx.Transaction.Txid,
 		Original:      tx.Transaction.Txid,
 		History:       []string{tx.Transaction.Txid},
+		LastModified:  tx.Transaction.Time,
 		Type:          "oip5",
 		RecordRaw:     raw64,
 		Latest:        true,
@@ -225,5 +226,6 @@ type RMeta struct {
 	Latest        bool                       `json:"latest"`
 	Original      string                     `json:"original"`
 	History       []string                   `json:"history"`
+	LastModified  int64                      `json:"last_modified"`
 	RecordRaw     string                     `json:"record_raw"`
 }

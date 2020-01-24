@@ -237,6 +237,7 @@ func editRecord(edit elasticOip5Edit) {
 	rec.Record = newRec
 
 	rec.Meta.History = append(rec.Meta.History, edit.Meta.Txid)
+	rec.Meta.LastModified = edit.Meta.Time
 
 	m := jsonpb.Marshaler{}
 
