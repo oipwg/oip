@@ -54,14 +54,16 @@ func intakeRecord(r *pb_oip5.RecordProto, pubKey []byte, tx *datastore.Transacti
 	strPubKey := string(pubKey)
 	pubName := ""
 	// Check to see if a publisher registration is contained
-	for i := range r.Details.Details {
-		if r.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
-			regPub := &pb_templates.Tmpl_433C2783{}
-			err := ptypes.UnmarshalAny(r.Details.Details[i], regPub)
-			if err != nil {
-				log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+	if r.Details != nil {
+		for i := range r.Details.Details {
+			if r.Details.Details[i].TypeUrl == registeredPublisherTypeUrl {
+				regPub := &pb_templates.Tmpl_433C2783{}
+				err := ptypes.UnmarshalAny(r.Details.Details[i], regPub)
+				if err != nil {
+					log.Error("unable to decode reg pub any", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+				}
+				pubName = regPub.Name
 			}
-			pubName = regPub.Name
 		}
 	}
 	if pubName == "" {
