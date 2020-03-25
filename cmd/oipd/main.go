@@ -25,6 +25,7 @@ func main() {
 	oipdCpuProfileFile := viper.GetString("cpuprofile")
 	if oipdCpuProfileFile != "" {
 		f, profErr := os.Create(oipdCpuProfileFile)
+    
 		if profErr != nil {
 			log.Error("could not create CPU profile: ", profErr)
 		} else {
