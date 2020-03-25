@@ -5,11 +5,12 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const apIndexName = "alexandria-publisher"
@@ -18,7 +19,7 @@ var pubRouter = httpapi.NewSubRoute("/alexandria/publisher")
 
 func init() {
 	log.Info("init alexandria-publisher")
-	events.SubscribeAsync("modules:oip:alexandriaPublisher", onAlexandriaPublisher, false)
+	events.SubscribeAsync("modules:oip:alexandriaPublisher", onAlexandriaPublisher)
 	datastore.RegisterMapping(apIndexName, "alexandria-publisher.json")
 	pubRouter.HandleFunc("/get/latest/", handleLatestPublishers)
 	pubRouter.HandleFunc("/get/{address:[A-Za-z0-9]+}", handleGetPublisher)

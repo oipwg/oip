@@ -8,7 +8,7 @@ type OMeta struct {
 	Completed    bool                       `json:"completed"`
 	Signature    string                     `json:"signature"`
 	Time         int64                      `json:"time"`
-	Tx           *datastore.TransactionData `json:"tx"`
+	Tx           *datastore.TransactionData `json:"-"`
 	Txid         string                     `json:"txid"`
 	Type         string                     `json:"type"`
 	OriginalTxid string                     `json:"originalTxid"`
@@ -25,7 +25,7 @@ type AMeta struct {
 	PreviousEdits []string                   `json:"previousEdits"`
 	Signature     string                     `json:"signature"`
 	Time          int64                      `json:"time"`
-	Tx            *datastore.TransactionData `json:"tx"`
+	Tx            *datastore.TransactionData `json:"-"`
 	Txid          string                     `json:"txid"`
 	Type          string                     `json:"type"`
 }

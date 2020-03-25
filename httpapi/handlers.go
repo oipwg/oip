@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/azer/logger"
+
 	"github.com/oipwg/oip/version"
 )
 

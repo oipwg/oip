@@ -15,9 +15,10 @@ import (
 	"github.com/bitspill/flosig"
 	"github.com/bitspill/floutil"
 	"github.com/cloudflare/backoff"
+	"github.com/pkg/errors"
+
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/events"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -100,7 +101,7 @@ func AddFlod(host, user, pass string, tls bool) error {
 			events.Publish("flo:notify:onFilteredBlockDisconnected", height, header)
 		},
 		OnTxAcceptedVerbose: func(txDetails *flojson.TxRawResult) {
-			log.Info("Incoming TX: %v (Block: %v) floData: %v", txDetails.Txid, txDetails.FloData, txDetails.BlockHash)
+			log.Info("Incoming TX: %v (Block: %v) floData: %v", txDetails.Txid, txDetails.BlockHash, txDetails.FloData)
 			events.Publish("flo:notify:onTxAcceptedVerbose", txDetails)
 		},
 	}

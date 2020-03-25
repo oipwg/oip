@@ -22,8 +22,7 @@
               "type": "keyword"
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "timestamp": {
               "type": "date",
@@ -44,8 +43,7 @@
               "type": "boolean"
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "time": {
               "type": "date",

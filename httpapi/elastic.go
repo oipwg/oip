@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
 )
 
 func GenerateNextAfter(hit *elastic.SearchHit) string {
@@ -26,7 +27,7 @@ func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) 
 	return sources, nextAfter
 }
 
-func BuildCommonSearchService(ctx context.Context, indexNames []string, query *elastic.BoolQuery, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
+func BuildCommonSearchService(ctx context.Context, indexNames []string, query elastic.Query, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
 	var indices = make([]string, 0, len(indexNames))
 	for _, index := range indexNames {
 		indices = append(indices, datastore.Index(index))

@@ -1,0 +1,59 @@
+{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "false",
+      "properties": {
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "applied": {
+              "type": "boolean"
+            },
+            "invalid": {
+              "type": "boolean"
+            },
+            "signed_by": {
+              "type": "keyword",
+              "ignore_above": 40
+            },
+            "time": {
+              "type": "date",
+              "format": "epoch_second"
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "reference": {
+          "type": "keyword",
+          "ignore_above": 36
+        },
+        "patch_json": {
+          "enabled": false,
+          "type": "object"
+        },
+        "patch_raw": {
+          "type": "binary"
+        },
+        "template_json": {
+          "enabled": false,
+          "type": "object"
+        },
+        "template_raw": {
+          "type": "binary"
+        }
+      }
+    }
+  }
+}

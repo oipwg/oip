@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,6 +18,8 @@ var (
 	appDir        string
 	defaultAppDir = floutil.AppDataDir("oipd", false)
 	configBox     = packr.New("defaults", "./defaults")
+	subs          []func(context.Context)
+	testnetState  *bool
 )
 
 func init() {
@@ -25,6 +28,8 @@ func init() {
 	loadDefaults()
 
 	pflag.String("appdir", defaultAppDir, "Location of oip data directory and config file")
+	pflag.String("cpuprofile", "", "Designates the file to use for the cpu profiler")
+	pflag.String("memprofile", "", "Designates the file to use for the memory profiler")
 	pflag.Parse()
 	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {
@@ -91,10 +96,18 @@ func loadDefaults() {
 	// HttpApi defaults
 	viper.SetDefault("oip.api.listen", "127.0.0.1:1606")
 	viper.SetDefault("oip.api.enabled", false)
+
+	// oip5 defaults
+	viper.SetDefault("oip.oip5.publisherCacheDepth", 1000)
+	viper.SetDefault("oip.oip5.recordCacheDepth", 10000)
 }
 
 func IsTestnet() bool {
-	return viper.GetString("oip.network") != "mainnet"
+	if testnetState == nil {
+		b := viper.GetString("oip.network") != "mainnet"
+		testnetState = &b
+	}
+	return *testnetState
 }
 
 func SetTestnet(testnet bool) {
@@ -103,6 +116,10 @@ func SetTestnet(testnet bool) {
 		n = "testnet"
 	}
 	viper.Set("oip.network", n)
+	if testnetState == nil {
+		testnetState = &testnet
+	}
+	*testnetState = testnet
 }
 
 func GetFilePath(key string) string {
@@ -111,4 +128,14 @@ func GetFilePath(key string) string {
 		return v
 	}
 	return filepath.Join(appDir, v)
+}
+
+func OnPostConfig(fn func(context.Context)) {
+	subs = append(subs, fn)
+}
+
+func PostConfig(ctx context.Context) {
+	for _, fn := range subs {
+		fn(ctx)
+	}
 }

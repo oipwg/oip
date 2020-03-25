@@ -6,11 +6,12 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const amIndexName = "alexandria-media"
@@ -19,7 +20,7 @@ var artRouter = httpapi.NewSubRoute("/alexandria/artifact")
 
 func init() {
 	log.Info("init alexandria-media")
-	events.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia, false)
+	events.SubscribeAsync("modules:oip:alexandriaMedia", onAlexandriaMedia)
 	datastore.RegisterMapping(amIndexName, "alexandria-media.json")
 	artRouter.HandleFunc("/get/latest", handleLatest)
 	artRouter.HandleFunc("/get/{id:[a-f0-9]+}", handleGet)
@@ -100,7 +101,7 @@ type AmMeta struct {
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
 	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"tx"`
+	Tx          *datastore.TransactionData `json:"-"`
 	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }

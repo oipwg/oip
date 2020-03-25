@@ -3,13 +3,14 @@ package datastore
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/azer/logger"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dustin/go-humanize"
-	"github.com/oipwg/oip/events"
 	"gopkg.in/olivere/elastic.v6"
-	"time"
+
+	"github.com/oipwg/oip/events"
 )
 
 func BeginBulkIndexer() BulkIndexer {
@@ -17,6 +18,7 @@ func BeginBulkIndexer() BulkIndexer {
 		bulk: client.Bulk(),
 		m:    &sync.Mutex{},
 	}
+	bi.bulk.Refresh("true")
 
 	return bi
 }
@@ -35,6 +37,10 @@ func (bi *BulkIndexer) BeginTimedCommits(rate time.Duration) {
 		return
 	}
 	go bi.timedCommit()
+}
+
+func (bi *BulkIndexer) Commit() {
+	bi.quickCommit()
 }
 
 func (bi *BulkIndexer) timedCommit() {
@@ -64,6 +70,22 @@ func (bi *BulkIndexer) quickCommit() {
 		}
 
 		t.End("Quick Indexed %d blocks & transactions, took %v (errors=%v)", len(br.Items), br.Took, br.Errors)
+		if br.Errors {
+			log.Error("encountered errors, seeking")
+			for _, item := range br.Items {
+				for _, value := range item {
+					if value.Error != nil {
+						log.Error("error executing bulk action", logger.Attrs{
+							"index":  value.Index,
+							"id":     value.Id,
+							"reason": value.Error.Reason,
+							"error":  value.Error,
+							// "errDump": spew.Sdump(err)
+						})
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -110,6 +132,14 @@ func (bi *BulkIndexer) OrphanBlock(hash string) {
 	bi.Add(bir)
 }
 
+func (bi *BulkIndexer) DeleteBlock(hash string) {
+	bir := elastic.NewBulkDeleteRequest().
+		Index(Index("blocks")).
+		Type("_doc").
+		Id(hash)
+	bi.Add(bir)
+}
+
 func (bi *BulkIndexer) StoreTransaction(td *TransactionData) {
 	bir := elastic.NewBulkIndexRequest().
 		Index(Index("transactions")).
@@ -123,7 +153,10 @@ func (bi *BulkIndexer) Add(bir ...elastic.BulkableRequest) {
 	bi.m.Lock()
 	bi.bulk.Add(bir...)
 	bi.m.Unlock()
-	bi.CheckSizeStore(context.TODO())
+	_, err := bi.CheckSizeStore(context.TODO())
+	if err != nil {
+		log.Error("error storing after add")
+	}
 }
 
 type BulkIndexerResponse struct {

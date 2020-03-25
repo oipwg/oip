@@ -72,3 +72,7 @@ oip:
       urls:
         testnet-example: https://gist.githubusercontent.com/bitspill/ca1a48ec608e18d00892c779f72315b6/raw/8336839d4797a0731de3d338173505ba182c32e7/example.spam.filter.txt
         # second-list: https://example.com/another.list.txt
+
+  oip5:
+    recordCacheDepth: 10000
+    publisherCacheDepth: 1000

@@ -81,7 +81,7 @@ func RespondESError(w http.ResponseWriter, err error) {
 func RespondSearch(w http.ResponseWriter, searchService *elastic.SearchService) {
 	results, err := searchService.Do(context.TODO())
 	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
+		log.Error("elastic search failed", logger.Attrs{"err": err, "results": results})
 		RespondESError(w, err)
 		return
 	}

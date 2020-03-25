@@ -6,9 +6,10 @@ import (
 	"net/url"
 
 	"github.com/gorilla/mux"
-	"github.com/oipwg/oip/datastore"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
 )
 
 func init() {

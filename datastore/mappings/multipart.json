@@ -59,8 +59,7 @@
           "ignore_above": 64
         },
         "signature": {
-          "type": "text",
-          "index": false
+          "type": "binary"
         },
         "txid": {
           "type": "keyword",

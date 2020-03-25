@@ -7,7 +7,7 @@
     "_doc": {
       "dynamic": "true",
       "properties": {
-        "data_point" : {
+        "data_point": {
           "type": "object"
         },
         "meta": {
@@ -20,8 +20,7 @@
               "ignore_above": 64
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "time": {
               "type": "date",

@@ -9,9 +9,11 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gobuffalo/packr/v2"
-	"github.com/oipwg/oip/datastore"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/config"
+	"github.com/oipwg/oip/datastore"
 )
 
 var filterBox = packr.New("bundled", "./bundled")
@@ -20,7 +22,11 @@ var filterMapB = make(map[string]int) // first 8 txid: label id
 var filterLabels = []string{""}
 var filterBundled map[string]int
 
-func InitViper(ctx context.Context) {
+func init() {
+	config.OnPostConfig(InitFilters)
+}
+
+func InitFilters(ctx context.Context) {
 	bundled := viper.GetStringSlice("oip.blacklist.bundled")
 	err := loadBundledLists(bundled)
 	if err != nil {

@@ -1,12 +1,14 @@
 package validators
 
 import (
-	"github.com/json-iterator/go"
-	_ "github.com/oipwg/oip/config"
 	"testing"
+
+	"github.com/json-iterator/go"
+
+	_ "github.com/oipwg/oip/config"
 )
 
-func TestEmptyDetails(t *testing.T) {
+func TestPPEmptyDetails(t *testing.T) {
 
 	b := []byte(`{"oip042":{"publish":{"artifact":{"floAddress":"FTSTq8xx8yWUKJA5E3bgXLzZqqG9V6dvnr","timestamp":1525138120,"type":"property","subtype":"party","info":{"title":"the title","description":" "}
 ,"signature":"phonysignature"}}}}`)

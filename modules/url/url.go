@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	events.SubscribeAsync("flo:floData", onFloData, false)
-	events.SubscribeAsync("modules:url", onUrl, false)
+	events.SubscribeAsync("flo:floData", onFloData)
+	events.SubscribeAsync("modules:url", onUrl)
 }
 
 func onFloData(floData string, tx *datastore.TransactionData) {

@@ -6,14 +6,15 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/gorilla/mux"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
-	"github.com/pkg/errors"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const oip41IndexName = "oip041"
@@ -22,7 +23,7 @@ var artRouter = httpapi.NewSubRoute("/oip041/artifact")
 
 func init() {
 	log.Info("init oip41")
-	events.SubscribeAsync("modules:oip:oip041", on41, false)
+	events.SubscribeAsync("modules:oip:oip041", on41)
 
 	datastore.RegisterMapping(oip41IndexName, "oip041.json")
 
@@ -95,7 +96,7 @@ type OMeta struct {
 	Deactivated bool                       `json:"deactivated"`
 	Signature   string                     `json:"signature"`
 	Time        int64                      `json:"time"`
-	Tx          *datastore.TransactionData `json:"tx"`
+	Tx          *datastore.TransactionData `json:"-"`
 	Txid        string                     `json:"txid"`
 	Type        string                     `json:"type"`
 }
