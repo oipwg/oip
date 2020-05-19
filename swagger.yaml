@@ -1,0 +1,261 @@
+---
+openapi: 3.0.1
+info:
+  title: OIP Daemon
+  description: Payment Status
+  version: '1.5.0'
+  contact:
+    name: Open Index Protocol Working Group
+    url: https://github.com/oipwg/oip
+servers:
+  - url: https://api.oip.io/
+  - url: http://localhost:1606
+  - url: https://oip.mediciland.com/
+tags:
+  - name: System
+  - name: Records
+paths:
+  "/oip/daemon/version":
+    get:
+      tags:
+        - System
+      description: Get the version information for OIP Daemon
+      operationId: version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  BuiltBy:
+                    type: string
+                    example: 'GitLabCI'
+                  BuildDate:
+                    type: string
+                    example: '2020.05.14.153540'
+                  GoVersion:
+                    type: string
+                    example: 'go1.12.4 linux/amd64'
+                  GitCommitHash:
+                    type: string
+                    example: 'b37bf94'
+                  Started:
+                    type: string
+                    example: 'Thu, 14 May 2020 16:07:26 +0000'
+                  Uptime:
+                    type: string
+                    example: '2h6m23.7554745s'
+  "/oip/sync/status":
+    get:
+      tags:
+        - System
+      description: Check the current Blockchain Sync status for the Daemon
+      operationId: status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Progress:
+                    type: number
+                    example: 1
+                  IsInitialSync:
+                    type: boolean
+                    example: false
+                  MultipartSyncComplete:
+                    type: boolean
+                    example: true
+                  EditSyncComplete:
+                    type: boolean
+                    example: true
+                  Height:
+                    type: integer
+                    example: 4107692
+                  LatestHeight:
+                    type: string
+                    example: 4107692
+                  Timestamp:
+                    type: integer
+                    example: 1589489313
+  "/oip/artifact/search":
+    get:
+      tags:
+        - Records
+      description: Search for Records using a query
+      parameters:
+        - $ref: '#/components/parameters/query'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/after'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: The request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/artifactResponse'
+  "/oip/artifact/get/latest":
+    get:
+      tags:
+        - Records
+      description: Get the latest Records published to the chain
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/after'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/nsfw'
+      responses:
+        '200':
+          description: The request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/artifactResponse'
+  "/oip/artifact/get/{txid}":
+    get:
+      tags:
+        - Records
+      description: Retreive a specfic Record by txid
+      parameters:
+        - $ref: '#/components/parameters/txid'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/after'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: The request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/artifactResponse'
+        
+components:
+  schemas:
+    artifactResponse:
+      type: object
+      properties:
+        count:
+          type: number
+          example: 10
+        total:
+          type: number
+          example: 250
+        next:
+          type: string
+          example: "%5B1559671787000%2C%225d1d9ff6eadf1dffd25d0e7481e0367edc2e91b2ef58ec12b5911a77ff53c9b2%22%5D"
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/artifact'
+    artifact:
+      type: object
+      properties:
+        artifact:
+          type: object
+          properties:
+            type:
+              type: string
+              example: 'property'
+            subtype: 
+              type: string
+              example: 'tenure'
+            info:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: '0854676'
+            details:
+              type: object
+              properties:
+                key:
+                  type: string
+                  example: 'value'
+            timestamp:
+              type: integer
+              example: 1589895921915
+            floAddress:
+              type: string
+              example: 'FKvUqRc8qdJwMpy5Q22fLJ9qowQtbKW6aL'
+            signature:
+              type: string
+              example: 'Hx+g/j42cJucbfR7TVo2dKFWgdf+W1Y4J503Z3DZ7Zs9XFjmWUKj7bUaMwUIA5Os88SmlaCyjDzsRsBZmKXz1Vg='
+        meta:
+          type: object
+          properties:
+            block_hash:
+              type: string
+              example: 'dd25685ff525ea971f61579e695802387a454c333108b3690490914b8db407cb'
+            txid:
+              type: string
+              example: '0f4bd357303d08b20bd89e30a9d1b48788b56a1c6c12a5fc821911e1f623db06'
+            block:
+              type: integer
+              example: 3472496
+            time:
+              type: integer
+              example: 1589896189
+            type:
+              type: string
+              example: 'oip042'
+            originalTxid:
+              type: string
+              example: 'fdf32ca22a21a72e8d069678b243de0efb639392af6dfcc9dca5f02cea03da9a'
+      
+  parameters:
+    query:
+      name: q
+      in: query
+      required: true
+      schema:
+        type: string
+        example: Hello World!
+      description: The [Query string](https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl-query-string-query.html#query-string-syntax) to use for the search
+    txid:
+      name: txid
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The TXID of the record you wish to retreive
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 10
+      description: Number of results to return per request, range 1-1000; default 10.
+    page:
+      in: query
+      name: page
+      schema:
+        type: integer
+      description: The `page` query parameter may be used to easily jump to specific results pages however may only be used within the first 10,000 results - beyond that `after` must be used. `page` is ignored when `after` provided.
+    after:
+      in: query
+      name: after
+      schema:
+        type: string
+      description: Following any search the `next` value from the results may be used as the `after` paramater to continue with the next page of results. This is used for deep page results.
+    sort:
+      in: query
+      name: sort
+      schema:
+        type: string
+      description: Allows control over the sort order of results, `sort` is a string composed of a delimited list of fields and direction. Follows the format `fieldname:[a|d]$fieldname:[a|d]`. For example, to sort by tx size Ascending and tx time Descending, you would use `tx.size:a$tx.time:d`
+    nsfw:
+      in: query
+      name: nsfw
+      schema:
+        type: boolean
+      description: Should nsfw content be allowed to be returned in the results
