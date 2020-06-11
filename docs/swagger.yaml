@@ -15,6 +15,19 @@ tags:
   - name: System
   - name: Records
 paths:
+  "/":
+    get:
+      tags:
+        - System
+      description: Get the version information for OIP Daemon
+      operationId: root
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/version'
   "/oip/daemon/version":
     get:
       tags:
@@ -27,26 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  BuiltBy:
-                    type: string
-                    example: 'GitLabCI'
-                  BuildDate:
-                    type: string
-                    example: '2020.05.14.153540'
-                  GoVersion:
-                    type: string
-                    example: 'go1.12.4 linux/amd64'
-                  GitCommitHash:
-                    type: string
-                    example: 'b37bf94'
-                  Started:
-                    type: string
-                    example: 'Thu, 14 May 2020 16:07:26 +0000'
-                  Uptime:
-                    type: string
-                    example: '2h6m23.7554745s'
+                $ref: '#/components/schemas/version'
   "/oip/sync/status":
     get:
       tags:
@@ -139,6 +133,27 @@ paths:
         
 components:
   schemas:
+    version:
+      type: object
+      properties:
+        BuiltBy:
+          type: string
+          example: 'GitLabCI'
+        BuildDate:
+          type: string
+          example: '2020.05.14.153540'
+        GoVersion:
+          type: string
+          example: 'go1.12.4 linux/amd64'
+        GitCommitHash:
+          type: string
+          example: 'b37bf94'
+        Started:
+          type: string
+          example: 'Thu, 14 May 2020 16:07:26 +0000'
+        Uptime:
+          type: string
+          example: '2h6m23.7554745s'
     artifactResponse:
       type: object
       properties:

@@ -15,7 +15,8 @@ import (
 	"gopkg.in/olivere/elastic.v6"
 )
 
-var rootRouter = mux.NewRouter().PathPrefix("/oip").Subrouter()
+var mainRouter = mux.NewRouter()
+var rootRouter = mainRouter.PathPrefix("/oip").Subrouter()
 var daemonRoutes = NewSubRoute("/daemon")
 
 var (
@@ -23,17 +24,18 @@ var (
 )
 
 func init() {
-	rootRouter.Use(logRequests)
-	rootRouter.Use(commonParameterParser)
-	rootRouter.NotFoundHandler = http.HandlerFunc(handle404)
+	mainRouter.Use(logRequests)
+	mainRouter.Use(commonParameterParser)
+	mainRouter.NotFoundHandler = http.HandlerFunc(handle404)
 
+	mainRouter.HandleFunc("/", handleVersion)
 	daemonRoutes.HandleFunc("/version", handleVersion)
 }
 
 func Serve() {
 	apiStartup = time.Now()
 	listen := viper.GetString("oip.api.listen")
-	err := http.ListenAndServe(listen, handlers.CompressHandler(cors.Default().Handler(rootRouter)))
+	err := http.ListenAndServe(listen, handlers.CompressHandler(cors.Default().Handler(mainRouter)))
 	if err != nil {
 		log.Error("Error serving http api", logger.Attrs{"err": err, "listen": listen})
 	}
@@ -81,7 +83,7 @@ func RespondESError(w http.ResponseWriter, err error) {
 func RespondSearch(w http.ResponseWriter, searchService *elastic.SearchService) {
 	results, err := searchService.Do(context.TODO())
 	if err != nil {
-		log.Error("elastic search failed", logger.Attrs{"err": err})
+		log.Error("elastic search failed", logger.Attrs{"err": err, "results": results})
 		RespondESError(w, err)
 		return
 	}
