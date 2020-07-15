@@ -76,12 +76,12 @@ moreEdits:
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
 				log.Error("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 
-				// Check if we should mark this edit as invalid (if all multiparts are complete, and we still can't find the Record, than the Edit
+				// Check if we should mark this edit as invalid (if all multiparts are complete, and we still can't find the Record, then the Edit
 				// txid is likely invalid and the Edit should be marked as invalid)
 				if oipSync.MultipartSyncComplete {
 					err = markEditInvalid(editRecord)
 					if err != nil {
-						log.Info("Error while marking Edit (%v) as invalid! Error: %v", editRecord.Meta.Txid, err)
+						log.Error("Error while marking Edit (%v) as invalid! Error: %v", editRecord.Meta.Txid, err)
 					}
 				}
 				continue
@@ -210,7 +210,6 @@ type MetaLatest struct {
 }
 
 func markEditInvalid(editRecord *elasticOip042Edit) error {
-	// Run updates to set "latest" to false on the previously latest Record
 	cu := datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(MetaInvalid{Invalid{true}}).Refresh("true")
 	_, err := cu.Do(context.TODO())
 	if err != nil {
