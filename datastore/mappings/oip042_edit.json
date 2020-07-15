@@ -23,7 +23,6 @@
             },
             "patch": {
               "type": "object",
-              "dynamic": true,
               "enabled": false
             }
           }
