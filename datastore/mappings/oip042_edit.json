@@ -45,7 +45,7 @@
             "completed": {
               "type": "boolean"
             },
-            "defective": {
+            "invalid": {
               "type": "boolean"
             },
             "originalTxid": {

@@ -75,12 +75,12 @@ moreEdits:
 				// If there was an error, go ahead and log the error but then attempt to continue processing the next edit
 				log.Error("Error while querying latest Record with txid %v for Edit %v! Error: %v", editRecord.Meta.OriginalTxid, editRecord.Meta.Txid, err)
 
-				// Check if we should mark this edit as defective (if all multiparts are complete, and we still can't find the Record, than the Edit
-				// txid is likely invalid and the Edit should be marked as defective)
+				// Check if we should mark this edit as invalid (if all multiparts are complete, and we still can't find the Record, than the Edit
+				// txid is likely invalid and the Edit should be marked as invalid)
 				if oipSync.MultipartSyncComplete {
-					err = markEditDefective(editRecord)
+					err = markEditInvalid(editRecord)
 					if err != nil {
-						log.Info("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+						log.Info("Error while marking Edit (%v) as invalid! Error: %v", editRecord.Meta.Txid, err)
 					}
 				}
 				continue
@@ -89,10 +89,10 @@ moreEdits:
 			err = processRecord(editRecord, latestRecord)
 			if err != nil {
 				log.Error("Error while processing Edit %v! Error: %v", editRecord.Meta.Txid, err)
-				// Mark as defective to prevent processing again in the future
-				err = markEditDefective(editRecord)
+				// Mark as invalid to prevent processing again in the future
+				err = markEditInvalid(editRecord)
 				if err != nil {
-					log.Error("Error while marking Edit (%v) as defective! Error: %v", editRecord.Meta.Txid, err)
+					log.Error("Error while marking Edit (%v) as invalid! Error: %v", editRecord.Meta.Txid, err)
 				}
 
 				// Move on and attempt to process the next edit
@@ -117,7 +117,7 @@ func queryIncompleteEdits() ([]*elasticOip042Edit, error) {
 	// Create a search query for Edits that are not completed
 	q := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("meta.completed", false),
-		elastic.NewTermQuery("meta.defective", false),
+		elastic.NewTermQuery("meta.invalid", false),
 	)
 
 	// Search for pending edits, sort by the given edit timestamp
@@ -195,11 +195,11 @@ func queryArtifact(txid string) (*elasticOip042Artifact, error) {
 	return artifactRecord, nil
 }
 
-type Defective struct {
-	Defective bool `json:"defective"`
+type Invalid struct {
+	Invalid bool `json:"invalid"`
 }
-type MetaDefective struct {
-	Meta Defective `json:"meta"`
+type MetaInvalid struct {
+	Meta Invalid `json:"meta"`
 }
 type Latest struct {
 	Latest bool `json:"latest"`
@@ -208,15 +208,15 @@ type MetaLatest struct {
 	Meta Latest `json:"meta"`
 }
 
-func markEditDefective(editRecord *elasticOip042Edit) error {
+func markEditInvalid(editRecord *elasticOip042Edit) error {
 	// Run updates to set "latest" to false on the previously latest Record
-	cu := datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(MetaDefective{Defective{true}}).Refresh("true")
+	cu := datastore.Client().Update().Index(datastore.Index(oip042EditIndex)).Type("_doc").Id(editRecord.Meta.Txid).Doc(MetaInvalid{Invalid{true}}).Refresh("true")
 	_, err := cu.Do(context.TODO())
 	if err != nil {
-		return fmt.Errorf("Could not mark edit as defective! %v", err)
+		return fmt.Errorf("Could not mark edit as invalid! %v", err)
 	}
 
-	log.Info("Marked Edit %v as Defective!", editRecord.Meta.Txid)
+	log.Info("Marked Edit %v as Invalid!", editRecord.Meta.Txid)
 
 	// Return nil if successful!
 	return nil
