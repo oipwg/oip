@@ -253,23 +253,21 @@ func processRecord(editRecord *elasticOip042Edit, artifactRecord *elasticOip042A
 	}
 
 	// Attempt to decode the patch
-	editPatch, err := jsonpatch.DecodePatch([]byte(string(editRecord.Patch)))
+	editPatch, err := jsonpatch.DecodePatch([]byte(editRecord.Patch))
 	if err != nil {
 		return fmt.Errorf("Could not decode Edit patch! %v", err)
 	}
 
 	// Prepend on "artifact" at the start of the edit patch to decend to the correct level
 	for i, operation := range editPatch {
-		pathObj := operation["path"]
+		quotedPath := *operation["path"]
+		pathPrefix := []byte("\"/artifact")
 
-		var path string
-		err := json.Unmarshal(*pathObj, &path)
-		if err != nil {
-			return fmt.Errorf("Could not get Path for operation in Edit patch! %v", err)
-		}
+		newPath := make([]byte, len(pathPrefix)+len(quotedPath)-1)
+		copy(newPath, pathPrefix)
+		copy(newPath[len(pathPrefix):], quotedPath[1:])
 
-		newPath := json.RawMessage([]byte(`"/artifact` + path + `"`))
-		editPatch[i]["path"] = &newPath
+		editPatch[i]["path"] = (*json.RawMessage)(&newPath)
 	}
 
 	// Apply the patch to the serialized Record
