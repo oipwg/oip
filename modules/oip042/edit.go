@@ -30,8 +30,9 @@ func init() {
 }
 
 func onDatastoreCommit() {
-	// If we are still working on the initial sync, don't attempt to apply edits yet
-	if oipSync.IsInitialSync {
+	// If we are still working on the initial sync and completing multiparts, 
+	// don't attempt to apply edits yet.
+	if !oipSync.MultipartSyncComplete {
 		return
 	}
 
