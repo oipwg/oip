@@ -41,7 +41,6 @@ func on42JsonEditPlatform(any jsoniter.Any, tx *datastore.TransactionData, sig s
 		Block:     tx.Block,
 		BlockHash: tx.BlockHash,
 		Completed: false,
-		Invalid:   false,
 		Signature: sig,
 		Time:      tx.Transaction.Time,
 		Tx:        tx,

@@ -33,8 +33,6 @@ func HandleStatus(w http.ResponseWriter, _ *http.Request) {
 
 	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
 		"IsInitialSync": IsInitialSync,
-		"MultipartSyncComplete": MultipartSyncComplete,
-		"EditSyncComplete": EditSyncComplete,
 		"Height":        height,
 		"Timestamp":     time,
 		"LatestHeight":  count,
