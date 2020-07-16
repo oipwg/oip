@@ -69,6 +69,22 @@ func (bi *BulkIndexer) quickCommit() {
 			return
 		}
 
+		// Check the bulk request for errors
+		if br.Errors {
+			log.Error("Encountered errors during Quick Indexing!")
+			for _, item := range br.Items {
+				for _, value := range item {
+					if value.Error != nil {
+						log.Error("Error executing bulk action in index `%v` for ID `%v`! Error: `%v`",
+							value.Index,
+							value.Id,
+							value.Error,
+						)
+					}
+				}
+			}
+		}
+
 		t.End("Quick Indexed %d blocks & transactions, took %v (errors=%v)", len(br.Items), br.Took, br.Errors)
 		if br.Errors {
 			log.Error("encountered errors, seeking")
