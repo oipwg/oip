@@ -23,7 +23,6 @@
             },
             "patch": {
               "type": "object",
-              "dynamic": true,
               "enabled": false
             }
           }
@@ -45,7 +44,7 @@
             "completed": {
               "type": "boolean"
             },
-            "defective": {
+            "invalid": {
               "type": "boolean"
             },
             "originalTxid": {

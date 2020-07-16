@@ -40,7 +40,7 @@ func on42JsonEditPool(any jsoniter.Any, tx *datastore.TransactionData, sig strin
 		Block:     tx.Block,
 		BlockHash: tx.BlockHash,
 		Completed: false,
-		Defective: false,
+		Invalid:   false,
 		Signature: sig,
 		Time:      tx.Transaction.Time,
 		Tx:        tx,

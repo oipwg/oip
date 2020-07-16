@@ -84,7 +84,7 @@ moreMultiparts:
 		log.Error("elastic search failed", logger.Attrs{"err": err})
 	}
 
-	// Check if there are no more multiparts, if so, mark the multipart sync as complete so that we can start marking Edits as defective
+	// Check if there are no more multiparts, if so, mark the multipart sync as complete so that we can start marking Edits as invalid
 	if len(multiparts) == 0 {
 		oipSync.MultipartSyncComplete = true
 	} else {

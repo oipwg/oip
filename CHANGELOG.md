@@ -4,7 +4,7 @@
 - Added support for RFC6902 JSON Patches in OIP042 Edits
 - Added `EditSyncComplete` and `MultipartSyncComplete` bool flags to API response of `/oip/sync/status`
 - Multiparts are now be marked as stale if they are "broken" and old
-- Edits are now be marked as "Defective" if they are broken/invalid
+- Edits are now be marked as "Invalid" if they are broken/invalid
 
 ### Removed
 - Removed support for Squashed JSON Patches in OIP042 Edits
