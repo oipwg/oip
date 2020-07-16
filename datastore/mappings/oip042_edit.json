@@ -20,6 +20,10 @@
                   "ignore_above": 256
                 }
               }
+            },
+            "patch": {
+              "type": "object",
+              "enabled": false
             }
           }
         },
@@ -38,6 +42,9 @@
               }
             },
             "completed": {
+              "type": "boolean"
+            },
+            "invalid": {
               "type": "boolean"
             },
             "originalTxid": {
