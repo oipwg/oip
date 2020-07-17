@@ -15,11 +15,26 @@ func GenerateNextAfter(hit *elastic.SearchHit) string {
 	return url.QueryEscape(string(b))
 }
 
-func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) {
+func ExtractSources(results *elastic.SearchResult, pretty bool) ([]*json.RawMessage, string) {
 	sources := make([]*json.RawMessage, len(results.Hits.Hits))
 	nextAfter := ""
 	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
+		if pretty {
+			var temp interface{}
+			err := json.Unmarshal(*v.Source, &temp)
+			if err != nil {
+				sources[k] = v.Source
+			} else {
+				prettySource, err := json.MarshalIndent(temp, "  ", " ")
+				if err != nil {
+					sources[k] = v.Source
+				} else {
+					sources[k] = (*json.RawMessage)(&prettySource)
+				}
+			}
+		} else {
+			sources[k] = v.Source
+		}
 		if k == len(results.Hits.Hits)-1 {
 			nextAfter = GenerateNextAfter(v)
 		}
