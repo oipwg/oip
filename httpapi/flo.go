@@ -40,7 +40,7 @@ func handleGetFloData(w http.ResponseWriter, r *http.Request) {
 		[]elastic.SortInfo{{Field: "tx.txid", Ascending: false}},
 		floDataFsc,
 	)
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +48,7 @@ func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		RespondJSON(w, 400, map[string]interface{}{
+		RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -71,7 +71,7 @@ func handleFloDataSearch(w http.ResponseWriter, r *http.Request) {
 		floDataFsc,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleFloDataLatest(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +93,7 @@ func handleFloDataLatest(w http.ResponseWriter, r *http.Request) {
 		floDataFsc,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleFloTxLatest(w http.ResponseWriter, r *http.Request) {
@@ -117,7 +117,7 @@ func handleFloTxLatest(w http.ResponseWriter, r *http.Request) {
 		nil,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetFloTx(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +135,7 @@ func handleGetFloTx(w http.ResponseWriter, r *http.Request) {
 		[]elastic.SortInfo{{Field: "tx.txid", Ascending: false}},
 		nil,
 	)
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleFloTxSearch(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +143,7 @@ func handleFloTxSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		RespondJSON(w, 400, map[string]interface{}{
+		RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -171,5 +171,5 @@ func handleFloTxSearch(w http.ResponseWriter, r *http.Request) {
 		nil,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }

@@ -39,7 +39,7 @@ func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
 	// log.Info("handleSearchRecord", logger.Attrs{"opts": opts})
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		httpapi.RespondJSON(w, 400, map[string]interface{}{
+		httpapi.RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -63,7 +63,7 @@ func handleRecordSearch(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleTemplateSearch(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +71,7 @@ func handleTemplateSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		httpapi.RespondJSON(w, 400, map[string]interface{}{
+		httpapi.RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -93,7 +93,7 @@ func handleTemplateSearch(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleLatestRecord(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,7 @@ func handleLatestRecord(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetRecord(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func handleGetRecord(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetMapping(w http.ResponseWriter, r *http.Request) {
@@ -151,7 +151,7 @@ func handleGetMapping(w http.ResponseWriter, r *http.Request) {
 		Do(r.Context())
 
 	if err != nil {
-		httpapi.RespondESError(w, err)
+		httpapi.RespondESError(r.Context(), w, err)
 		return
 	}
 
@@ -166,11 +166,11 @@ func handleGetMapping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ret == nil {
-		httpapi.RespondESError(w, errors.New("unable to obtain mapping for template"))
+		httpapi.RespondESError(r.Context(), w, errors.New("unable to obtain mapping for template"))
 		return
 	}
 
-	httpapi.RespondJSON(w, 200, ret)
+	httpapi.RespondJSON(r.Context(), w, 200, ret)
 }
 
 func handleLatestTemplate(w http.ResponseWriter, r *http.Request) {
@@ -185,7 +185,7 @@ func handleLatestTemplate(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetTemplate(w http.ResponseWriter, r *http.Request) {
@@ -204,5 +204,5 @@ func handleGetTemplate(w http.ResponseWriter, r *http.Request) {
 		o5Fsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }

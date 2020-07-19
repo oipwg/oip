@@ -77,13 +77,20 @@ func commonParameterParser(next http.Handler) http.Handler {
 			from = (page - 1) * size
 			if from+size > 10000 {
 				log.Error("from+size too large", logger.Attrs{"from": from, "size": size, "page": page})
-				RespondJSON(w, 400, map[string]interface{}{
+				RespondJSON(r.Context(), w, 400, map[string]interface{}{
 					"error": "page limit exceeded, use 'after' instead of 'page' for deep queries",
 				})
 				return
 			}
 		}
 		ctx = context.WithValue(ctx, oipdFromKey, int(from))
+
+		pretty := r.FormValue("pretty")
+		prettyJson := false
+		if pretty != "" {
+			prettyJson, _ = strconv.ParseBool(pretty)
+		}
+		ctx = context.WithValue(ctx, oipdPrettyJsonKey, prettyJson)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -96,6 +103,7 @@ const (
 	oipdSearchAfterKey
 	oipdSizeKey
 	oipdFromKey
+	oipdPrettyJsonKey
 )
 
 func GetSortInfoFromContext(ctx context.Context) []elastic.SortInfo {
@@ -124,4 +132,11 @@ func GetFromFromContext(ctx context.Context) int {
 		return from
 	}
 	return 0
+}
+
+func GetPrettyJsonFromContext(ctx context.Context) bool {
+	if pretty, ok := ctx.Value(oipdPrettyJsonKey).(bool); ok {
+		return pretty
+	}
+	return false
 }

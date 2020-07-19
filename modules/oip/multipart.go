@@ -54,7 +54,7 @@ func handleGetId(w http.ResponseWriter, r *http.Request) {
 	)
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetRef(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 	)
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func onDatastoreCommit() {
@@ -116,7 +116,7 @@ moreMultiparts:
 
 	// If we are not still syncing for the first time, and the remaining count is exactly the same as last time we checked,
 	// then it is a good indicator that these Multiparts are stale
-	if (!wasInitialSync && previousMultipartCount == len(multiparts) && previousMultipartCount < 10000) {
+	if !wasInitialSync && previousMultipartCount == len(multiparts) && previousMultipartCount < 10000 {
 		// ToDo: Consider re-enabling after further tests under high volume
 		markStale()
 	}

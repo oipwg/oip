@@ -57,7 +57,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		},
 		hdpFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -77,12 +77,12 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		},
 		hdpFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handle24hr(w http.ResponseWriter, r *http.Request) {
 	// ToDo
-	httpapi.RespondJSON(w, http.StatusBadRequest, map[string]interface{}{
+	httpapi.RespondJSON(r.Context(), w, http.StatusBadRequest, map[string]interface{}{
 		"err": "not implemented",
 	})
 }

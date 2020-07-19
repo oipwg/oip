@@ -54,7 +54,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), o41Indices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, o41Fsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +67,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	)
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), o41Indices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, o41Fsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func on41(floData string, tx *datastore.TransactionData) {

@@ -43,7 +43,7 @@ func handleLatestPublishers(w http.ResponseWriter, r *http.Request) {
 		[]elastic.SortInfo{{Field: "timestamp", Ascending: false}},
 		apFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetPublisher(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +60,7 @@ func handleGetPublisher(w http.ResponseWriter, r *http.Request) {
 		[]elastic.SortInfo{{Field: "timestamp", Ascending: false}},
 		apFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func onAlexandriaPublisher(floData string, tx *datastore.TransactionData) {

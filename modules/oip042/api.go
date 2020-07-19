@@ -56,7 +56,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		},
 		o42ArtifactFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 /**
@@ -92,7 +92,7 @@ func handleGetLatestEdit(response http.ResponseWriter, request *http.Request) {
 		},
 		o42ArtifactFsc,
 	)
-	httpapi.RespondSearch(response, searchService)
+	httpapi.RespondSearch(request.Context(), response, searchService)
 }
 
 /**
@@ -129,7 +129,7 @@ func handleGetForVersion(response http.ResponseWriter, request *http.Request) {
 		},
 		o42ArtifactFsc,
 	)
-	httpapi.RespondSearch(response, searchService)
+	httpapi.RespondSearch(request.Context(), response, searchService)
 }
 
 /**
@@ -150,7 +150,7 @@ func handleGetEditRecord(response http.ResponseWriter, request *http.Request) {
 		[]elastic.SortInfo{},
 		o42EditFsc,
 	)
-	httpapi.RespondSearch(response, searchService)
+	httpapi.RespondSearch(request.Context(), response, searchService)
 }
 
 func handleEditSearch(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +158,7 @@ func handleEditSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		httpapi.RespondJSON(w, 400, map[string]interface{}{
+		httpapi.RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -178,5 +178,5 @@ func handleEditSearch(w http.ResponseWriter, r *http.Request) {
 		o42EditFsc,
 	)
 
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }

@@ -38,7 +38,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		elastic.NewTermQuery("meta.deactivated", false),
 	)
 	searchService := httpapi.BuildCommonSearchService(r.Context(), amIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, amFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		elastic.NewPrefixQuery("meta.txid", opts["id"]),
 	)
 	searchService := httpapi.BuildCommonSearchService(r.Context(), amIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, amFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func onAlexandriaMedia(floData string, tx *datastore.TransactionData) {
