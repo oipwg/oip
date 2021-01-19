@@ -1,13 +1,17 @@
 package oip
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/base64"
+	"io/ioutil"
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oipProto/go/oipProto"
 	"github.com/golang/protobuf/proto"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/oipwg/proto/go/pb_oip"
+
 	"github.com/oipwg/oip/btc"
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
@@ -20,12 +24,13 @@ const minFloDataLen = 35
 func init() {
 	log.Info("init oip")
 	if config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloDataTestNet, false)
+		events.SubscribeAsync("flo:floData", onFloDataTestNet)
 	} else {
-		events.SubscribeAsync("flo:floData", onFloDataMainNet, false)
+		events.SubscribeAsync("flo:floData", onFloDataMainNet)
 	}
-	events.SubscribeAsync("sync:floData:json", onJson, false)
-	events.SubscribeAsync("sync:floData:p64", onP64, false)
+	events.SubscribeAsync("sync:floData:json", onJson)
+	events.SubscribeAsync("sync:floData:p64", onP64)
+	events.SubscribeAsync("sync:floData:gp64", onGp64)
 }
 
 func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
@@ -85,13 +90,15 @@ func onFloDataMainNet(floData string, tx *datastore.TransactionData) {
 	if processPrefix("json:", "sync:floData:json", floData, tx) {
 		return
 	}
-	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	// 	return
-	// }
+	if processPrefix("gp64:", "sync:floData:gp64", floData, tx) {
+		return
+	}
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
 	}
-
+	if processPrefix("text:", "flo:floData", floData, tx) {
+		return
+	}
 }
 
 func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
@@ -127,13 +134,15 @@ func onFloDataTestNet(floData string, tx *datastore.TransactionData) {
 	if processPrefix("json:", "sync:floData:json", floData, tx) {
 		return
 	}
-	// if processPrefix("gz:", "sync:floData:gz", floData, tx) {
-	// 	return
-	// }
+	if processPrefix("gp64:", "sync:floData:gp64", floData, tx) {
+		return
+	}
 	if processPrefix("p64:", "sync:floData:p64", floData, tx) {
 		return
 	}
-
+	if processPrefix("text:", "flo:floData", floData, tx) {
+		return
+	}
 }
 
 func processPrefix(prefix, namespace, floData string, tx *datastore.TransactionData) bool {
@@ -177,8 +186,40 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 		return
 	}
 
-	var msg oipProto.SignedMessage
-	err = proto.Unmarshal(b, &msg)
+	processProto(b, tx, attr)
+}
+
+func onGp64(gp64 string, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
+
+	b, err := base64.StdEncoding.DecodeString(gp64)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to decode base 64 message", attr)
+		return
+	}
+
+	br := bytes.NewReader(b)
+	gr, err := gzip.NewReader(br)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to initialize decompressor", attr)
+		return
+	}
+
+	pb, err := ioutil.ReadAll(gr)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to decompress data", attr)
+		return
+	}
+
+	processProto(pb, tx, attr)
+}
+
+func processProto(b []byte, tx *datastore.TransactionData, attr logger.Attrs) {
+	msg := new(pb_oip.SignedMessage)
+	err := proto.Unmarshal(b, msg)
 	if err != nil {
 		attr["err"] = err
 		log.Error("unable to unmarshal protobuf message",
@@ -191,7 +232,7 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 	signedMessage := base64.StdEncoding.EncodeToString(msg.SerializedMessage)
 
 	switch msg.SignatureType {
-	case oipProto.SignatureTypes_Btc:
+	case pb_oip.SignatureTypes_Btc:
 		valid, err := btc.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -202,7 +243,7 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 			log.Error("btc signature validation failed", attr)
 			return
 		}
-	case oipProto.SignatureTypes_Flo:
+	case pb_oip.SignatureTypes_Flo:
 		valid, err := flo.CheckSignature(pubKey, signature, signedMessage)
 		if err != nil || !valid {
 			attr["err"] = err
@@ -220,18 +261,12 @@ func onP64(p64 string, tx *datastore.TransactionData) {
 	}
 
 	switch msg.MessageType {
-	case oipProto.MessageTypes_Historian:
-		var hdp = &oipProto.HistorianDataPoint{}
-		err = proto.Unmarshal(msg.SerializedMessage, hdp)
-		if err != nil {
-			attr["err"] = err
-			log.Error("unable to unmarshal protobuf historian message", attr)
-			return
-		}
-		events.Publish("modules:historian:protoDataPoint", hdp, tx)
-	case oipProto.MessageTypes_OIP05:
-		// ToDo
-		log.Info("unexpected OIP 0.5 message", attr)
+	case pb_oip.MessageTypes_Historian:
+		events.Publish("modules:historian:protoDataPoint", msg, tx)
+	case pb_oip.MessageTypes_OIP05:
+		events.Publish("modules:oip5:msg", msg, tx)
+	case pb_oip.MessageTypes_Multipart:
+		events.Publish("modules:oip:multipartProto", msg, tx)
 	default:
 		attr["err"] = err
 		attr["msgType"] = msg.MessageType

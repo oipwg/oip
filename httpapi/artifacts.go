@@ -6,9 +6,10 @@ import (
 	"net/url"
 
 	"github.com/gorilla/mux"
-	"github.com/oipwg/oip/datastore"
 	"github.com/pkg/errors"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
 )
 
 func init() {
@@ -30,7 +31,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery, err := url.PathUnescape(opts["query"])
 	if err != nil {
-		RespondJSON(w, 400, map[string]interface{}{
+		RespondJSON(r.Context(), w, 400, map[string]interface{}{
 			"error": "unable to decode query",
 		})
 		return
@@ -55,7 +56,7 @@ func handleArtifactSearch(w http.ResponseWriter, r *http.Request) {
 		artifactFsc,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleLatest(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +82,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		artifactFsc,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +105,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		artifactFsc,
 	)
 
-	RespondSearch(w, searchService)
+	RespondSearch(r.Context(), w, searchService)
 }
 
 func handleCardinality(w http.ResponseWriter, r *http.Request) {
@@ -126,17 +127,17 @@ func handleCardinality(w http.ResponseWriter, r *http.Request) {
 		Do(context.TODO())
 
 	if err != nil {
-		RespondESError(w, err)
+		RespondESError(r.Context(), w, err)
 		return
 	}
 
 	agg, ok := s.Aggregations.Cardinality("cardinality")
 	if !ok {
-		RespondESError(w, errors.New("cardinality not found"))
+		RespondESError(r.Context(), w, errors.New("cardinality not found"))
 		return
 	}
 
-	RespondJSON(w, http.StatusOK, map[string]interface{}{
+	RespondJSON(r.Context(), w, http.StatusOK, map[string]interface{}{
 		"c": agg.Value,
 		"f": opts["field"],
 	})

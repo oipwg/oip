@@ -1,0 +1,73 @@
+{
+  "settings": {
+    "number_of_shards": 2
+  },
+  "mappings": {
+    "_doc": {
+      "dynamic": "strict",
+      "properties": {
+        "template": {
+          "properties": {
+            "description": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "file_descriptor_set": {
+              "type": "binary"
+            },
+            "friendly_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "identifier": {
+              "type": "long"
+            },
+            "name": {
+              "type": "keyword",
+              "ignore_above": 13
+            },
+            "extends": {
+              "type": "long"
+            }
+          }
+        },
+        "meta": {
+          "properties": {
+            "block": {
+              "type": "long"
+            },
+            "block_hash": {
+              "type": "keyword",
+              "ignore_above": 64
+            },
+            "signed_by": {
+              "type": "keyword",
+              "ignore_above": 40
+            },
+            "time": {
+              "type": "long"
+            },
+            "tx": {
+              "type": "object",
+              "enabled": false
+            },
+            "txid": {
+              "type": "keyword",
+              "ignore_above": 64
+            }
+          }
+        }
+      }
+    }
+  }
+}

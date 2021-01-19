@@ -8,12 +8,15 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
-	"github.com/bitspill/oipProto/go/oipProto"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/proto/go/pb_historian"
+	"github.com/oipwg/proto/go/pb_oip"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/httpapi"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const histDataPointIndexName = "historian_data_point_"
@@ -22,8 +25,8 @@ var histRouter = httpapi.NewSubRoute("/historian")
 
 func init() {
 	log.Info("init historian")
-	events.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp, false)
-	events.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp, false)
+	events.SubscribeAsync("modules:historian:stringDataPoint", onStringHdp)
+	events.SubscribeAsync("modules:historian:protoDataPoint", onProtoHdp)
 
 	datastore.RegisterMapping(histDataPointIndexName+"string", "historianDataPoint.json")
 	datastore.RegisterMapping(histDataPointIndexName+"proto", "historianDataPoint.json")
@@ -54,7 +57,7 @@ func handleLatest(w http.ResponseWriter, r *http.Request) {
 		},
 		hdpFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
@@ -74,12 +77,12 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		},
 		hdpFsc,
 	)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handle24hr(w http.ResponseWriter, r *http.Request) {
 	// ToDo
-	httpapi.RespondJSON(w, http.StatusBadRequest, map[string]interface{}{
+	httpapi.RespondJSON(r.Context(), w, http.StatusBadRequest, map[string]interface{}{
 		"err": "not implemented",
 	})
 }
@@ -97,8 +100,17 @@ func onStringHdp(floData string, tx *datastore.TransactionData) {
 	datastore.AutoBulk.Add(bir)
 }
 
-func onProtoHdp(hdp *oipProto.HistorianDataPoint, tx *datastore.TransactionData) {
-	log.Info("historian dataPoint ", tx.Transaction.Txid)
+func onProtoHdp(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
+	attr := logger.Attrs{"txid": tx.Transaction.Txid}
+	log.Info("historian dataPoint", attr)
+
+	var hdp = &pb_historian.DataPoint{}
+	err := proto.Unmarshal(msg.SerializedMessage, hdp)
+	if err != nil {
+		attr["err"] = err
+		log.Error("unable to unmarshal protobuf historian message", attr)
+		return
+	}
 
 	var el elasticHdp
 	el.DataPoint = hdp
@@ -121,7 +133,7 @@ type HMeta struct {
 	Block     int64                      `json:"block"`
 	BlockHash string                     `json:"block_hash"`
 	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
+	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`
 }
 type DataPoint struct {

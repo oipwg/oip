@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/oipwg/oip/datastore"
 	"gopkg.in/olivere/elastic.v6"
+
+	"github.com/oipwg/oip/datastore"
 )
 
 func GenerateNextAfter(hit *elastic.SearchHit) string {
@@ -14,11 +15,26 @@ func GenerateNextAfter(hit *elastic.SearchHit) string {
 	return url.QueryEscape(string(b))
 }
 
-func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) {
+func ExtractSources(results *elastic.SearchResult, pretty bool) ([]*json.RawMessage, string) {
 	sources := make([]*json.RawMessage, len(results.Hits.Hits))
 	nextAfter := ""
 	for k, v := range results.Hits.Hits {
-		sources[k] = v.Source
+		if pretty {
+			var temp interface{}
+			err := json.Unmarshal(*v.Source, &temp)
+			if err != nil {
+				sources[k] = v.Source
+			} else {
+				prettySource, err := json.MarshalIndent(temp, "  ", " ")
+				if err != nil {
+					sources[k] = v.Source
+				} else {
+					sources[k] = (*json.RawMessage)(&prettySource)
+				}
+			}
+		} else {
+			sources[k] = v.Source
+		}
 		if k == len(results.Hits.Hits)-1 {
 			nextAfter = GenerateNextAfter(v)
 		}
@@ -26,7 +42,7 @@ func ExtractSources(results *elastic.SearchResult) ([]*json.RawMessage, string) 
 	return sources, nextAfter
 }
 
-func BuildCommonSearchService(ctx context.Context, indexNames []string, query *elastic.BoolQuery, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
+func BuildCommonSearchService(ctx context.Context, indexNames []string, query elastic.Query, sorts []elastic.SortInfo, fsc *elastic.FetchSourceContext) *elastic.SearchService {
 	var indices = make([]string, 0, len(indexNames))
 	for _, index := range indexNames {
 		indices = append(indices, datastore.Index(index))

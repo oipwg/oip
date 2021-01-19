@@ -20,6 +20,12 @@
         "is_coinbase": {
           "type": "boolean"
         },
+        "fee": {
+          "type": "double"
+        },
+        "fee_sat": {
+          "type": "long"
+        },
         "tx": {
           "properties": {
             "blockhash": {

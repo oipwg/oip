@@ -11,6 +11,8 @@ textComments.txt
 
 # Build stuff
 oipd
+!oipd/
+
 tmp/*
 bin/*
 build/*

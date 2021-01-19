@@ -314,8 +314,7 @@
               "type": "long"
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "storage": {
               "properties": {
@@ -375,8 +374,7 @@
               "type": "boolean"
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "time": {
               "type": "date",

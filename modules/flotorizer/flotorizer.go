@@ -3,17 +3,18 @@ package flotorizer
 import (
 	"strings"
 
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
 	log.Info("init flotorizer")
 	if !config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloData, false)
-		events.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized, false)
+		events.SubscribeAsync("flo:floData", onFloData)
+		events.SubscribeAsync("modules:flotorizer:flotorized", onFlotorized)
 		datastore.RegisterMapping("flotorizer", "flotorizer.json")
 	}
 }

@@ -3,6 +3,7 @@ package oip042
 import (
 	"github.com/azer/logger"
 	"github.com/json-iterator/go"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 )
@@ -19,22 +20,11 @@ const oip042DeactivateIndex = `oip042_deactivate`
 
 func init() {
 	log.Info("init oip042 json")
-	events.SubscribeAsync("modules:oip042:json", on42Json, false)
+	events.SubscribeAsync("modules:oip042:json", on42Json)
 
-	err := datastore.RegisterMapping(oip042ArtifactIndex, "oip042_artifact.json")
-	if err != nil {
-		panic("Unable to register mapping oip042_artifact.json for index oip042ArtifactIndex")
-	}
-
-	err = datastore.RegisterMapping(oip042PublisherIndex, "oip042_publisher.json")
-	if err != nil {
-		panic("Unable to register mapping oip042_publisher.json for index oip042PublisherIndex")
-	}
-
-	err = datastore.RegisterMapping(oip042EditIndex, "oip042_edit.json")
-	if err != nil {
-		panic("Unable to register mapping oip042_edit.json for index oip042EditIndex")
-	}
+	datastore.RegisterMapping(oip042ArtifactIndex, "oip042_artifact.json")
+	datastore.RegisterMapping(oip042PublisherIndex, "oip042_publisher.json")
+	datastore.RegisterMapping(oip042EditIndex, "oip042_edit.json")
 }
 
 func on42Json(message jsoniter.RawMessage, tx *datastore.TransactionData) {

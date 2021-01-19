@@ -4,17 +4,18 @@ import (
 	"strings"
 
 	"github.com/azer/logger"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 func init() {
 	log.Info("init aterna")
 	if !config.IsTestnet() {
-		events.SubscribeAsync("flo:floData", onFloData, false)
-		events.SubscribeAsync("modules:aternaLove:alove", onAlove, false)
+		events.SubscribeAsync("flo:floData", onFloData)
+		events.SubscribeAsync("modules:aternaLove:alove", onAlove)
 		datastore.RegisterMapping("aterna", "aterna.json")
 	}
 }

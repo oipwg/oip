@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"os"
 	"os/signal"
 	"runtime/pprof"
@@ -12,23 +11,21 @@ import (
 	"github.com/azer/logger"
 	"github.com/spf13/viper"
 
+	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
-	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 	_ "github.com/oipwg/oip/modules"
+	"github.com/oipwg/oip/modules/oip5/templates"
 	"github.com/oipwg/oip/sync"
 	"github.com/oipwg/oip/version"
 )
 
 func main() {
-	oipdCpuProfileFile := flag.String("cpuprofile", "", "Designates the file to use for the cpu profiler")
-	oipdMemProfileFile := flag.String("memprofile", "", "Designates the file to use for the memory profiler")
-
-	flag.Parse()
-
-	if *oipdCpuProfileFile != "" {
-		f, profErr := os.Create(*oipdCpuProfileFile)
+	oipdCpuProfileFile := viper.GetString("cpuprofile")
+	if oipdCpuProfileFile != "" {
+		f, profErr := os.Create(oipdCpuProfileFile)
+    
 		if profErr != nil {
 			log.Error("could not create CPU profile: ", profErr)
 		} else {
@@ -98,7 +95,14 @@ func main() {
 		return
 	}
 
-	filters.InitViper(rootContext)
+	config.PostConfig(rootContext)
+
+	err = templates.LoadTemplatesFromES(rootContext)
+	if err != nil {
+		log.Error("Loading OIP5 record templates failed", logger.Attrs{"err": err})
+		shutdown(err)
+		return
+	}
 
 	_, err = sync.InitialSync(rootContext, count)
 	if err != nil {
@@ -126,8 +130,9 @@ func main() {
 	<-rootContext.Done()
 	shutdown(nil)
 
-	if *oipdMemProfileFile != "" {
-		f, memErr := os.Create(*oipdMemProfileFile)
+	oipdMemProfileFile := viper.GetString("memprofile")
+	if oipdMemProfileFile != "" {
+		f, memErr := os.Create(oipdMemProfileFile)
 		if memErr != nil {
 			log.Error("could not create memory profile: ", memErr)
 		} else {

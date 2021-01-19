@@ -6,10 +6,11 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const adIndexName = `alexandria-deactivation`
@@ -18,8 +19,8 @@ var deactivationCommitMutex sync.Mutex
 
 func init() {
 	log.Info("init alexandria-deactivation")
-	events.SubscribeAsync("modules:oip:alexandriaDeactivation", onAlexandriaDeactivation, false)
-	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted, false)
+	events.SubscribeAsync("modules:oip:alexandriaDeactivation", onAlexandriaDeactivation)
+	events.SubscribeAsync("modules:oip:mpCompleted", onMpCompleted)
 	datastore.RegisterMapping(adIndexName, "alexandria-deactivation.json")
 }
 
@@ -131,6 +132,6 @@ type AdMeta struct {
 	Complete  bool                       `json:"complete"`
 	Stale     bool                       `json:"stale"`
 	Time      int64                      `json:"time"`
-	Tx        *datastore.TransactionData `json:"tx"`
+	Tx        *datastore.TransactionData `json:"-"`
 	Txid      string                     `json:"txid"`
 }

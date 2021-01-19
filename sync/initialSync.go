@@ -7,9 +7,10 @@ import (
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/chaincfg/chainhash"
 	"github.com/dustin/go-humanize"
+	"github.com/pkg/errors"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/flo"
-	"github.com/pkg/errors"
 )
 
 func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) {
@@ -87,6 +88,22 @@ func InitialSync(ctx context.Context, count int64) (datastore.BlockData, error) 
 		}
 
 		t.End("Indexed blocks/transactions", logger.Attrs{"items": len(br.Items), "took": br.Took, "errors": br.Errors})
+		if br.Errors {
+			log.Error("encountered errors, seeking")
+			for _, item := range br.Items {
+				for _, value := range item {
+					if value.Error != nil {
+						log.Error("error executing bulk action", logger.Attrs{
+							"index":  value.Index,
+							"id":     value.Id,
+							"reason": value.Error.Reason,
+							"error":  value.Error,
+							// "errDump": spew.Sdump(err)
+						})
+					}
+				}
+			}
+		}
 	}
 
 	end := time.Now()

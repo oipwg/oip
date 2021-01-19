@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/azer/logger"
+
 	"github.com/oipwg/oip/version"
 )
 
-func handleVersion(w http.ResponseWriter, _ *http.Request) {
-	RespondJSON(w, http.StatusOK, map[string]string{
+func handleVersion(w http.ResponseWriter, r *http.Request) {
+	RespondJSON(r.Context(), w, http.StatusOK, map[string]string{
 		"BuiltBy":       version.BuiltBy,
 		"BuildDate":     version.BuildDate,
 		"GoVersion":     version.GoVersion,

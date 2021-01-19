@@ -1,21 +1,23 @@
 package sync
 
 import (
+	goSync "sync"
+	"sync/atomic"
+
 	"github.com/azer/logger"
 	"github.com/bitspill/flod/flojson"
 	"github.com/bitspill/flod/wire"
 	"github.com/bitspill/floutil"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
-	goSync "sync"
-	"sync/atomic"
 )
 
 func init() {
 	log.Info("Subscribing to events")
-	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected, false)
-	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected, false)
-	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose, false)
+	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected)
+	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected)
+	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose)
 }
 
 var gapConnecting = false
@@ -35,7 +37,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 
 	attr := logger.Attrs{"iHeight": height, "iHash": headerHash}
 
-	//log.Info("Incoming Block: %v (%d) %v", headerHash, height, header.Timestamp)
+	// log.Info("Incoming Block: %v (%d) %v", headerHash, height, header.Timestamp)
 
 	lastBlock := recentBlocks.PeekFront()
 
@@ -67,7 +69,7 @@ func onFilteredBlockConnected(height int32, header *wire.BlockHeader, txns []*fl
 		log.Info("Incoming Block  %v (%d) leaves a gap, syncing missing blocks %d to %d", headerHash, height, lastBlock.Block.Height+1, height-1)
 
 		for missingBlockHeight := lastBlock.Block.Height + 1; missingBlockHeight < int64(height); missingBlockHeight++ {
-			//log.Info("Requesting Gap Block at Height %d | Last Block: %v (%d)", missingBlockHeight, lastBlock.Block.Hash, lastBlock.Block.Height)
+			// log.Info("Requesting Gap Block at Height %d | Last Block: %v (%d)", missingBlockHeight, lastBlock.Block.Hash, lastBlock.Block.Height)
 			if recentBlocks.PeekFront().Block.Height >= missingBlockHeight {
 				continue
 			}

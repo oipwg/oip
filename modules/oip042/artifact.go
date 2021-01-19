@@ -7,12 +7,14 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/json-iterator/go"
-	"github.com/oipwg/oip/config"
+
+	"gopkg.in/olivere/elastic.v6"
+  
+  "github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/modules/oip042/validators"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 type LinkedRecords struct {

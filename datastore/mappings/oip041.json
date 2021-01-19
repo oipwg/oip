@@ -10,8 +10,7 @@
         "artifact": {
           "properties": {
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "floAddress": {
               "type": "keyword",
@@ -330,8 +329,7 @@
                   "ignore_above": 256
                 },
                 "signature": {
-                  "type": "text",
-                  "index": false
+                  "type": "binary"
                 }
               }
             },
@@ -373,8 +371,7 @@
               }
             },
             "signature": {
-              "type": "text",
-              "index": false
+              "type": "binary"
             },
             "time": {
               "type": "date",

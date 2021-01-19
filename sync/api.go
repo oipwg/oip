@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/azer/logger"
+
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 )
@@ -14,7 +15,7 @@ func init() {
 	syncRouter.HandleFunc("/status", HandleStatus)
 }
 
-func HandleStatus(w http.ResponseWriter, _ *http.Request) {
+func HandleStatus(w http.ResponseWriter, r *http.Request) {
 	lb := recentBlocks.PeekFront()
 
 	count, err := flo.GetBlockCount()
@@ -30,13 +31,13 @@ func HandleStatus(w http.ResponseWriter, _ *http.Request) {
 		time = lb.Block.Time
 	}
 
-	httpapi.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"IsInitialSync": IsInitialSync,
+	httpapi.RespondJSON(r.Context(), w, http.StatusOK, map[string]interface{}{
+		"IsInitialSync":         IsInitialSync,
 		"MultipartSyncComplete": MultipartSyncComplete,
-		"EditSyncComplete": EditSyncComplete,
-		"Height":        height,
-		"Timestamp":     time,
-		"LatestHeight":  count,
-		"Progress":      float64(height) / float64(count),
+		"EditSyncComplete":      EditSyncComplete,
+		"Height":                height,
+		"Timestamp":             time,
+		"LatestHeight":          count,
+		"Progress":              float64(height) / float64(count),
 	})
 }

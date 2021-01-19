@@ -45,8 +45,15 @@ func NewSubRoute(prefix string) *mux.Router {
 	return rootRouter.PathPrefix(prefix).Subrouter()
 }
 
-func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
-	b, err := json.Marshal(payload)
+func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, payload interface{}) {
+	pretty := GetPrettyJsonFromContext(ctx)
+	var b []byte
+	var err error
+	if pretty {
+		b, err = json.MarshalIndent(payload, "", " ")
+	} else {
+		b, err = json.Marshal(payload)
+	}
 	if err != nil {
 		log.Error("Unable to marshal response payload", logger.Attrs{"err": err, "payload": spew.Sdump(payload)})
 		w.Header().Set("Content-Type", "text/plain")
@@ -66,29 +73,29 @@ func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
 	}
 }
 
-func RespondESError(w http.ResponseWriter, err error) {
+func RespondESError(ctx context.Context, w http.ResponseWriter, err error) {
 	if elasticErr, ok := err.(*elastic.Error); ok {
 		if elasticErr.Status == 400 {
-			RespondJSON(w, 400, map[string]interface{}{
+			RespondJSON(ctx, w, 400, map[string]interface{}{
 				"error": "invalid search request",
 			})
 			return
 		}
 	}
-	RespondJSON(w, 500, map[string]interface{}{
+	RespondJSON(ctx, w, 500, map[string]interface{}{
 		"error": "unable to execute search",
 	})
 }
 
-func RespondSearch(w http.ResponseWriter, searchService *elastic.SearchService) {
+func RespondSearch(ctx context.Context, w http.ResponseWriter, searchService *elastic.SearchService) {
 	results, err := searchService.Do(context.TODO())
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err, "results": results})
-		RespondESError(w, err)
+		RespondESError(ctx, w, err)
 		return
 	}
-	sources, nextAfter := ExtractSources(results)
-	RespondJSON(w, http.StatusOK, map[string]interface{}{
+	sources, nextAfter := ExtractSources(results, GetPrettyJsonFromContext(ctx))
+	RespondJSON(ctx, w, http.StatusOK, map[string]interface{}{
 		"count":   len(results.Hits.Hits),
 		"total":   results.Hits.TotalHits,
 		"results": sources,

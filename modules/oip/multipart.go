@@ -2,6 +2,7 @@ package oip
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -9,15 +10,17 @@ import (
 	"sync"
 
 	"github.com/azer/logger"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
+	"github.com/oipwg/proto/go/pb_oip"
+	"github.com/pkg/errors"
+	"gopkg.in/olivere/elastic.v6"
+
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/events"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/httpapi"
 	oipSync "github.com/oipwg/oip/sync"
-	"github.com/pkg/errors"
-	"gopkg.in/olivere/elastic.v6"
 )
 
 const multipartIndex = "oip-multipart-single"
@@ -30,8 +33,9 @@ var previousMultipartCount int
 func init() {
 	log.Info("init multipart")
 	datastore.RegisterMapping(multipartIndex, "multipart.json")
-	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle, false)
-	events.SubscribeAsync("datastore:commit", onDatastoreCommit, false)
+	events.SubscribeAsync("modules:oip:multipartSingle", onMultipartSingle)
+	events.SubscribeAsync("modules:oip:multipartProto", onMultipartProto)
+	events.SubscribeAsync("datastore:commit", onDatastoreCommit)
 
 	mpRouter.HandleFunc("/get/ref/{ref:[a-f0-9]+}", handleGetRef)
 	mpRouter.HandleFunc("/get/id/{id:[a-f0-9]+}", handleGetId)
@@ -50,7 +54,7 @@ func handleGetId(w http.ResponseWriter, r *http.Request) {
 	)
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func handleGetRef(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +65,7 @@ func handleGetRef(w http.ResponseWriter, r *http.Request) {
 	)
 
 	searchService := httpapi.BuildCommonSearchService(r.Context(), mpIndices, q, []elastic.SortInfo{{Field: "meta.time", Ascending: false}}, mpFsc)
-	httpapi.RespondSearch(w, searchService)
+	httpapi.RespondSearch(r.Context(), w, searchService)
 }
 
 func onDatastoreCommit() {
@@ -108,17 +112,6 @@ moreMultiparts:
 	}
 
 	if potentialChanges {
-		ref, err := datastore.Client().Refresh(datastore.Index(multipartIndex)).Do(context.TODO())
-		if err != nil {
-			log.Info("multipart refresh failed")
-			spew.Dump(err)
-		} else {
-			tot := ref.Shards.Total
-			fai := ref.Shards.Failed
-			suc := ref.Shards.Successful
-			log.Info("refresh complete", logger.Attrs{"total": tot, "failed": fai, "successful": suc})
-		}
-
 		events.Publish("modules:oip:mpCompleted")
 	}
 
@@ -128,7 +121,7 @@ moreMultiparts:
 
 	// If we are not still syncing for the first time, and the remaining count is exactly the same as last time we checked,
 	// then it is a good indicator that these Multiparts are stale
-	if (!wasInitialSync && previousMultipartCount == len(multiparts)) {
+	if !wasInitialSync && previousMultipartCount == len(multiparts) {
 		// ToDo: Consider re-enabling after further tests under high volume
 		markStale()
 	}
@@ -189,6 +182,11 @@ func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]in
 }
 
 func tryCompleteMultipart(mp Multipart) (bool) {
+	if mp.Total > 1000 {
+		log.Info("multipart has too many parts", logger.Attrs{"txid": mp.Parts[0].Meta.Txid, "part": mp.Total})
+		return false
+	}
+
 	rebuild := make([]string, mp.Total)
 	var part0 MultipartSingle
 	for i := range mp.Parts {
@@ -211,37 +209,29 @@ func tryCompleteMultipart(mp Multipart) (bool) {
 	log.Info("completed mp ", logger.Attrs{"reference": mp.Parts[0].Reference})
 
 	dataString := strings.Join(rebuild, "")
-	s := elastic.NewScript("ctx._source.meta.complete=true;"+
-		"ctx._source.meta.assembled=params.assembled").Type("inline").Param("assembled", dataString).Lang("painless")
 
-	q := elastic.NewTermQuery("reference", part0.Reference)
-	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
-		Type("_doc").Script(s)
+	newVal := map[string]interface{}{
+		"meta": map[string]interface{}{
+			"complete":  true,
+			"assembled": dataString,
+		},
+	}
 
-	// elastic.NewBulkUpdateRequest()
-
-	res, err := cuq.Do(context.TODO())
-
-	if err != nil {
-		log.Error("error updating multipart", logger.Attrs{
-			"reference": part0.Reference,
-			"block":     part0.Meta.Block,
-			"err":       err,
-			"errDump":   spew.Sdump(err)})
-		return false
+	for _, part := range mp.Parts {
+		upd := elastic.NewBulkUpdateRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Id(part.Meta.Txid).Doc(newVal)
+		datastore.AutoBulk.Add(upd)
 	}
 
 	events.Publish("flo:floData", dataString, part0.Meta.Tx)
 
-	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
-
-	return true
+	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference})
+  return true
 }
 
 func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 	ms, err := multipartSingleFromString(floData)
 	if err != nil {
-		log.Info("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
+		log.Error("multipartSingleFromString error", logger.Attrs{"err": err, "txid": tx.Transaction.Txid})
 		return
 	}
 
@@ -262,8 +252,11 @@ func onMultipartSingle(floData string, tx *datastore.TransactionData) {
 		BlockHash: tx.BlockHash,
 		Complete:  false,
 		Time:      tx.Transaction.Time,
-		Tx:        tx,
 		Txid:      tx.Transaction.Txid,
+	}
+
+	if ms.Part == 0 {
+		ms.Meta.Tx = tx
 	}
 
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
@@ -345,8 +338,8 @@ func multipartSingleFromString(s string) (MultipartSingle, error) {
 	}
 
 	ret = MultipartSingle{
-		Part:      part,
-		Max:       max,
+		Part:      uint32(part),
+		Max:       uint32(max),
 		Reference: reference,
 		Address:   address,
 		Signature: signature,
@@ -365,7 +358,7 @@ func markStale() {
 		elastic.NewRangeQuery("meta.time").Lte("now-1w"),
 	)
 	cuq := datastore.Client().UpdateByQuery(datastore.Index(multipartIndex)).Query(q).
-		Type("_doc").Script(s) // .Refresh("wait_for")
+		Type("_doc").Script(s).Refresh("true")
 
 	res, err := cuq.Do(context.TODO())
 	if err != nil {
@@ -375,9 +368,54 @@ func markStale() {
 	log.Info("mark stale complete", logger.Attrs{"total": res.Total, "took": res.Took, "updated": res.Updated})
 }
 
+func onMultipartProto(msg *pb_oip.SignedMessage, tx *datastore.TransactionData) {
+	ms := MultipartSingle{}
+
+	mpp := &pb_oip.MultiPart{}
+	err := proto.Unmarshal(msg.SerializedMessage, mpp)
+	if err != nil {
+		log.Error("unable to unmarshal multipart", logger.Attrs{"txid": tx.Transaction.Txid, "err": err})
+		return
+	}
+
+	if mpp.CountParts == 0 {
+		log.Error("multipart count == 0", logger.Attrs{"txid": tx.Transaction.Txid})
+		return
+	}
+
+	ms.Part = mpp.CurrentPart
+	ms.Max = mpp.CountParts - 1
+
+	ms.Data = string(mpp.RawData)
+	ms.Reference = pb_oip.TxidPrefixToString(mpp.Reference)
+
+	ms.Address = string(msg.PubKey)
+	ms.Signature = base64.StdEncoding.EncodeToString(msg.Signature)
+
+	if ms.Part == 0 {
+		if len(tx.Transaction.Txid) > 16 {
+			ms.Reference = tx.Transaction.Txid[0:16]
+		} else {
+			ms.Reference = tx.Transaction.Txid
+		}
+	}
+
+	ms.Meta = MSMeta{
+		Block:     tx.Block,
+		BlockHash: tx.BlockHash,
+		Complete:  false,
+		Time:      tx.Transaction.Time,
+		Tx:        tx,
+		Txid:      tx.Transaction.Txid,
+	}
+
+	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(multipartIndex)).Type("_doc").Doc(ms).Id(tx.Transaction.Txid)
+	datastore.AutoBulk.Add(bir)
+}
+
 type MultipartSingle struct {
-	Part      int    `json:"part"`
-	Max       int    `json:"max"`
+	Part      uint32 `json:"part"`
+	Max       uint32 `json:"max"`
 	Reference string `json:"reference"`
 	Address   string `json:"address"`
 	Signature string `json:"signature"`
@@ -397,6 +435,6 @@ type MSMeta struct {
 
 type Multipart struct {
 	Parts []MultipartSingle
-	Count int
-	Total int
+	Count uint32
+	Total uint32
 }
