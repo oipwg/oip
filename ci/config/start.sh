@@ -15,6 +15,11 @@ then
 	NETWORK="mainnet"
 fi
 
+if [ -z "$ENABLE_LINKEDRECORDS"]
+then
+	ENABLE_LINKEDRECORDS="false"
+fi
+
 if [ -z "$RPC_USER" ]
 then
 	RPC_USER="oipd"
@@ -148,6 +153,7 @@ mkdir -p /data/oipd
 cp /oip/config.yml /data/oipd/config.yml
 ## Edit config to use Env vars
 sed -i "s/NETWORK_SELECTION/$NETWORK/g" /data/oipd/config.yml
+sed -i "s/LINKEDRECORDS_SELECTION/$ENABLE_LINKEDRECORDS/g" /data/oipd/config.yml
 sed -i "s/RPC_USER/$RPC_USER/g" /data/oipd/config.yml
 sed -i "s/RPC_PASS/$RPC_PASSWORD/g" /data/oipd/config.yml
 sed -i "s/CUSTOM_BLACKLIST_FILTER/$CUSTOM_BLACKLIST_FILTER/g" /data/oipd/config.yml

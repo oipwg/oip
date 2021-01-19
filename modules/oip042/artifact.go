@@ -7,6 +7,7 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/json-iterator/go"
+	"github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
@@ -20,6 +21,12 @@ type LinkedRecords struct {
 
 func FindTXIDs(record jsoniter.Any)([]string) {
 	var txids []string
+
+	// Check if LinkedRecords are enabled or disabled
+	// via the config flag `oip.linkedRecords.enabled`
+	if config.IsLinkedRecordsEnabled() == false {
+		return txids
+	}
 
 	// Track the number of LinkedRecords to prevent
 	// adding too many fields to ElasticSearch and causing

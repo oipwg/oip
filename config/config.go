@@ -88,9 +88,16 @@ func loadDefaults() {
 	// Testnet defaults
 	viper.SetDefault("oip.network", "mainnet")
 
+	// Default don't add Linked Records to Index
+	viper.SetDefault("oip.linkedRecords.enabled", false)
+
 	// HttpApi defaults
 	viper.SetDefault("oip.api.listen", "127.0.0.1:1606")
 	viper.SetDefault("oip.api.enabled", false)
+}
+
+func IsLinkedRecordsEnabled() bool {
+	return viper.GetBool("oip.linkedRecords.enabled")
 }
 
 func IsTestnet() bool {
