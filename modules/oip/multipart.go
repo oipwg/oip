@@ -75,10 +75,10 @@ func onDatastoreCommit() {
 
 	wasInitialSync := oipSync.IsInitialSync
 
-moreMultiparts:
 	multiparts := make(map[string]Multipart)
 	var after []interface{}
 
+moreMultiparts:
 	after, err := queryMultiparts(multiparts, after)
 	if err != nil {
 		log.Error("elastic search failed", logger.Attrs{"err": err})
@@ -97,7 +97,12 @@ moreMultiparts:
 			if mp.Count > mp.Total {
 				log.Info("extra parts", k)
 			}
-			tryCompleteMultipart(mp)
+			wasSuccessful := tryCompleteMultipart(mp)
+			if wasSuccessful {
+				// If the multipart completion was successful, remove it from the
+				// map in order to keep memory footprint lower
+				delete(multiparts, k)
+			}
 			potentialChanges = true
 		}
 	}
@@ -123,7 +128,7 @@ moreMultiparts:
 
 	// If we are not still syncing for the first time, and the remaining count is exactly the same as last time we checked,
 	// then it is a good indicator that these Multiparts are stale
-	if (!wasInitialSync && previousMultipartCount == len(multiparts) && previousMultipartCount < 10000) {
+	if (!wasInitialSync && previousMultipartCount == len(multiparts)) {
 		// ToDo: Consider re-enabling after further tests under high volume
 		markStale()
 	}
@@ -183,7 +188,7 @@ func queryMultiparts(multiparts map[string]Multipart, after []interface{}) ([]in
 	return nextAfter, nil
 }
 
-func tryCompleteMultipart(mp Multipart) {
+func tryCompleteMultipart(mp Multipart) (bool) {
 	rebuild := make([]string, mp.Total)
 	var part0 MultipartSingle
 	for i := range mp.Parts {
@@ -196,10 +201,10 @@ func tryCompleteMultipart(mp Multipart) {
 		}
 		rebuild[value.Part] = value.Data
 	}
-
+  
 	for _, v := range rebuild {
 		if v == "" {
-			return
+			return false
 		}
 	}
 
@@ -223,12 +228,14 @@ func tryCompleteMultipart(mp Multipart) {
 			"block":     part0.Meta.Block,
 			"err":       err,
 			"errDump":   spew.Sdump(err)})
-		return
+		return false
 	}
 
 	events.Publish("flo:floData", dataString, part0.Meta.Tx)
 
 	log.Info("marked as completed", logger.Attrs{"reference": part0.Reference, "updated": res.Updated, "took": res.Took})
+
+	return true
 }
 
 func onMultipartSingle(floData string, tx *datastore.TransactionData) {
