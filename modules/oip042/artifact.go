@@ -21,17 +21,36 @@ type LinkedRecords struct {
 func FindTXIDs(record jsoniter.Any)([]string) {
 	var txids []string
 
+	// Track the number of LinkedRecords to prevent
+	// adding too many fields to ElasticSearch and causing
+	// the record to be non-indexable
+	//
+	// This is a compromise between index size and search 
+	// capability. Ideally, the main searched on information 
+	// will be the first few Parties or Spatial Units for a
+	// record. And if so, we don't sacrafice much ability.
+	totalLinkedParties := 0
+	totalLinkedSpatial := 0
+
 	t := record.Get("type").ToString()
 	st := record.Get("subtype").ToString()
 
 	if t == "property" && st == "tenure" {
 		parties := record.Get("details", "parties")
 		for i := 0; i < parties.Size(); i++ {
-			txids = append(txids, parties.Get(i, "party").ToString())
+			// Limit to 10 Parties for now to prevent overflowing the Elasticsearch table
+			if totalLinkedParties < 10 {
+				txids = append(txids, parties.Get(i, "party").ToString())
+				totalLinkedParties += 1
+			}
 		}
 		spatialUnits := record.Get("details", "spatialUnits")
 		for j := 0; j < spatialUnits.Size(); j++ {
-			txids = append(txids, spatialUnits.Get(j).ToString())
+			// Limit to 10 SpatialUnits for now to prevent overflowing the Elasticsearch table
+			if totalLinkedSpatial < 10 {
+				txids = append(txids, spatialUnits.Get(j).ToString())
+				totalLinkedSpatial += 1
+			}
 		}
 	}
 
