@@ -7,13 +7,76 @@ import (
 
 	"github.com/azer/logger"
 	"github.com/json-iterator/go"
-	"gopkg.in/olivere/elastic.v6"
 
+	"gopkg.in/olivere/elastic.v6"
+  
+  "github.com/oipwg/oip/config"
 	"github.com/oipwg/oip/datastore"
 	"github.com/oipwg/oip/filters"
 	"github.com/oipwg/oip/flo"
 	"github.com/oipwg/oip/modules/oip042/validators"
 )
+
+type LinkedRecords struct {
+  TXIDS []string
+}
+
+func FindTXIDs(record jsoniter.Any)([]string) {
+	var txids []string
+
+	// Check if LinkedRecords are enabled or disabled
+	// via the config flag `oip.linkedRecords.enabled`
+	if config.IsLinkedRecordsEnabled() == false {
+		return txids
+	}
+
+	// Track the number of LinkedRecords to prevent
+	// adding too many fields to ElasticSearch and causing
+	// the record to be non-indexable
+	//
+	// This is a compromise between index size and search 
+	// capability. Ideally, the main searched on information 
+	// will be the first few Parties or Spatial Units for a
+	// record. And if so, we don't sacrafice much ability.
+	totalLinkedParties := 0
+	totalLinkedSpatial := 0
+
+	t := record.Get("type").ToString()
+	st := record.Get("subtype").ToString()
+
+	if t == "property" && st == "tenure" {
+		parties := record.Get("details", "parties")
+		for i := 0; i < parties.Size(); i++ {
+			// Limit to 10 Parties for now to prevent overflowing the Elasticsearch table
+			if totalLinkedParties < 10 {
+				txids = append(txids, parties.Get(i, "party").ToString())
+				totalLinkedParties += 1
+			}
+		}
+		spatialUnits := record.Get("details", "spatialUnits")
+		for j := 0; j < spatialUnits.Size(); j++ {
+			// Limit to 10 SpatialUnits for now to prevent overflowing the Elasticsearch table
+			if totalLinkedSpatial < 10 {
+				txids = append(txids, spatialUnits.Get(j).ToString())
+				totalLinkedSpatial += 1
+			}
+		}
+	}
+
+  return txids
+}
+
+func getLinkedRecords(artifact jsoniter.Any)(map[int]interface{}) {
+	txids := FindTXIDs(artifact)
+
+	linkedRecords := make(map[int]interface{})
+	for i, txid := range txids {
+		lr, _ := queryArtifact(txid)
+		linkedRecords[i] = &lr
+	}
+
+  return linkedRecords
+}
 
 func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionData) {
 	attr := logger.Attrs{"txid": tx.Transaction.Txid}
@@ -75,6 +138,9 @@ func on42JsonPublishArtifact(artifact jsoniter.Any, tx *datastore.TransactionDat
 		Txid:          tx.Transaction.Txid,
 		Type:          "oip042",
 	}
+
+	linkedRecords := getLinkedRecords(artifact)
+	el.LinkedRecords = linkedRecords
 
 	// Send off a bulk index request :)
 	bir := elastic.NewBulkIndexRequest().Index(datastore.Index(oip042ArtifactIndex)).Type("_doc").Id(tx.Transaction.Txid).Doc(el)

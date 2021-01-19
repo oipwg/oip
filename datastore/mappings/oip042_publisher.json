@@ -5,7 +5,7 @@
   },
   "mappings": {
     "_doc": {
-      "dynamic": "strict",
+      "dynamic": "true",
       "properties": {
         "publisher": {
           "properties": {

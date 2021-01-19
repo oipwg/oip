@@ -40,6 +40,7 @@ OIP uses Environment Variables to allow for configuration settings. You set the 
 * **`ADDNODE`**: [`ip-address`] An IP address of a Flo node to be used as a source of blocks. This is useful if you are running isolated networks, or if you are having a hard time connecting to the network.
 * **`RPC_USER`**: [`String`] The RPC username for the Flod full node running inside the container.
 * **`RPC_PASSWORD`**: [`String`] The RPC password for the Flod full node running inside the container.
+* **`ENABLE_LINKEDRECORDS`**: [`true`|`false`] Should we add "LinkedRecords" while indexing? This increases search capability, but also increases the Elasticsearch Database size by around 3x. (Default `false`)
 * **`CUSTOM_BLACKLIST_FILTER`**: [`String` with format `label: remote url`] Add a custom blacklist filter url to the OIP config. Example `myfilter: http://myurl.com/blacklist.txt`.
 * **`ELASTIC_RAM_SIZE`**: [`String` with format in MB or GB i.e. `3g`, `1500m`] The amount of RAM that should be alloted to ElasticSearch. Defaults to 1/4th of the available system ram. Minimum RAM: `1g`.
 

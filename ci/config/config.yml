@@ -42,6 +42,12 @@ oip:
     # Ignores override active
     ignore:
     # - property-party
+  
+  # Should we add "LinkedRecords" data to the Index to
+  # increase search capability?
+  # Operator Note: Setting this flag to `true` increases the index by ~3x (https://github.com/oipwg/oip/pull/23#issuecomment-659953439)
+  linkedRecords:
+    enabled: LINKEDRECORDS_SELECTION
 
   # http-api
   api:

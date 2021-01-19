@@ -48,8 +48,9 @@ type elasticOip042Transfer struct {
 }
 
 type elasticOip042Artifact struct {
-	Artifact interface{} `json:"artifact"`
-	Meta     AMeta       `json:"meta"`
+	Artifact      interface{} `json:"artifact"`
+	Meta          AMeta       `json:"meta"`
+	LinkedRecords map[int]interface{} `json:"linkedRecords"`
 }
 
 type elasticOip042Pub struct {
